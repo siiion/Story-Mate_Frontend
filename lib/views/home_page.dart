@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:storymate/components/custom_app_bar.dart';
 import 'package:storymate/components/custom_bottom_bar.dart';
+import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/view_models/home_controller.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final HomeController controller = Get.put(HomeController());
+
     // 샘플 데이터
     final List<Map<String, String>> items = [
       {"title": "작품 제목 1", "tags": "#태그1 #태그2"},
@@ -84,7 +89,9 @@ class HomePage extends StatelessWidget {
                     ),
                     // 더보기 버튼
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        controller.setCategory('국내 동화');
+                      },
                       child: Icon(
                         Icons.arrow_forward_ios,
                         size: 15,
@@ -131,7 +138,9 @@ class HomePage extends StatelessWidget {
                     ),
                     // 더보기 버튼
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        controller.setCategory('외국 동화');
+                      },
                       child: Icon(
                         Icons.arrow_forward_ios,
                         size: 15,
@@ -178,7 +187,9 @@ class HomePage extends StatelessWidget {
                     ),
                     // 더보기 버튼
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        controller.selectedCategory('국내 소설');
+                      },
                       child: Icon(
                         Icons.arrow_forward_ios,
                         size: 15,
@@ -225,7 +236,9 @@ class HomePage extends StatelessWidget {
                     ),
                     // 더보기 버튼
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        controller.selectedCategory('외국 소설');
+                      },
                       child: Icon(
                         Icons.arrow_forward_ios,
                         size: 15,
@@ -256,67 +269,6 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CustomCard extends StatelessWidget {
-  final String title;
-  final String tags;
-
-  const CustomCard({
-    super.key,
-    required this.title,
-    required this.tags,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 129,
-      decoration: BoxDecoration(
-        color: Color(0xffd9d9d9),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.6),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(2, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15,
-                fontFamily: 'Jua',
-                fontWeight: FontWeight.w400,
-                height: 1.33,
-                letterSpacing: -0.23,
-              ),
-            ),
-            Text(
-              tags,
-              style: TextStyle(
-                color: Color(0xFF7C7C7C),
-                fontSize: 10,
-                fontFamily: 'Jua',
-                fontWeight: FontWeight.w400,
-                height: 2,
-                letterSpacing: -0.23,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
