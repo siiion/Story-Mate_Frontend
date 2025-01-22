@@ -3,12 +3,15 @@ import 'package:get/get.dart';
 import 'package:storymate/components/custom_app_bar.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/view_models/book_list_controller.dart';
 
 class BookListPage extends StatelessWidget {
   const BookListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final BookListController controller = Get.put(BookListController());
+
     // 카테고리 정보 받기
     final String category = Get.arguments ?? 'Unknown Category';
 
@@ -26,9 +29,14 @@ class BookListPage extends StatelessWidget {
       appBar: CustomAppBar(
         leading: Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
+          child: GestureDetector(
+            onTap: () {
+              controller.goBack();
+            },
+            child: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+            ),
           ),
         ),
         title: category,

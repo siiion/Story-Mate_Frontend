@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title; // 제목
@@ -15,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: false,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(20),
@@ -39,10 +41,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 15, bottom: 10),
-          child: Icon(
-            Icons.search,
-            size: 30,
-            color: Colors.white,
+          child: GestureDetector(
+            onTap: () {
+              Get.toNamed('/book_search'); // 작품 검색 화면으로 이동
+            },
+            child: Icon(
+              Icons.search,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
         ),
       ], // 오른쪽 아이콘들
