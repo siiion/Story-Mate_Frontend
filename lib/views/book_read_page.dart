@@ -1,0 +1,193 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:storymate/components/book_app_bar.dart';
+import 'package:storymate/components/theme.dart';
+import 'package:storymate/view_models/book_read_controller.dart';
+
+class BookReadPage extends StatelessWidget {
+  const BookReadPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final BookReadController controller = Get.put(BookReadController());
+    final String title = Get.arguments ?? '작품 제목';
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height * 0.65;
+    final textStyle = TextStyle(fontSize: 18, height: 2.5, fontFamily: 'Nanum');
+
+    // 로컬 파일로 테스트 (임시)
+    controller.loadBook(
+        'assets/book_example.txt', screenWidth, screenHeight, textStyle);
+
+    return Obx(() {
+      return Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: controller.isUIVisible.value
+            ? BookAppBar(
+                title: title,
+                onLeadingTap: () => controller.goBack(),
+                isActionVisible: true,
+                onBookmarkTap: controller.toggleBookmark, // 북마크 탭 클릭 로직 필요
+                bookmarkActive:
+                    controller.bookmarks.contains(controller.currentPage.value),
+                onMoreTap: () {}, // 더보기 탭 클릭 로직 필요
+              )
+            : AppBar(
+                forceMaterialTransparency: true,
+                toolbarHeight: 57,
+              ),
+        bottomNavigationBar: controller.isUIVisible.value
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                height: 79,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      width: 0.50,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                      color: Color(0xFFA2A2A2),
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(left: 25, bottom: 20, right: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 리셋 버튼
+                      GestureDetector(
+                        onTap: () async {
+                          bool? result = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => ResetAlertDialog(),
+                          );
+                          if (result == true) {
+                            controller.resetToFirstPage(); // 첫 페이지로 이동
+                          }
+                        },
+                        child: Icon(Icons.undo),
+                      ),
+                      // 페이지 정보와 프로그레스 바
+                      Obx(
+                        () => SizedBox(
+                          width: 258,
+                          child: Slider(
+                            value: controller.currentPage.value.toDouble(),
+                            min: 0,
+                            max: (controller.pages.length - 1).toDouble(),
+                            divisions: controller.pages.length - 1,
+                            activeColor: AppTheme.primaryColor,
+                            inactiveColor: Colors.grey,
+                            onChanged: (double value) {
+                              controller.currentPage.value =
+                                  value.toInt(); // 페이지 업데이트
+                              controller.updateProgress(); // 진행률 업데이트
+                            },
+                            label:
+                                '${controller.currentPage.value + 1}', // 현재 페이지 라벨 표시
+                          ),
+                        ),
+                      ),
+                      Obx(
+                        () => Text(
+                          '${controller.currentPage.value + 1}/${controller.pages.length}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontFamily: 'Nanum',
+                            fontWeight: FontWeight.w400,
+                            height: 1.33,
+                            letterSpacing: -0.23,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : null,
+        body: GestureDetector(
+          onTap: controller.toggleUIVisibility,
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity! < 0) {
+              // 오른쪽 -> 왼쪽 스와이프 (다음 페이지)
+              controller.goToNextPage();
+            } else if (details.primaryVelocity! > 0) {
+              // 왼쪽 -> 오른쪽 스와이프 (이전 페이지)
+              controller.goToPreviousPage();
+            }
+          },
+          child: Obx(() {
+            if (controller.pages.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  controller.pages[controller.currentPage.value],
+                  style: textStyle,
+                ),
+              );
+            }
+          }),
+        ),
+      );
+    });
+  }
+}
+
+class ResetAlertDialog extends StatelessWidget {
+  const ResetAlertDialog({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppTheme.backgroundColor,
+      title: const Text(
+        '처음부터 다시 읽으시겠습니까?',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontFamily: 'Jua',
+          fontWeight: FontWeight.w400,
+          height: 1.40,
+          letterSpacing: -0.23,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text(
+            '아니오',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 17,
+              fontFamily: 'Jua',
+              fontWeight: FontWeight.w400,
+              height: 1.40,
+              letterSpacing: -0.23,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text(
+            '예',
+            style: TextStyle(
+              color: AppTheme.primaryColor,
+              fontSize: 17,
+              fontFamily: 'Jua',
+              fontWeight: FontWeight.w400,
+              height: 1.40,
+              letterSpacing: -0.23,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

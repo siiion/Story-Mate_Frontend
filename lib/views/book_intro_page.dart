@@ -150,25 +150,28 @@ class BookIntroPage extends StatelessWidget {
               ),
             ),
             // 작품 감상 버튼
-            Container(
-              width: 270,
-              height: 60,
-              decoration: ShapeDecoration(
-                color: Color(0xFF9B9ECF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+            GestureDetector(
+              onTap: () => controller.toReadPage(title),
+              child: Container(
+                width: 270,
+                height: 60,
+                decoration: ShapeDecoration(
+                  color: Color(0xFF9B9ECF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Text(
-                  '작품 감상하러 가기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontFamily: 'Jua',
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                    letterSpacing: -0.23,
+                child: Center(
+                  child: Text(
+                    '작품 감상하러 가기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontFamily: 'Jua',
+                      fontWeight: FontWeight.w400,
+                      height: 1,
+                      letterSpacing: -0.23,
+                    ),
                   ),
                 ),
               ),

@@ -4,11 +4,19 @@ import 'package:storymate/components/theme.dart';
 class BookAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title; // 작품 제목
   final Function() onLeadingTap; // 뒤로가기 클릭 시
+  final bool? isActionVisible; // action[] 가시성
+  final bool? bookmarkActive; // 북마크 토글
+  final Function()? onBookmarkTap; // 북마크 탭 클릭 시
+  final Function()? onMoreTap; // 더보기 탭 클릭 시
 
   const BookAppBar({
     super.key,
     required this.title,
     required this.onLeadingTap,
+    this.isActionVisible = false,
+    this.onBookmarkTap,
+    this.onMoreTap,
+    this.bookmarkActive = false,
   });
 
   @override
@@ -31,6 +39,28 @@ class BookAppBar extends StatelessWidget implements PreferredSizeWidget {
           letterSpacing: -0.23,
         ),
       ),
+      actions: isActionVisible!
+          ? [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  onTap: onBookmarkTap,
+                  child: Icon(
+                    bookmarkActive! ? Icons.bookmark : Icons.bookmark_border,
+                    color:
+                        bookmarkActive! ? AppTheme.primaryColor : Colors.black,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  onTap: onMoreTap,
+                  child: Icon(Icons.more_vert),
+                ),
+              ),
+            ]
+          : null,
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.0),
         child: Container(
