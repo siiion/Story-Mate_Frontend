@@ -23,5 +23,8 @@ flutter:
     - family: Jua
       fonts:
         - asset: assets/fonts/BMJUA_ttf.ttf
+    - family: Nanum
+      fonts:
+        - asset: assets/fonts/NanumGothic.ttf
   assets:
     - assets/

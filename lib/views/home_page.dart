@@ -113,6 +113,9 @@ class HomePage extends StatelessWidget {
                         child: CustomCard(
                           title: item["title"] ?? "",
                           tags: item["tags"] ?? "",
+                          onTap: () {
+                            controller.toIntroPage(item["title"]!);
+                          },
                         ),
                       );
                     },
@@ -162,6 +165,9 @@ class HomePage extends StatelessWidget {
                         child: CustomCard(
                           title: item["title"] ?? "",
                           tags: item["tags"] ?? "",
+                          onTap: () {
+                            controller.toIntroPage(item["title"]!);
+                          },
                         ),
                       );
                     },
@@ -211,6 +217,9 @@ class HomePage extends StatelessWidget {
                         child: CustomCard(
                           title: item["title"] ?? "",
                           tags: item["tags"] ?? "",
+                          onTap: () {
+                            controller.toIntroPage(item["title"]!);
+                          },
                         ),
                       );
                     },
@@ -260,6 +269,9 @@ class HomePage extends StatelessWidget {
                         child: CustomCard(
                           title: item["title"] ?? "",
                           tags: item["tags"] ?? "",
+                          onTap: () {
+                            controller.toIntroPage(item["title"]!);
+                          },
                         ),
                       );
                     },

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:storymate/views/book_intro_page.dart';
 
 class BookSearchController extends GetxController {
   // 뒤로 가기
@@ -33,5 +34,15 @@ class BookSearchController extends GetxController {
               book["title"]!.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
+  }
+
+  // 작품 소개 화면으로 이동
+  void toIntroPage(String title) {
+    Get.to(
+      BookIntroPage(),
+      arguments: {
+        'title': title,
+      },
+    );
   }
 }
