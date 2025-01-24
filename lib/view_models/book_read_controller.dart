@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:storymate/services/text_pagination_service.dart';
+import 'package:storymate/views/book_more_page.dart';
 
 class BookReadController extends GetxController {
   RxList<String> pages = <String>[].obs; // 페이지 목록
@@ -83,5 +84,15 @@ class BookReadController extends GetxController {
   void resetToFirstPage() {
     currentPage.value = 0;
     updateProgress();
+  }
+
+  // 더보기 버튼 클릭 시
+  void toMorePage(String title) {
+    Get.to(
+      BookMorePage(),
+      arguments: {
+        'title': title,
+      },
+    );
   }
 }

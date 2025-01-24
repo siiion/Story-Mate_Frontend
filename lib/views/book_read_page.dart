@@ -32,7 +32,7 @@ class BookReadPage extends StatelessWidget {
                 onBookmarkTap: controller.toggleBookmark, // 북마크 탭 클릭 로직 필요
                 bookmarkActive:
                     controller.bookmarks.contains(controller.currentPage.value),
-                onMoreTap: () {}, // 더보기 탭 클릭 로직 필요
+                onMoreTap: () => controller.toMorePage(title), // 더보기 탭 클릭 로직 필요
               )
             : AppBar(
                 forceMaterialTransparency: true,

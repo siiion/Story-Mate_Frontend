@@ -64,7 +64,7 @@ class BookAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.0),
         child: Container(
-          height: 1.0,
+          height: 0.5,
           color: Color(0xffa2a2a2),
         ),
       ),
