@@ -12,7 +12,8 @@ class BookIntroPage extends StatelessWidget {
     final BookIntroController controller = Get.put(BookIntroController());
 
     // Get.arguments로 전달받은 데이터를 title로 사용
-    final String title = Get.arguments ?? '작품 제목';
+    final arguments = Get.arguments as Map<String, dynamic>;
+    final String title = arguments['title'] ?? '작품 제목';
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,

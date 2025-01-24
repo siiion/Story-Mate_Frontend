@@ -10,7 +10,9 @@ class BookReadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BookReadController controller = Get.put(BookReadController());
-    final String title = Get.arguments ?? '작품 제목';
+    // Get.arguments로 전달받은 데이터를 title로 사용
+    final arguments = Get.arguments as Map<String, dynamic>;
+    final String title = arguments['title'] ?? '작품 제목';
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height * 0.65;
     final textStyle = TextStyle(fontSize: 18, height: 2.5, fontFamily: 'Nanum');
@@ -74,19 +76,30 @@ class BookReadPage extends StatelessWidget {
                         () => SizedBox(
                           width: 258,
                           child: Slider(
-                            value: controller.currentPage.value.toDouble(),
+                            value: controller.pages.isEmpty
+                                ? 0
+                                : controller.currentPage.value.toDouble(),
                             min: 0,
-                            max: (controller.pages.length - 1).toDouble(),
-                            divisions: controller.pages.length - 1,
+                            max: (controller.pages.isEmpty
+                                    ? 1
+                                    : controller.pages.length - 1)
+                                .toDouble(),
+                            divisions: controller.pages.isEmpty
+                                ? null
+                                : controller.pages.length - 1,
                             activeColor: AppTheme.primaryColor,
-                            inactiveColor: Colors.grey,
-                            onChanged: (double value) {
-                              controller.currentPage.value =
-                                  value.toInt(); // 페이지 업데이트
-                              controller.updateProgress(); // 진행률 업데이트
-                            },
-                            label:
-                                '${controller.currentPage.value + 1}', // 현재 페이지 라벨 표시
+                            inactiveColor: Colors.grey.withOpacity(
+                                controller.pages.isEmpty ? 0.3 : 1.0),
+                            onChanged: controller.pages.isEmpty
+                                ? null
+                                : (double value) {
+                                    controller.currentPage.value =
+                                        value.toInt();
+                                    controller.updateProgress();
+                                  },
+                            label: controller.pages.isEmpty
+                                ? ''
+                                : '${controller.currentPage.value + 1}',
                           ),
                         ),
                       ),

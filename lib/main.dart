@@ -14,8 +14,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'StoryMate',
-      // initialRoute: AppRoutes.HOME,
-      initialRoute: '/book_intro/read',
+      initialRoute: AppRoutes.HOME,
       getPages: AppRoutes.routes,
     );
   }
