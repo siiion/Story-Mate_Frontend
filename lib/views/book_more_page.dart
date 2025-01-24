@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
@@ -135,7 +138,115 @@ class BookMorePage extends StatelessWidget {
                       },
                     ),
                   ),
-                  Center(child: Text('Content for Tab 2')),
+                  // 책갈피 탭
+                  Obx(
+                    () => GridView.builder(
+                      padding: const EdgeInsets.all(20),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                        childAspectRatio: 0.8,
+                      ),
+                      itemCount: controller.bookmarks.length,
+                      itemBuilder: (context, index) {
+                        final bookmark = controller.bookmarks[index];
+                        return Column(
+                          children: [
+                            Stack(
+                              children: [
+                                // 배경 컨테이너
+                                Container(
+                                  height: 170,
+                                  decoration: ShapeDecoration(
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(
+                                          width: 1, color: Colors.black),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Stack(
+                                      children: [
+                                        // 책갈피 내용 미리보기 (어둡게 처리)
+                                        Positioned.fill(
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                                sigmaX: 5, sigmaY: 5),
+                                            child: Container(
+                                              color:
+                                                  Colors.black.withOpacity(0.1),
+                                            ),
+                                          ),
+                                        ),
+                                        // 내용 텍스트
+                                        Positioned.fill(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Text(
+                                                bookmark["content"]!,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12,
+                                                  fontFamily: 'Nanum',
+                                                  fontWeight: FontWeight.w400,
+                                                  height: 1.33,
+                                                  letterSpacing: -0.23,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                maxLines: 4, // 미리보기 최대 줄 수
+                                                textAlign: TextAlign.start,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // 삭제 버튼
+                                Positioned(
+                                  right: 10,
+                                  top: 10,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      controller.removeBookmark(index);
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Color.fromARGB(255, 245, 90, 79),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            // 페이지 번호
+                            Text(
+                              bookmark["page"]!,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: 'Nanum',
+                                fontWeight: FontWeight.w600,
+                                height: 1.33,
+                                letterSpacing: -0.23,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+
                   Center(child: Text('Content for Tab 3')),
                 ],
               ),
