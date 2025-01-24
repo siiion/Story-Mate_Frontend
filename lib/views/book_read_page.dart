@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:storymate/components/custom_alert_dialog.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/book_read_controller.dart';
@@ -63,7 +64,8 @@ class BookReadPage extends StatelessWidget {
                         onTap: () async {
                           bool? result = await showDialog<bool>(
                             context: context,
-                            builder: (context) => ResetAlertDialog(),
+                            builder: (context) =>
+                                CustomAlertDialog(question: '처음부터 다시 읽으시겠습니까?'),
                           );
                           if (result == true) {
                             controller.resetToFirstPage(); // 첫 페이지로 이동
@@ -148,59 +150,5 @@ class BookReadPage extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-class ResetAlertDialog extends StatelessWidget {
-  const ResetAlertDialog({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppTheme.backgroundColor,
-      title: const Text(
-        '처음부터 다시 읽으시겠습니까?',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontFamily: 'Jua',
-          fontWeight: FontWeight.w400,
-          height: 1.40,
-          letterSpacing: -0.23,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text(
-            '아니오',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 17,
-              fontFamily: 'Jua',
-              fontWeight: FontWeight.w400,
-              height: 1.40,
-              letterSpacing: -0.23,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: const Text(
-            '예',
-            style: TextStyle(
-              color: AppTheme.primaryColor,
-              fontSize: 17,
-              fontFamily: 'Jua',
-              fontWeight: FontWeight.w400,
-              height: 1.40,
-              letterSpacing: -0.23,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }

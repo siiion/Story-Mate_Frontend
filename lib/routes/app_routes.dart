@@ -1,6 +1,7 @@
 // 라우팅 관리
 
 import 'package:get/get.dart';
+import 'package:storymate/views/add_memo_page.dart';
 import 'package:storymate/views/book_intro_page.dart';
 import 'package:storymate/views/book_list_page.dart';
 import 'package:storymate/views/book_read_page.dart';
@@ -36,6 +37,11 @@ class AppRoutes {
           page: () => BookReadPage(),
         ),
       ],
+    ),
+    // 메모 작성창
+    GetPage(
+      name: '/memo',
+      page: () => AddMemoPage(),
     ),
   ];
 }
