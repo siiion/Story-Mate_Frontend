@@ -7,9 +7,13 @@ import 'package:storymate/views/book_list_page.dart';
 import 'package:storymate/views/book_read_page.dart';
 import 'package:storymate/views/book_search_page.dart';
 import 'package:storymate/views/home_page.dart';
+import 'package:storymate/views/character_selection_screen.dart';
+import 'package:storymate/views/chat_screen.dart';
 
 class AppRoutes {
   static const HOME = '/';
+  static const CHARACTER_SELECTION = '/character_selection';
+  static const CHAT = '/chat';
 
   static final routes = [
     GetPage(
@@ -42,6 +46,15 @@ class AppRoutes {
     GetPage(
       name: '/memo',
       page: () => AddMemoPage(),
+    ), // 캐릭터 선택 화면
+    GetPage(
+      name: CHARACTER_SELECTION,
+      page: () => CharacterSelectionScreen(),
+    ),
+    // 채팅 화면
+    GetPage(
+      name: CHAT,
+      page: () => ChatScreen(),
     ),
   ];
 }
