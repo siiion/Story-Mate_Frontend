@@ -104,6 +104,9 @@ class BookSearchPage extends StatelessWidget {
                             child: CustomCard(
                               title: result['title']!,
                               tags: result['tags']!,
+                              onTap: () {
+                                controller.toIntroPage(result['title']!);
+                              },
                             ),
                           );
                         },

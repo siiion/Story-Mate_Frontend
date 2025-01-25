@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   get: ^4.6.6 # GetX 라이브러리 추가
   flutter_svg: ^2.0.17 # svg 이미지 적용을 위한 라이브러리
+  intl: ^0.20.2 # DateTime -> 문자열 변환을 위함
 
 dev_dependencies:
   flutter_test:
@@ -23,5 +24,8 @@ flutter:
     - family: Jua
       fonts:
         - asset: assets/fonts/BMJUA_ttf.ttf
+    - family: Nanum
+      fonts:
+        - asset: assets/fonts/NanumGothic.ttf
   assets:
     - assets/

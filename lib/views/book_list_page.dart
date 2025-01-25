@@ -61,6 +61,9 @@ class BookListPage extends StatelessWidget {
               child: CustomCard(
                 title: item['title']!,
                 tags: item['tags']!,
+                onTap: () {
+                  controller.toIntroPage(item['title']!);
+                },
               ),
             );
           },

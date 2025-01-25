@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/views/book_intro_page.dart';
 
 class RecommendCardItem extends StatelessWidget {
   final String title;
@@ -31,7 +33,13 @@ class RecommendCardItem extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            CustomCard(title: title, tags: tag),
+            CustomCard(
+              title: title,
+              tags: tag,
+              onTap: () {
+                Get.to(BookIntroPage(), arguments: title);
+              },
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 10, left: 10),
               child: Column(

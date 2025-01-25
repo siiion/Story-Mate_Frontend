@@ -1,7 +1,10 @@
 // 라우팅 관리
 
 import 'package:get/get.dart';
+import 'package:storymate/views/add_memo_page.dart';
+import 'package:storymate/views/book_intro_page.dart';
 import 'package:storymate/views/book_list_page.dart';
+import 'package:storymate/views/book_read_page.dart';
 import 'package:storymate/views/book_search_page.dart';
 import 'package:storymate/views/home_page.dart';
 
@@ -22,6 +25,23 @@ class AppRoutes {
     GetPage(
       name: '/book_search',
       page: () => BookSearchPage(),
+    ),
+    // 작품 소개 화면
+    GetPage(
+      name: '/book_intro',
+      page: () => BookIntroPage(),
+      children: [
+        // 작품 읽기 화면
+        GetPage(
+          name: '/read',
+          page: () => BookReadPage(),
+        ),
+      ],
+    ),
+    // 메모 작성창
+    GetPage(
+      name: '/memo',
+      page: () => AddMemoPage(),
     ),
   ];
 }
