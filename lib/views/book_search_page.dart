@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_card.dart';
-import 'package:storymate/components/recommend_card_item.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/book_search_controller.dart';
 
@@ -42,39 +41,88 @@ class BookSearchPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // 작품 검색창
-                          SizedBox(
-                            width: 200,
-                            child: TextField(
-                              style: TextStyle(
+                    child: Row(
+                      children: [
+                        // 검색 카테고리 드롭다운
+                        Container(
+                          width: 100,
+                          height: 58,
+                          decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  width: 2, color: Color(0xFF9B9ECF)),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomLeft: Radius.circular(20),
+                              ),
+                            ),
+                          ),
+                          child: Center(
+                            child: DropdownButtonHideUnderline(
+                              child: Obx(() {
+                                return DropdownButton<String>(
+                                  borderRadius: BorderRadius.circular(20),
+                                  isExpanded: false,
+                                  value: controller.selectedCategory.value,
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  ),
+                                  dropdownColor: Colors.white,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontFamily: 'Jua',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  items:
+                                      controller.categories.map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      controller.changeCategory(newValue);
+                                    }
+                                  },
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // 작품 검색창
+                        Expanded(
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: 'Jua',
+                              fontWeight: FontWeight.w400,
+                            ),
+                            controller: controller.searchController,
+                            decoration: InputDecoration(
+                              hintText: '검색어를 입력하세요',
+                              hintStyle: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
                               ),
-                              controller: controller.searchController,
-                              decoration: InputDecoration(
-                                hintText: '작품 이름으로 검색해 보세요',
-                                hintStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontFamily: 'Jua',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                border: InputBorder.none,
-                              ),
-                              onChanged: (query) {
-                                controller.searchBooks(query); // 검색 호출
-                              },
+                              border: InputBorder.none,
                             ),
+                            onChanged: (query) {
+                              controller.searchBooks(query); // 검색 호출
+                            },
                           ),
-                          // 검색 버튼
-                          GestureDetector(
+                        ),
+                        // 검색 버튼
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: GestureDetector(
                             onTap: () {
                               controller.searchBooks(
                                   controller.searchController.text);
@@ -84,130 +132,90 @@ class BookSearchPage extends StatelessWidget {
                               color: Colors.white,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            // 검색 결과
+            const SizedBox(height: 20),
+            // 키워드 예시
             Obx(
-              () => controller.searchResults.isNotEmpty
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: controller.searchResults.length,
-                        itemBuilder: (context, index) {
-                          final result = controller.searchResults[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: CustomCard(
-                              title: result['title']!,
-                              tags: result['tags']!,
+              () => controller.keywords.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: controller.keywords.map((keyword) {
+                            return GestureDetector(
                               onTap: () {
-                                controller.toIntroPage(result['title']!);
+                                controller.searchController.text = keyword;
+                                controller.searchBooks(keyword);
                               },
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  : Expanded(
-                      child: ListView(
-                        children: [
-                          // 추천 작품
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      width: 1,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
                                 child: Text(
-                                  'ㅇㅇ님을 위한 추천 작품',
+                                  keyword,
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: Color(0xFF7C7C7C),
                                     fontSize: 18,
                                     fontFamily: 'Jua',
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ),
-                              Center(
-                                child: RecommendCardItem(
-                                  title: '작품 제목',
-                                  tag: '#태그 #3개 #들어감',
-                                  character: '캐릭터명',
-                                  characterIntro: '한 줄 소개',
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          // 추천 작품
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    // 사용자의 연령대
-                                    Text(
-                                      '20',
-                                      style: TextStyle(
-                                        color: AppTheme.primaryColor,
-                                        fontSize: 18,
-                                        fontFamily: 'Jua',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    Text(
-                                      '대 ',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontFamily: 'Jua',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    // 사용자의 성별
-                                    Text(
-                                      '여성',
-                                      style: TextStyle(
-                                        color: AppTheme.primaryColor,
-                                        fontSize: 18,
-                                        fontFamily: 'Jua',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    Text(
-                                      '에게 인기 많아요',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontFamily: 'Jua',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Center(
-                                child: RecommendCardItem(
-                                  title: '작품 제목',
-                                  tag: '#태그 #3개 #들어감',
-                                  character: '캐릭터명',
-                                  characterIntro: '한 줄 소개',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
+                    )
+                  : SizedBox(),
+            ),
+            const SizedBox(height: 20),
+            // 검색 결과
+            Obx(
+              () => controller.searchResults.isNotEmpty
+                  ? Expanded(
+                      child: GridView.builder(
+                        padding: const EdgeInsets.all(10), // 그리드 아이템 여백 설정
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              MediaQuery.of(context).size.width > 600
+                                  ? 3
+                                  : 2, // 열 개수 (반응형)
+                          crossAxisSpacing: 30, // 열 간격
+                          mainAxisSpacing: 30, // 행 간격
+                          childAspectRatio: 3 / 4, // 아이템 비율 (가로/세로)
+                        ),
+                        itemCount: controller.searchResults.length,
+                        itemBuilder: (context, index) {
+                          final result = controller.searchResults[index];
+                          return CustomCard(
+                            title: result['title']!,
+                            tags: result['tags']!,
+                            onTap: () {
+                              controller.toIntroPage(result['title']!);
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  : SizedBox(),
             ),
           ],
         ),

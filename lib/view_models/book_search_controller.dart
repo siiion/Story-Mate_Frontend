@@ -11,6 +11,13 @@ class BookSearchController extends GetxController {
   // 검색어 입력 controller
   final TextEditingController searchController = TextEditingController();
 
+  var selectedCategory = '전체'.obs; // 선택된 카테고리
+  var categories = ['전체', '서명/저자', '키워드']; // 검색 카테고리
+  var keywords = ['동화', '모험', '판타지', '로맨스', '역사', '철학'].obs; // 키워드 예시
+  void changeCategory(String category) {
+    selectedCategory.value = category;
+  }
+
   // 검색 결과를 관리하는 상태 변수
   RxList<Map<String, String>> searchResults = <Map<String, String>>[].obs;
 
