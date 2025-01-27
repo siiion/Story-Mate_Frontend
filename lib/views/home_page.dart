@@ -228,55 +228,6 @@ class HomePage extends StatelessWidget {
                 SizedBox(
                   height: 20,
                 ),
-                Row(
-                  children: [
-                    Text(
-                      '외국 소설',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontFamily: 'Jua',
-                        fontWeight: FontWeight.w400,
-                        height: 1.10,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    // 더보기 버튼
-                    GestureDetector(
-                      onTap: () {
-                        controller.selectedCategory('외국 소설');
-                      },
-                      child: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                // 외국 소설 리스트
-                SizedBox(
-                  height: 180,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 10),
-                        child: CustomCard(
-                          title: item["title"] ?? "",
-                          tags: item["tags"] ?? "",
-                          onTap: () {
-                            controller.toIntroPage(item["title"]!);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
               ],
             ),
           ),
