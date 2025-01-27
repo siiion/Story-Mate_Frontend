@@ -7,15 +7,17 @@ import 'package:storymate/views/book_intro_page.dart';
 class RecommendCardItem extends StatelessWidget {
   final String title;
   final String tag;
-  final String character;
-  final String characterIntro;
+  final String? character;
+  final String? characterIntro;
+  final bool isCharacter;
 
   const RecommendCardItem({
     super.key,
     required this.title,
     required this.tag,
-    required this.character,
-    required this.characterIntro,
+    this.character = "캐릭터",
+    this.characterIntro = "캐릭터 소개",
+    required this.isCharacter,
   });
 
   @override
@@ -49,7 +51,7 @@ class RecommendCardItem extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 100),
                     child: Text(
-                      '주요 캐릭터',
+                      isCharacter ? '주요 캐릭터' : '작품 설명',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -58,7 +60,7 @@ class RecommendCardItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // 주요 캐릭터 소개
+                  // 주요 캐릭터/작품 설명 소개
                   Container(
                     width: 191,
                     height: 77,
@@ -70,52 +72,66 @@ class RecommendCardItem extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          // 캐릭터 사진
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: ShapeDecoration(
-                              color: Color(0xFFD9D9D9),
-                              shape: OvalBorder(
-                                side: BorderSide(width: 0.30),
-                              ),
-                            ),
-                          ),
-                          // 캐릭터명
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      child: isCharacter
+                          ? Row(
                               children: [
-                                Text(
-                                  character,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontFamily: 'Jua',
-                                    fontWeight: FontWeight.w400,
+                                // 캐릭터 사진
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: ShapeDecoration(
+                                    color: Color(0xFFD9D9D9),
+                                    shape: OvalBorder(
+                                      side: BorderSide(width: 0.30),
+                                    ),
                                   ),
                                 ),
-                                // 한 줄 소개
-                                Text(
-                                  characterIntro,
-                                  style: TextStyle(
-                                    color: Color(0xFF303030),
-                                    fontSize: 11,
-                                    fontFamily: 'Jua',
-                                    fontWeight: FontWeight.w400,
+                                // 캐릭터명
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        character!,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          fontFamily: 'Jua',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      // 한 줄 소개
+                                      Text(
+                                        characterIntro!,
+                                        style: TextStyle(
+                                          color: Color(0xFF303030),
+                                          fontSize: 11,
+                                          fontFamily: 'Jua',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
+                            )
+                          : Center(
+                              child: Text(
+                                '작품 설명 텍스트',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xFF303030),
+                                  fontSize: 11,
+                                  fontFamily: 'Jua',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
-                  // 대화하기 버튼
+                  // 대화하기/감상하기 버튼
                   Container(
                     width: 161.80,
                     height: 37,
@@ -135,7 +151,9 @@ class RecommendCardItem extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        '$character와(과) 대화하러 가기',
+                        isCharacter
+                            ? '$character와(과) 대화하러 가기'
+                            : '$title 감상하러 가기',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,

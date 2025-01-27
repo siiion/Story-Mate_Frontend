@@ -42,32 +42,99 @@ class BookListPage extends StatelessWidget {
         title: category,
         backgroundColor: AppTheme.primaryColor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(30),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery.of(context).size.width > 600
-                ? 3
-                : 2, // 화면 크기에 따라 열 개수 변경
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 20,
-            childAspectRatio: 3 / 4,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 정렬 순서 드롭다운
+          Obx(() {
             return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CustomCard(
-                title: item['title']!,
-                tags: item['tags']!,
-                onTap: () {
-                  controller.toIntroPage(item['title']!);
-                },
+              padding: const EdgeInsets.only(top: 19, left: 18),
+              child: Container(
+                width: 130,
+                height: 40,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: Color(0xFF9B9ECF)),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: controller.selectedSort.value,
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: AppTheme.primaryColor),
+                    dropdownColor: Colors.white,
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 18,
+                      fontFamily: 'Jua',
+                      fontWeight: FontWeight.w400,
+                      height: 1.10,
+                    ),
+                    menuMaxHeight: 300, // 드롭다운 최대 높이
+                    borderRadius: BorderRadius.circular(20), // 드롭다운 모서리 둥글게 처리
+                    items: controller.sortOptions.map((String value) {
+                      final isSelected = value == controller.selectedSort.value;
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : Colors.black, // 선택된 항목 텍스트 색상
+                            fontSize: 18,
+                            fontFamily: 'Jua',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        controller.changeSortOrder(newValue);
+                      }
+                    },
+                  ),
+                ),
               ),
             );
-          },
-        ),
+          }),
+          // 책 리스트
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+              child: Obx(() {
+                return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width > 600
+                        ? 3
+                        : 2, // 화면 크기에 따라 열 개수 변경
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 20,
+                    childAspectRatio: 3 / 4,
+                  ),
+                  itemCount: controller.filteredItems.length,
+                  itemBuilder: (context, index) {
+                    final item = controller.filteredItems[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CustomCard(
+                        title: item['title']!,
+                        tags: item['tags']!,
+                        onTap: () {
+                          controller.toIntroPage(item['title']!);
+                        },
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }
