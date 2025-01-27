@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/routes/app_routes.dart';
 
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
@@ -34,6 +35,7 @@ class CustomBottomBar extends StatelessWidget {
           letterSpacing: -0.23,
         ),
         selectedItemColor: AppTheme.primaryColor,
+        unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
             icon: SvgPicture.asset('assets/chat.svg'),
@@ -56,6 +58,7 @@ class CustomBottomBar extends StatelessWidget {
           switch (index) {
             case 0:
               // 대화하기 탭
+              Get.toNamed(AppRoutes.CHARACTER_SELECTION);
               break;
             case 1:
               // 홈 탭
