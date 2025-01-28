@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
-import 'package:storymate/view_models/book_intro_controller.dart';
+import 'package:storymate/view_models/read/book_intro_controller.dart';
 
 class BookIntroPage extends StatelessWidget {
   const BookIntroPage({super.key});
