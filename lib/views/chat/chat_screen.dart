@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/chat_controller.dart';
-import 'package:storymate/views/chat_bubble.dart';
+import '../../../controllers/chat_controller.dart';
+import 'package:storymate/views/chat/chat_bubble.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
