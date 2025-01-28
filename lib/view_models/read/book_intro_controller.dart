@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:storymate/views/book_read_page.dart';
+import 'package:storymate/views/read/book_read_page.dart';
 
 class BookIntroController extends GetxController {
   // 뒤로 가기

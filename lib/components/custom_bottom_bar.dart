@@ -62,10 +62,11 @@ class CustomBottomBar extends StatelessWidget {
               break;
             case 1:
               // 홈 탭
-              Get.toNamed('/');
+              Get.toNamed(AppRoutes.HOME);
               break;
             default:
               // 마이페이지 탭
+              Get.toNamed('/my_page');
               break;
           }
         },
