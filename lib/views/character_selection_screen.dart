@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import '../../../components/custom_bottom_bar.dart';
-import '../../../routes/app_routes.dart';
+import '../../components/custom_bottom_bar.dart';
+import '../../routes/app_routes.dart';
 
-class CharacterSelectionScreen extends StatefulWidget {
-  const CharacterSelectionScreen({super.key});
-
-  @override
-  State<CharacterSelectionScreen> createState() =>
-      _CharacterSelectionScreenState();
-}
-
-class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
+class CharacterSelectionScreen extends StatelessWidget {
   final List<Map<String, String>> characters = [
     {"name": "팅커벨", "work": "피터팬"},
     {"name": "신데렐라", "work": "신데렐라"},

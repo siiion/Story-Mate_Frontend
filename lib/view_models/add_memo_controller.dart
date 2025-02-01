@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_alert_dialog.dart';
-import 'package:storymate/view_models/read/book_more_controller.dart';
+import 'package:storymate/view_models/book_more_controller.dart';
 
 class AddMemoController extends GetxController {
   final TextEditingController pageController = TextEditingController();

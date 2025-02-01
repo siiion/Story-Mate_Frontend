@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../models/message.dart';
+import '../models/message.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
 
   // 생성자
-  const ChatBubble({required this.message, super.key});
+  const ChatBubble({required this.message, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
