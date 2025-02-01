@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:storymate/views/read/book_intro_page.dart';
+import 'package:storymate/views/book_intro_page.dart';
 
 class BookSearchController extends GetxController {
   // 뒤로 가기

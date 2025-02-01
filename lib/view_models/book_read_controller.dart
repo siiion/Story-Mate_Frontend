@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:storymate/services/text_pagination_service.dart';
-import 'package:storymate/views/read/book_more_page.dart';
+import 'package:storymate/views/book_more_page.dart';
 
 class BookReadController extends GetxController {
   RxList<String> pages = <String>[].obs; // 페이지 목록

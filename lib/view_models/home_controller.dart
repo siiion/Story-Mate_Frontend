@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:storymate/views/read/book_intro_page.dart';
+import 'package:storymate/views/book_intro_page.dart';
 
 class HomeController extends GetxController {
   // 선택된 카테고리 정보
