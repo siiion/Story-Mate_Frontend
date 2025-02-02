@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'StoryMate',
-      initialRoute: '/terms',
+      initialRoute: AppRoutes.HOME,
       getPages: AppRoutes.routes,
     );
   }
