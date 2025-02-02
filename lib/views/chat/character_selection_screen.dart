@@ -13,11 +13,42 @@ class CharacterSelectionScreen extends StatefulWidget {
 }
 
 class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
+  final TextEditingController searchController = TextEditingController();
+
   final List<Map<String, String>> characters = [
-    {"name": "팅커벨", "work": "피터팬"},
-    {"name": "신데렐라", "work": "신데렐라"},
-    {"name": "알라딘", "work": "알라딘"},
+    {"name": "김첨지", "book": "운수 좋은 날", "image": "assets/kim_cheomji.png"},
+    {"name": "인어공주", "book": "인어공주", "image": "mermaid.png"},
+    {"name": "성냥팔이 소녀", "book": "성냥팔이 소녀"},
+    {"name": "심봉사", "book": "심봉사"},
+    {"name": "엄지공주", "book": "엄지공주"},
+    {"name": "동백꽃", "book": "동백꽃"},
+    {"name": "시골쥐", "book": "시골쥐 서울구경"},
+    {"name": "미운 아기 오리", "book": "미운 아기 오리"},
+    {"name": "허생원", "book": "메밀꽃 필 무렵"},
+    {"name": "홍길동", "book": "홍길동전"},
   ];
+
+  List<Map<String, String>> filteredCharacters = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredCharacters = characters; // 초기값 설정
+  }
+
+  void filterCharacters(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredCharacters = characters;
+      } else {
+        filteredCharacters = characters
+            .where((character) =>
+                character["name"]!.contains(query) ||
+                character["book"]!.contains(query))
+            .toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +98,8 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              controller: searchController,
+              onChanged: (query) => filterCharacters(query),
               decoration: InputDecoration(
                 hintText: "인물/작품으로 검색",
                 hintStyle: TextStyle(
@@ -91,9 +124,9 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
-              itemCount: characters.length,
+              itemCount: filteredCharacters.length,
               itemBuilder: (context, index) {
-                final character = characters[index];
+                final character = filteredCharacters[index];
                 return GestureDetector(
                   onTap: () {
                     // 선택한 캐릭터로 이동
@@ -113,15 +146,20 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                         child: CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey.shade200,
-                          child: Text(
-                            character["name"]![0],
-                            style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontFamily: 'Jua',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          backgroundImage: character["image"] != null
+                              ? AssetImage(character["image"]!)
+                              : null,
+                          child: character["image"] == null
+                              ? Text(
+                                  character["name"]![0],
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    color: Colors.black,
+                                    fontFamily: 'Jua',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                       SizedBox(height: 8),
@@ -134,7 +172,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                         ),
                       ),
                       Text(
-                        character["work"]!,
+                        character["book"]!,
                         style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'Jua',
@@ -142,35 +180,6 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                         ),
                       ),
                       SizedBox(height: 4),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF9B9FD0),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.favorite,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              '00',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Jua',
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 );

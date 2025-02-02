@@ -29,3 +29,5 @@ flutter:
         - asset: assets/fonts/NanumGothic.ttf
   assets:
     - assets/
+    - assets/kim_cheomji.png
+    - assets/mermaid.png
