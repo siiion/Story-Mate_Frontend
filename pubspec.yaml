@@ -12,6 +12,7 @@ dependencies:
   get: ^4.6.6 # GetX 라이브러리 추가
   flutter_svg: ^2.0.17 # svg 이미지 적용을 위한 라이브러리
   intl: ^0.20.2 # DateTime -> 문자열 변환을 위함
+  flutter_native_splash: ^2.4.4 # 스플래쉬 스크린
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,11 @@ flutter:
         - asset: assets/fonts/NanumGothic.ttf
   assets:
     - assets/
+
+# 스플래쉬 화면 설정
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/logo.png
+  android_12:
+    image: assets/logo.png
+    icon_background_color: "#FFFFFF"
