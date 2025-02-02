@@ -2,6 +2,8 @@
 
 import 'package:get/get.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
+import 'package:storymate/views/onboarding/sign_in_page.dart';
+import 'package:storymate/views/onboarding/sign_up_page.dart';
 import 'package:storymate/views/read/add_memo_page.dart';
 import 'package:storymate/views/read/book_intro_page.dart';
 import 'package:storymate/views/book_list_page.dart';
@@ -14,6 +16,8 @@ import 'package:storymate/views/mypage/my_page.dart';
 
 class AppRoutes {
   static const HOME = '/';
+  static const SIGNUP = '/sign_up';
+  static const SIGNIN = '/sign_in';
   static const CHARACTER_SELECTION = '/character_selection';
   static const CHAT = '/chat';
   static const BOOK_LIST = '/book_list';
@@ -24,6 +28,16 @@ class AppRoutes {
     GetPage(
       name: HOME,
       page: () => HomePage(),
+    ),
+    // 카카오로 시작하기 (회원가입)
+    GetPage(
+      name: SIGNUP,
+      page: () => SignUpPage(),
+    ),
+    // 카카오 로그인
+    GetPage(
+      name: SIGNIN,
+      page: () => SignInPage(),
     ),
     // 작품 목록 화면
     GetPage(
