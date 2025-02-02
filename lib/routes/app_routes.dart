@@ -5,6 +5,8 @@ import 'package:storymate/views/mypage/modify_info_page.dart';
 import 'package:storymate/views/onboarding/info_page.dart';
 import 'package:storymate/views/onboarding/sign_in_page.dart';
 import 'package:storymate/views/onboarding/sign_up_page.dart';
+import 'package:storymate/views/onboarding/terms_detail_page.dart';
+import 'package:storymate/views/onboarding/terms_page.dart';
 import 'package:storymate/views/read/add_memo_page.dart';
 import 'package:storymate/views/read/book_intro_page.dart';
 import 'package:storymate/views/book_list_page.dart';
@@ -40,6 +42,18 @@ class AppRoutes {
     GetPage(
       name: SIGNIN,
       page: () => SignInPage(),
+    ),
+    // 약관 동의 화면
+    GetPage(
+      name: '/terms',
+      page: () => TermsPage(),
+      children: [
+        // 약관 전문 화면
+        GetPage(
+          name: '/detail',
+          page: () => TermsDetailPage(),
+        ),
+      ],
     ),
     // 내 정보 등록
     GetPage(

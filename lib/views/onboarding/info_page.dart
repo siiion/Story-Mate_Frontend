@@ -151,7 +151,9 @@ class _InfoPageState extends State<InfoPage> {
                 ),
               ),
               child: GestureDetector(
-                onTap: () {}, // 정보 저장 로직
+                onTap: () {
+                  Get.toNamed('/terms');
+                }, // 정보 저장 로직
                 child: Center(
                   child: Text(
                     '등록하기',
