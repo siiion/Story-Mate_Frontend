@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:storymate/components/theme.dart';
 
 class SignInPage extends StatelessWidget {

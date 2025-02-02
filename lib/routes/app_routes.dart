@@ -2,6 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
+import 'package:storymate/views/onboarding/info_page.dart';
 import 'package:storymate/views/onboarding/sign_in_page.dart';
 import 'package:storymate/views/onboarding/sign_up_page.dart';
 import 'package:storymate/views/read/add_memo_page.dart';
@@ -18,6 +19,7 @@ class AppRoutes {
   static const HOME = '/';
   static const SIGNUP = '/sign_up';
   static const SIGNIN = '/sign_in';
+  static const INFO = '/info';
   static const CHARACTER_SELECTION = '/character_selection';
   static const CHAT = '/chat';
   static const BOOK_LIST = '/book_list';
@@ -38,6 +40,11 @@ class AppRoutes {
     GetPage(
       name: SIGNIN,
       page: () => SignInPage(),
+    ),
+    // 내 정보 등록
+    GetPage(
+      name: INFO,
+      page: () => InfoPage(),
     ),
     // 작품 목록 화면
     GetPage(
