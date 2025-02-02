@@ -49,7 +49,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       }
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
