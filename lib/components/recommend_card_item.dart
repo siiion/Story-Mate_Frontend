@@ -37,10 +37,11 @@ class RecommendCardItem extends StatelessWidget {
           children: [
             CustomCard(
               title: title,
-              tags: tag,
+              tags: [],
               onTap: () {
                 Get.to(BookIntroPage(), arguments: title);
               },
+              coverImage: '',
             ),
             Padding(
               padding: const EdgeInsets.only(top: 10, left: 10),

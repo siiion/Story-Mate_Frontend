@@ -123,10 +123,11 @@ class BookListPage extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: CustomCard(
                         title: item['title']!,
-                        tags: item['tags']!,
+                        tags: [],
                         onTap: () {
                           controller.toIntroPage(item['title']!);
                         },
+                        coverImage: '',
                       ),
                     );
                   },

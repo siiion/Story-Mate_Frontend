@@ -30,6 +30,7 @@ flutter:
         - asset: assets/fonts/NanumGothic.ttf
   assets:
     - assets/
+    - assets/books/
     - assets/kim_cheomji.png
     - assets/mermaid.png
 
