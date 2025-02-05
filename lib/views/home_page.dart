@@ -6,6 +6,7 @@ import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/recommend_card_item.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/home_controller.dart';
+import 'package:storymate/models/book.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -27,106 +28,16 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ListView(
           children: [
-            SizedBox(
-              height: 20,
-            ),
-            _buildCategorySection('동화', controller.fairyTales, controller),
-            _buildCategorySection(
-                '단/중편 소설', controller.shortNovels, controller),
-            _buildCategorySection('장편 소설', controller.longNovels, controller),
-            // 사용자 맞춤 추천 작품 (작품)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'ㅇㅇ님을 위한 추천 작품',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontFamily: 'Jua',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: RecommendCardItem(
-                    title: '작품 제목',
-                    tag: '#태그 #3개 #들어감',
-                    isCharacter: false,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            // 사용자 연령대/성별 기준 인기 작품 (캐릭터)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      // 사용자의 연령대
-                      Text(
-                        '20',
-                        style: TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontSize: 18,
-                          fontFamily: 'Jua',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        '대 ',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontFamily: 'Jua',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      // 사용자의 성별
-                      Text(
-                        '여성',
-                        style: TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontSize: 18,
-                          fontFamily: 'Jua',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        '에게 인기 많아요',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontFamily: 'Jua',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: RecommendCardItem(
-                    title: '작품 제목',
-                    tag: '#태그 #3개 #들어감',
-                    character: '캐릭터명',
-                    characterIntro: '한 줄 소개',
-                    isCharacter: true,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
+            SizedBox(height: 20),
+            Obx(() => _buildCategorySection(
+                '동화', controller.getBooksByCategory('동화'), controller)),
+            Obx(() => _buildCategorySection('단/중편 소설',
+                controller.getBooksByCategory('단/중편 소설'), controller)),
+            Obx(() => _buildCategorySection(
+                '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
+            _buildRecommendedSection(),
+            _buildPopularByAgeAndGender(),
+            SizedBox(height: 15),
           ],
         ),
       ),
@@ -134,7 +45,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildCategorySection(
-      String title, RxList books, HomeController controller) {
+      String title, List<Book> books, HomeController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -158,14 +69,13 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
-            height: 180, child: Obx(() => _buildBookList(books, controller))),
+        SizedBox(height: 180, child: _buildBookList(books, controller)),
         SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildBookList(RxList books, HomeController controller) {
+  Widget _buildBookList(List<Book> books, HomeController controller) {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: books.length,
@@ -176,13 +86,100 @@ class HomePage extends StatelessWidget {
           child: CustomCard(
             title: book.title,
             tags: book.tags,
-            coverImage: book.coverImage, // 이미지 경로 전달
+            coverImage: book.coverImage,
             onTap: () {
               controller.toIntroPage(book.title);
             },
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRecommendedSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'ㅇㅇ님을 위한 추천 작품',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontFamily: 'Jua',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        Center(
+          child: RecommendCardItem(
+            title: '작품 제목',
+            tag: '#태그 #3개 #들어감',
+            isCharacter: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPopularByAgeAndGender() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Text(
+                '20',
+                style: TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontSize: 18,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Text(
+                '대 ',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Text(
+                '여성',
+                style: TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontSize: 18,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Text(
+                '에게 인기 많아요',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Center(
+          child: RecommendCardItem(
+            title: '작품 제목',
+            tag: '#태그 #3개 #들어감',
+            character: '캐릭터명',
+            characterIntro: '한 줄 소개',
+            isCharacter: true,
+          ),
+        ),
+      ],
     );
   }
 }
