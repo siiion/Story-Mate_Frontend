@@ -4,7 +4,6 @@ import 'package:storymate/components/custom_alert_dialog.dart';
 import 'package:storymate/components/custom_bottom_bar.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
-import 'package:storymate/routes/app_routes.dart';
 import 'package:storymate/view_models/mypage/my_controller.dart';
 
 class MyPage extends StatefulWidget {
@@ -160,10 +159,11 @@ class _MyPageState extends State<MyPage> {
                               top: 10, bottom: 10, right: 10),
                           child: CustomCard(
                             title: item["title"] ?? "",
-                            tags: item["tags"] ?? "",
+                            tags: [],
                             onTap: () {
                               controller.toIntroPage(item["title"]!);
                             },
+                            coverImage: '',
                           ),
                         );
                       },
@@ -189,10 +189,11 @@ class _MyPageState extends State<MyPage> {
                               top: 10, bottom: 10, right: 10),
                           child: CustomCard(
                             title: item["title"] ?? "",
-                            tags: item["tags"] ?? "",
+                            tags: [],
                             onTap: () {
                               controller.toIntroPage(item["title"]!);
                             },
+                            coverImage: '',
                           ),
                         );
                       },
