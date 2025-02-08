@@ -1,6 +1,7 @@
 // 작품 카드 위젯
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomCard extends StatelessWidget {
   final String title;
@@ -21,7 +22,7 @@ class CustomCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 129,
+        width: 129.w,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: coverImage != ''
