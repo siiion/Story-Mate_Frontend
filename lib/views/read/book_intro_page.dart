@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/models/book.dart';
+import 'package:storymate/view_models/home_controller.dart';
 import 'package:storymate/view_models/read/book_intro_controller.dart';
 
 class BookIntroPage extends StatelessWidget {
@@ -11,10 +13,15 @@ class BookIntroPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BookIntroController controller = Get.put(BookIntroController());
+    final HomeController homeController = Get.find<HomeController>();
 
     // Get.arguments로 전달받은 데이터를 title로 사용
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
+
+    // 해당 제목과 일치하는 책 찾기
+    final Book? book =
+        homeController.books.firstWhereOrNull((b) => b.title == title);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -31,20 +38,17 @@ class BookIntroPage extends StatelessWidget {
             // 작품 이미지가 들어갈 공간
             Container(
               width: 180.w,
-              height: 210.h,
+              height: 230.h,
               decoration: ShapeDecoration(
-                color: Color(0xFFD9D9D9),
+                image: book != null
+                    ? DecorationImage(
+                        image: AssetImage(book.coverImage),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(19),
                 ),
-                shadows: [
-                  BoxShadow(
-                    color: Color(0x3F000000),
-                    blurRadius: 4,
-                    offset: Offset(0, 4),
-                    spreadRadius: 0,
-                  )
-                ],
               ),
             ),
             Column(
@@ -66,7 +70,7 @@ class BookIntroPage extends StatelessWidget {
                 ),
                 // 작가명
                 Text(
-                  '작가명',
+                  book?.author ?? '미상',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20.sp,
@@ -78,7 +82,7 @@ class BookIntroPage extends StatelessWidget {
                 ),
                 // 출판년도
                 Text(
-                  '(출판년도)',
+                  '(${book?.publishedYear ?? "미상"})',
                   style: TextStyle(
                     color: Color(0xFF7C7C7C),
                     fontSize: 15.sp,
@@ -91,16 +95,14 @@ class BookIntroPage extends StatelessWidget {
                 SizedBox(
                   height: 10.h,
                 ),
-                // 태그
+                // 태그 (최대 3개)
                 Text(
-                  '#작품 #태그 #3개',
+                  book?.tags.take(3).map((tag) => "#$tag").join(' ') ??
+                      '#태그 없음',
                   style: TextStyle(
                     color: Color(0xFF9B9ECF),
                     fontSize: 20.sp,
                     fontFamily: 'Jua',
-                    fontWeight: FontWeight.w400,
-                    height: 1.h,
-                    letterSpacing: -0.23.w,
                   ),
                 ),
               ],
@@ -136,7 +138,7 @@ class BookIntroPage extends StatelessWidget {
                       height: 10.h,
                     ),
                     Text(
-                      '작품 소개글이 들어갈 자리입니다.',
+                      book?.description ?? '작품 소개글이 없습니다.',
                       style: TextStyle(
                         color: Color(0xFF7C7C7C),
                         fontSize: 15.sp,
