@@ -534,8 +534,7 @@ Widget _buildChargeOption(BuildContext context, int amount, int price) {
 }
 
 void _requestPayment(int amount) {
-  print("결제 요청: $amount 원");
-  // 결제 API 연동 코드 추가 예정
+  Get.toNamed('/my_page/payments', arguments: {"amount": amount});
 }
 
 class CategoryText extends StatelessWidget {
