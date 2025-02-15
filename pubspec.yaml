@@ -13,6 +13,13 @@ dependencies:
   flutter_svg: ^2.0.17 # svg 이미지 적용을 위한 라이브러리
   intl: ^0.20.2 # DateTime -> 문자열 변환을 위함
   flutter_native_splash: ^2.4.4 # 스플래쉬 스크린
+  flutter_dotenv: ^5.2.1
+  kakao_flutter_sdk: ^1.9.6
+  web_socket_channel: ^3.0.2
+  package_info_plus: ^8.2.1
+  dio : ^5.3.2
+  shared_preferences: ^2.0.11
+  http: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +40,15 @@ flutter:
     - assets/books/
     - assets/kim_cheomji.png
     - assets/mermaid.png
+    - assets/TheLittleGirl.png
+    - assets/SimCheong.png
+    - assets/mermaid2.png
+    - assets/Dongbaekkkot.png
+    - assets/mouse.png
+    - assets/duck.png
+    - assets/theBuckwheatFlower.png
+    - assets/HongGildong.png
+    - .env
 
 # 스플래쉬 화면 설정
 flutter_native_splash:

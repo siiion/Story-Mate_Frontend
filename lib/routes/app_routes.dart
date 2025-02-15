@@ -18,7 +18,7 @@ import 'package:storymate/views/chat/chat_screen.dart';
 import 'package:storymate/views/mypage/my_page.dart';
 
 class AppRoutes {
-  static const HOME = '/';
+  static const HOME = '/home';
   static const SIGNUP = '/sign_up';
   static const SIGNIN = '/sign_in';
   static const INFO = '/info';

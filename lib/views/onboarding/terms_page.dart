@@ -117,7 +117,11 @@ class _TermsPageState extends State<TermsPage> {
             Center(
               child: Obx(
                 () => GestureDetector(
-                  onTap: controller.isAllRequiredChecked() ? () {} : null,
+                  onTap: controller.isAllRequiredChecked()
+                      ? () {
+                          controller.toServiceTermsDetail();
+                        }
+                      : null,
                   child: Container(
                     width: 300,
                     height: 55,
