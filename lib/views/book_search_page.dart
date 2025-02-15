@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
@@ -14,11 +15,11 @@ class BookSearchPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 66),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 66.h),
         child: Column(
           children: [
             SizedBox(
-              height: 60,
+              height: 60.h,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -28,8 +29,8 @@ class BookSearchPage extends StatelessWidget {
                         color: Color(0xff090A0A)),
                   ),
                   Container(
-                    width: 320,
-                    height: 56,
+                    width: 320.w,
+                    height: 56.h,
                     decoration: ShapeDecoration(
                       color: Color(0xFF9B9ECF),
                       shape: RoundedRectangleBorder(
@@ -38,59 +39,14 @@ class BookSearchPage extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        // 검색 카테고리 드롭다운
-                        Container(
-                          width: 100,
-                          height: 58,
-                          decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  width: 2, color: Color(0xFF9B9ECF)),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomLeft: Radius.circular(20),
-                              ),
-                            ),
-                          ),
-                          child: Center(
-                            child: DropdownButtonHideUnderline(
-                              child: Obx(() {
-                                return DropdownButton<String>(
-                                  borderRadius: BorderRadius.circular(20),
-                                  value: controller.selectedCategory.value,
-                                  icon: Icon(Icons.arrow_drop_down,
-                                      color: Colors.black),
-                                  dropdownColor: Colors.white,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontFamily: 'Jua',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  items:
-                                      controller.categories.map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      controller.changeCategory(newValue);
-                                    }
-                                  },
-                                );
-                              }),
-                            ),
-                          ),
+                        SizedBox(
+                          width: 20.w,
                         ),
-                        const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontFamily: 'Jua',
                               fontWeight: FontWeight.w400,
                             ),
@@ -99,7 +55,7 @@ class BookSearchPage extends StatelessWidget {
                               hintText: '검색어를 입력하세요',
                               hintStyle: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
                               ),
@@ -109,7 +65,7 @@ class BookSearchPage extends StatelessWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                          padding: EdgeInsets.only(right: 10.w),
                           child: GestureDetector(
                             onTap: () {
                               controller.searchBooks(
@@ -124,11 +80,11 @@ class BookSearchPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Obx(
               () => controller.keywords.isNotEmpty
                   ? Padding(
-                      padding: const EdgeInsets.only(left: 20),
+                      padding: EdgeInsets.only(left: 20.w),
                       child: Wrap(
                         spacing: 10,
                         runSpacing: 10,
@@ -140,12 +96,12 @@ class BookSearchPage extends StatelessWidget {
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 5),
+                                  horizontal: 15.w, vertical: 5.h),
                               decoration: ShapeDecoration(
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
-                                      width: 1, color: AppTheme.primaryColor),
+                                      width: 1.w, color: AppTheme.primaryColor),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
@@ -153,7 +109,7 @@ class BookSearchPage extends StatelessWidget {
                                 keyword,
                                 style: TextStyle(
                                   color: Color(0xFF7C7C7C),
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontFamily: 'Jua',
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -165,7 +121,7 @@ class BookSearchPage extends StatelessWidget {
                     )
                   : SizedBox(),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // 검색 결과 리스트
             Obx(
               () => controller.searchResults.isNotEmpty

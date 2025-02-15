@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/onboarding/terms_detail_controller.dart';
@@ -29,18 +30,18 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
               controller.title.value,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontFamily: 'Jua',
                 fontWeight: FontWeight.w400,
-                height: 1.75,
-                letterSpacing: -0.23,
+                height: 1.75.h,
+                letterSpacing: -0.23.w,
               ),
             )),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Container(
-            height: 0.5,
+            height: 0.5.h,
             color: Color(0xffa2a2a2),
           ),
         ),
@@ -54,15 +55,15 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontFamily: 'Jua',
                     fontWeight: FontWeight.w400,
-                    height: 1.54,
-                    letterSpacing: -0.23,
+                    height: 1.54.h,
+                    letterSpacing: -0.23.w,
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: EdgeInsets.symmetric(vertical: 30.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -71,8 +72,8 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
                       Get.back();
                     },
                     child: Container(
-                      width: 168,
-                      height: 55,
+                      width: 168.w,
+                      height: 55.h,
                       decoration: ShapeDecoration(
                         color: Color(0xFF9B9ECF),
                         shape: RoundedRectangleBorder(
@@ -84,18 +85,18 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
                           '비동의 ',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 25,
+                            fontSize: 25.sp,
                             fontFamily: 'Jua',
                             fontWeight: FontWeight.w400,
-                            height: 1.40,
-                            letterSpacing: -0.23,
+                            height: 1.40.h,
+                            letterSpacing: -0.23.w,
                           ),
                         ),
                       ),
                     ),
                   ),
                   SizedBox(
-                    width: 13,
+                    width: 13.w,
                   ),
                   GestureDetector(
                     onTap: () {
@@ -103,8 +104,8 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
                       controller.agreeToTerms();
                     },
                     child: Container(
-                      width: 168,
-                      height: 55,
+                      width: 168.w,
+                      height: 55.h,
                       decoration: ShapeDecoration(
                         color: Color(0xFF9B9ECF),
                         shape: RoundedRectangleBorder(
@@ -116,11 +117,11 @@ class _TermsDetailPageState extends State<TermsDetailPage> {
                           '동의',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 25,
+                            fontSize: 25.sp,
                             fontFamily: 'Jua',
                             fontWeight: FontWeight.w400,
-                            height: 1.40,
-                            letterSpacing: -0.23,
+                            height: 1.40.h,
+                            letterSpacing: -0.23.w,
                           ),
                         ),
                       ),

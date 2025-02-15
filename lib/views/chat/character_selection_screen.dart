@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../components/custom_bottom_bar.dart';
@@ -17,7 +18,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
 
   final List<Map<String, String>> characters = [
     {"name": "김첨지", "book": "운수 좋은 날", "image": "assets/kim_cheomji.png"},
-    {"name": "인어공주", "book": "인어공주", "image": "mermaid.png"},
+    {"name": "인어공주", "book": "인어공주", "image": "assets/mermaid.png"},
     {"name": "성냥팔이 소녀", "book": "성냥팔이 소녀"},
     {"name": "심봉사", "book": "심봉사"},
     {"name": "엄지공주", "book": "엄지공주"},
@@ -49,7 +50,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       }
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +66,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                 style: TextStyle(
                   fontFamily: 'Jua',
                   color: Colors.black,
-                  fontSize: 20,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -74,15 +75,15 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
               children: [
                 SvgPicture.asset(
                   'assets/message.svg', // 메시지 아이콘
-                  width: 16,
-                  height: 16,
+                  width: 16.w,
+                  height: 16.h,
                   color: Color(0xFF9B9FD0),
                 ),
-                SizedBox(width: 4),
+                SizedBox(width: 4.w),
                 Text(
                   '00개', // 메시지 갯수
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontFamily: 'Jua',
                     color: Color(0xFF9B9FD0),
                   ),
@@ -120,9 +121,10 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
             child: GridView.builder(
               padding: const EdgeInsets.all(16.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 0.8,
                 crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisSpacing: 10.w,
+                mainAxisSpacing: 10.h,
               ),
               itemCount: filteredCharacters.length,
               itemBuilder: (context, index) {
@@ -153,7 +155,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                               ? Text(
                                   character["name"]![0],
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 24.sp,
                                     color: Colors.black,
                                     fontFamily: 'Jua',
                                     fontWeight: FontWeight.bold,
@@ -162,11 +164,11 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                               : null,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       Text(
                         character["name"]!,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.bold,
                         ),
@@ -174,12 +176,12 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                       Text(
                         character["book"]!,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontFamily: 'Jua',
                           color: Colors.grey,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                     ],
                   ),
                 );

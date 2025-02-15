@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_alert_dialog.dart';
 import 'package:storymate/components/book_app_bar.dart';
@@ -15,8 +16,9 @@ class BookReadPage extends StatelessWidget {
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height * 0.65;
-    final textStyle = TextStyle(fontSize: 18, height: 2.5, fontFamily: 'Nanum');
+    final double screenHeight = MediaQuery.of(context).size.height * 0.65.h;
+    final textStyle =
+        TextStyle(fontSize: 18.sp, height: 2.5.h, fontFamily: 'Nanum');
 
     // 로컬 파일로 테스트 (임시)
     controller.loadBook(
@@ -37,17 +39,17 @@ class BookReadPage extends StatelessWidget {
               )
             : AppBar(
                 forceMaterialTransparency: true,
-                toolbarHeight: 57,
+                toolbarHeight: 57.h,
               ),
         bottomNavigationBar: controller.isUIVisible.value
             ? Container(
                 width: MediaQuery.of(context).size.width,
-                height: 79,
+                height: 79.h,
                 decoration: ShapeDecoration(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     side: BorderSide(
-                      width: 0.50,
+                      width: 0.50.w,
                       strokeAlign: BorderSide.strokeAlignOutside,
                       color: Color(0xFFA2A2A2),
                     ),
@@ -55,7 +57,7 @@ class BookReadPage extends StatelessWidget {
                 ),
                 child: Padding(
                   padding:
-                      const EdgeInsets.only(left: 25, bottom: 20, right: 25),
+                      EdgeInsets.only(left: 25.w, bottom: 20.h, right: 25.w),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -76,7 +78,7 @@ class BookReadPage extends StatelessWidget {
                       // 페이지 정보와 프로그레스 바
                       Obx(
                         () => SizedBox(
-                          width: 258,
+                          width: 258.w,
                           child: Slider(
                             value: controller.pages.isEmpty
                                 ? 0
@@ -110,11 +112,11 @@ class BookReadPage extends StatelessWidget {
                           '${controller.currentPage.value + 1}/${controller.pages.length}',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w400,
-                            height: 1.33,
-                            letterSpacing: -0.23,
+                            height: 1.33.h,
+                            letterSpacing: -0.23.w,
                           ),
                         ),
                       ),

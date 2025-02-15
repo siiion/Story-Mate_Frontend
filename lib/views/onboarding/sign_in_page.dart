@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:storymate/components/theme.dart';
 
 class SignInPage extends StatelessWidget {
@@ -14,14 +15,14 @@ class SignInPage extends StatelessWidget {
           children: [
             Image.asset(
               'assets/logo_login.png',
-              width: 233,
+              width: 233.w,
             ),
             SizedBox(
-              height: 76,
+              height: 76.h,
             ),
             Image.asset(
               'assets/kakao_signin.png',
-              width: 300,
+              width: 300.w,
             ),
           ],
         ),

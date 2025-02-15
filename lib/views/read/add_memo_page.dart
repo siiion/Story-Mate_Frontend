@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
@@ -22,7 +23,7 @@ class AddMemoPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
+            padding: EdgeInsets.symmetric(horizontal: 30.w),
             child: Column(
               children: [
                 Row(
@@ -32,17 +33,17 @@ class AddMemoPage extends StatelessWidget {
                       '페이지',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: 18.sp,
                         fontFamily: 'Nanum',
                         fontWeight: FontWeight.w600,
-                        height: 1.11,
-                        letterSpacing: -0.23,
+                        height: 1.11.h,
+                        letterSpacing: -0.23.w,
                       ),
                     ),
                     // 페이지 입력창
                     Container(
-                      width: 250,
-                      height: 50,
+                      width: 250.w,
+                      height: 50.h,
                       decoration: ShapeDecoration(
                         color: const Color(0xFFD9D9D9),
                         shape: RoundedRectangleBorder(
@@ -50,7 +51,7 @@ class AddMemoPage extends StatelessWidget {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
                         child: TextField(
                           controller: controller.pageController,
                           keyboardType: TextInputType.number,
@@ -60,21 +61,21 @@ class AddMemoPage extends StatelessWidget {
                           textAlign: TextAlign.end,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w600,
-                            height: 1.11,
-                            letterSpacing: -0.23,
+                            height: 1.11.h,
+                            letterSpacing: -0.23.w,
                           ),
                           decoration: InputDecoration(
                             hintText: '연관 페이지(숫자)',
                             hintStyle: TextStyle(
                               color: Colors.black45,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontFamily: 'Nanum',
                               fontWeight: FontWeight.w600,
-                              height: 1.11,
-                              letterSpacing: -0.23,
+                              height: 1.11.h,
+                              letterSpacing: -0.23.w,
                             ),
                             border: InputBorder.none,
                           ),
@@ -83,14 +84,15 @@ class AddMemoPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 30.h),
                 // 메모 내용 입력창
                 Container(
-                  height: 400,
+                  height: 400.h,
                   decoration: ShapeDecoration(
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: AppTheme.primaryColor),
+                      side:
+                          BorderSide(width: 1.w, color: AppTheme.primaryColor),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -100,8 +102,8 @@ class AddMemoPage extends StatelessWidget {
                       // 스크롤 가능한 TextField
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.w, vertical: 5.h),
                           child: SingleChildScrollView(
                             child: TextField(
                               controller: controller.memoController,
@@ -110,21 +112,21 @@ class AddMemoPage extends StatelessWidget {
                               },
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontFamily: 'Nanum',
                                 fontWeight: FontWeight.w600,
-                                height: 1.5,
-                                letterSpacing: -0.23,
+                                height: 1.5.h,
+                                letterSpacing: -0.23.w,
                               ),
                               decoration: InputDecoration(
                                 hintText: '자유롭게 메모를 작성해 주세요',
                                 hintStyle: TextStyle(
                                   color: Colors.black45,
-                                  fontSize: 16,
+                                  fontSize: 16.sp,
                                   fontFamily: 'Nanum',
                                   fontWeight: FontWeight.w600,
-                                  height: 1.11,
-                                  letterSpacing: -0.23,
+                                  height: 1.11.h,
+                                  letterSpacing: -0.23.w,
                                 ),
                                 border: InputBorder.none,
                               ),
@@ -142,11 +144,11 @@ class AddMemoPage extends StatelessWidget {
                             '${controller.characterCount.value}/2000',
                             style: TextStyle(
                               color: AppTheme.primaryColor,
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontFamily: 'Nanum',
                               fontWeight: FontWeight.w600,
-                              height: 1.67,
-                              letterSpacing: -0.23,
+                              height: 1.67.h,
+                              letterSpacing: -0.23.w,
                             ),
                           );
                         }),
@@ -160,8 +162,8 @@ class AddMemoPage extends StatelessWidget {
           GestureDetector(
             onTap: () => controller.saveMemo(),
             child: Container(
-              width: 270,
-              height: 60,
+              width: 270.w,
+              height: 60.h,
               decoration: ShapeDecoration(
                 color: const Color(0xFF9B9ECF),
                 shape: RoundedRectangleBorder(
@@ -169,16 +171,16 @@ class AddMemoPage extends StatelessWidget {
                 ),
               ),
               // 메모 저장 버튼
-              child: const Center(
+              child: Center(
                 child: Text(
                   '메모 저장하기',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontFamily: 'Jua',
                     fontWeight: FontWeight.w400,
-                    height: 1,
-                    letterSpacing: -0.23,
+                    height: 1.h,
+                    letterSpacing: -0.23.w,
                   ),
                 ),
               ),

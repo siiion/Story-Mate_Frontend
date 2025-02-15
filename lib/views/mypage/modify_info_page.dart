@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/mypage/modify_info_controller.dart';
@@ -25,11 +26,11 @@ class ModifyInfoPage extends StatelessWidget {
           '내 정보 수정',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 25,
+            fontSize: 25.sp,
             fontFamily: 'Jua',
             fontWeight: FontWeight.w400,
-            height: 0.80,
-            letterSpacing: -0.23,
+            height: 0.80.h,
+            letterSpacing: -0.23.w,
           ),
         ),
       ),
@@ -37,16 +38,16 @@ class ModifyInfoPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            height: 0.5,
+            height: 0.5.h,
             color: Color(0xffa2a2a2),
           ),
           Padding(
             padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.4),
+                bottom: MediaQuery.of(context).size.height * 0.4.h),
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 40),
+                  padding: EdgeInsets.only(left: 40.w),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -54,21 +55,21 @@ class ModifyInfoPage extends StatelessWidget {
                         '이름 : ',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 25,
+                          fontSize: 25.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
-                          height: 0.80,
-                          letterSpacing: -0.23,
+                          height: 0.80.h,
+                          letterSpacing: -0.23.w,
                         ),
                       ),
                       Container(
-                        width: 190,
-                        height: 50,
+                        width: 190.w,
+                        height: 50.h,
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                                width: 1, color: AppTheme.primaryColor),
+                                width: 1.w, color: AppTheme.primaryColor),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
@@ -77,22 +78,22 @@ class ModifyInfoPage extends StatelessWidget {
                           child: TextField(
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 25,
+                              fontSize: 25.sp,
                               fontFamily: 'Jua',
                               fontWeight: FontWeight.w400,
-                              height: 0.80,
-                              letterSpacing: -0.23,
+                              height: 0.80.h,
+                              letterSpacing: -0.23.w,
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '사용자', // 기본값
                               hintStyle: TextStyle(
                                 color: Color(0xFF7C7C7C),
-                                fontSize: 25,
+                                fontSize: 25.sp,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
-                                height: 0.80,
-                                letterSpacing: -0.23,
+                                height: 0.80.h,
+                                letterSpacing: -0.23.w,
                               ),
                             ),
                           ),
@@ -101,7 +102,7 @@ class ModifyInfoPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 15.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -109,29 +110,29 @@ class ModifyInfoPage extends StatelessWidget {
                       '생년월일 : ',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 25,
+                        fontSize: 25.sp,
                         fontFamily: 'Jua',
                         fontWeight: FontWeight.w400,
-                        height: 0.80,
-                        letterSpacing: -0.23,
+                        height: 0.80.h,
+                        letterSpacing: -0.23.w,
                       ),
                     ),
                     GestureDetector(
                       onTap: () => controller.selectDate(context), // 날짜 선택
                       child: Container(
-                        width: 190,
-                        height: 50,
+                        width: 190.w,
+                        height: 50.h,
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                                width: 1, color: AppTheme.primaryColor),
+                                width: 1.w, color: AppTheme.primaryColor),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 13),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 13.h),
                           child: Obx(
                             () => Text(
                               controller.getFormattedDate(), // 선택된 날짜 표시
@@ -139,11 +140,11 @@ class ModifyInfoPage extends StatelessWidget {
                                 color: controller.selectedDate.value != null
                                     ? Colors.black
                                     : Color(0xFF7C7C7C),
-                                fontSize: 25,
+                                fontSize: 25.sp,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
-                                height: 0.80,
-                                letterSpacing: -0.23,
+                                height: 0.80.h,
+                                letterSpacing: -0.23.w,
                               ),
                             ),
                           ),
@@ -152,10 +153,10 @@ class ModifyInfoPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 Container(
-                  width: 164,
-                  height: 50,
+                  width: 164.w,
+                  height: 50.h,
                   decoration: ShapeDecoration(
                     color: AppTheme.primaryColor,
                     shape: RoundedRectangleBorder(
@@ -169,10 +170,10 @@ class ModifyInfoPage extends StatelessWidget {
                         '수정하기',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 25,
+                          fontSize: 25.h,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
-                          letterSpacing: -0.23,
+                          letterSpacing: -0.23.w,
                         ),
                       ),
                     ),
