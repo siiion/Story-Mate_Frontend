@@ -28,15 +28,22 @@ class _BookReadPageState extends State<BookReadPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Get.arguments로 전달받은 데이터를 title로 사용
+    final BookReadController controller = Get.put(BookReadController());
+
+    // Get.arguments로 전달받은 책 정보
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
+
+    // TXT 파일명 생성 (공백을 "_"로 변환하여 파일명 안전하게)
+    final String fileName = '${title.replaceAll(' ', '_')}.txt';
+    final String filePath = 'assets/$fileName';
+
+    // 화면 크기 및 텍스트 스타일 설정
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height * 0.65.h;
 
-    // 로컬 파일로 테스트 (임시)
-    controller.loadBook(
-        'assets/book_example.txt', screenWidth, screenHeight, textStyle);
+    // 동적으로 책 파일 로드
+    controller.loadBook(filePath, screenWidth, screenHeight, textStyle);
 
     return Obx(() {
       return Scaffold(
