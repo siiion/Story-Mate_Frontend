@@ -2,7 +2,9 @@
 
 import 'package:get/get.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
+import 'package:storymate/views/mypage/payment_fail_page.dart';
 import 'package:storymate/views/mypage/payment_page.dart';
+import 'package:storymate/views/mypage/payment_success_page.dart';
 import 'package:storymate/views/onboarding/info_page.dart';
 import 'package:storymate/views/onboarding/sign_in_page.dart';
 import 'package:storymate/views/onboarding/sign_up_page.dart';
@@ -111,6 +113,18 @@ class AppRoutes {
         GetPage(
           name: '/payments',
           page: () => PaymentPage(),
+          children: [
+            // 결제 성공 화면
+            GetPage(
+              name: '/success',
+              page: () => PaymentSuccessPage(),
+            ),
+            // 결제 실패 화면
+            GetPage(
+              name: '/fail',
+              page: () => PaymentFailPage(),
+            ),
+          ],
         ),
       ],
     ),
