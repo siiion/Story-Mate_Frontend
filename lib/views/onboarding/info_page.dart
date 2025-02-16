@@ -15,6 +15,20 @@ class _InfoPageState extends State<InfoPage> {
   final InfoController controller = Get.put(InfoController());
 
   @override
+  void initState() {
+    super.initState();
+
+    // arguments에서 사용자 정보 가져오기
+    final arguments = Get.arguments ?? {};
+    String userName = arguments["userName"] ?? "사용자"; // 기본값 "사용자"
+    String userBirth =
+        arguments["userBirth"] ?? "0000.00.00"; // 기본값 "0000.00.00"
+
+    // InfoController에 초기값 설정
+    controller.setInitialInfo(userName, userBirth);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -72,17 +86,19 @@ class _InfoPageState extends State<InfoPage> {
                       ),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12.w, vertical: 13.h),
-                      child: Text(
-                        '사용자', // 카카오에서 받아온 사용자 이름
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      child: TextField(
+                        controller: controller.nameController, // 텍스트 필드 컨트롤러 적용
+                        onChanged: (value) =>
+                            controller.userName.value = value, // 값 변경 시 업데이트
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 25.sp,
+                          fontSize: 22.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
-                          height: 0.80.h,
-                          letterSpacing: -0.23.w,
+                        ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
                         ),
                       ),
                     ),
@@ -123,7 +139,7 @@ class _InfoPageState extends State<InfoPage> {
                           horizontal: 12.w, vertical: 13.h),
                       child: Obx(
                         () => Text(
-                          controller.getFormattedDate(), // 선택된 날짜 표시
+                          controller.getFormattedDate(), // 선택된 생년월일 표시
                           style: TextStyle(
                             color: controller.selectedDate.value != null
                                 ? Colors.black

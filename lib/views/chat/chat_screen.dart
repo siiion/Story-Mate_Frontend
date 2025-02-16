@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../controllers/chat_controller.dart';
+import '../../view_models/chat_controller.dart';
 import 'package:storymate/views/chat/chat_bubble.dart';
 import 'package:storymate/models/message.dart';
 
