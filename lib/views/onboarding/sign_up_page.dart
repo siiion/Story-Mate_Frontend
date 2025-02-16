@@ -3,12 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/routes/app_routes.dart';
+import 'package:storymate/controllers/login_controller.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final LoginExistController loginController =
+        Get.put(LoginExistController());
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Center(
@@ -19,24 +23,27 @@ class SignUpPage extends StatelessWidget {
               'assets/logo_only.png',
               width: 233.w,
             ),
-            SizedBox(
-              height: 130.h,
-            ),
-            // 카카오로 시작하기 버튼
+            SizedBox(height: 130.h),
+
+            //  카카오 로그인 버튼 (함수명 변경)
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                loginController
+                    .loginWithKakao(); //  login() → loginWithKakao() 변경
+              },
               child: Image.asset(
                 'assets/kakao_signup.png',
                 width: 300.w,
               ),
             ),
-            SizedBox(
-              height: 18.h,
-            ),
+
+            SizedBox(height: 18),
+
+            //  로그인 페이지 이동 버튼
             GestureDetector(
               onTap: () {
                 Get.toNamed(AppRoutes.SIGNIN);
-              }, // 로그인 화면으로 이동
+              },
               child: Text(
                 '이미 계정이 있으신가요?',
                 style: TextStyle(

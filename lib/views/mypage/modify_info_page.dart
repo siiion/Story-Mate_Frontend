@@ -75,25 +75,32 @@ class ModifyInfoPage extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: TextField(
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25.sp,
-                              fontFamily: 'Jua',
-                              fontWeight: FontWeight.w400,
-                              height: 0.80.h,
-                              letterSpacing: -0.23.w,
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '사용자', // 기본값
-                              hintStyle: TextStyle(
-                                color: Color(0xFF7C7C7C),
+                          child: Obx(
+                            () => TextField(
+                              controller: TextEditingController(
+                                text: controller.username.value,
+                              ),
+                              style: TextStyle(
+                                color: Colors.black,
                                 fontSize: 25.sp,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
                                 height: 0.80.h,
                                 letterSpacing: -0.23.w,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: controller.username.value.isEmpty
+                                    ? '사용자'
+                                    : controller.username.value,
+                                hintStyle: TextStyle(
+                                  color: Color(0xFF7C7C7C),
+                                  fontSize: 25.sp,
+                                  fontFamily: 'Jua',
+                                  fontWeight: FontWeight.w400,
+                                  height: 0.80.h,
+                                  letterSpacing: -0.23.w,
+                                ),
                               ),
                             ),
                           ),

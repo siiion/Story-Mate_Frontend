@@ -103,7 +103,7 @@ class TermsController extends GetxController {
 부칙 이 약관은 <2025.02.XX>부터 시행합니다.'''
     });
   }
-
+ 
   // 개인정보 처리 방침 전문 보기
   void toPersonalInfoTermsDetail() {
     Get.toNamed('/terms/detail', arguments: {
