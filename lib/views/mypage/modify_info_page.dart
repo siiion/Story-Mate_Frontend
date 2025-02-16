@@ -80,35 +80,34 @@ class ModifyInfoPage extends StatelessWidget {
                               controller: TextEditingController(
                                 text: controller.username.value,
                               ),
-                            
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25.sp,
-                              fontFamily: 'Jua',
-                              fontWeight: FontWeight.w400,
-                              height: 0.80.h,
-                              letterSpacing: -0.23.w,
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: controller.username.value.isEmpty
-                                    ? '사용자'
-                                    : controller.username.value,
-                                hintStyle: TextStyle(
-                                color: Color(0xFF7C7C7C),
+                              style: TextStyle(
+                                color: Colors.black,
                                 fontSize: 25.sp,
                                 fontFamily: 'Jua',
                                 fontWeight: FontWeight.w400,
                                 height: 0.80.h,
                                 letterSpacing: -0.23.w,
                               ),
-                              
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: controller.username.value.isEmpty
+                                    ? '사용자'
+                                    : controller.username.value,
+                                hintStyle: TextStyle(
+                                  color: Color(0xFF7C7C7C),
+                                  fontSize: 25.sp,
+                                  fontFamily: 'Jua',
+                                  fontWeight: FontWeight.w400,
+                                  height: 0.80.h,
+                                  letterSpacing: -0.23.w,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      ),
                     ],
+                  ),
                 ),
                 SizedBox(height: 15.h),
                 Row(
@@ -187,8 +186,8 @@ class ModifyInfoPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                ),
               ],
+            ),
           ),
         ],
       ),

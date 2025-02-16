@@ -22,7 +22,6 @@ dependencies:
   http: ^1.0.0
   flutter_screenutil: ^5.9.3 # 반응형
   highlightable_text: ^0.0.1 # 하이라이트 기능
-  tosspayments_widget_sdk_flutter: ^2.1.0 # 토스 페이먼츠
 
 dev_dependencies:
   flutter_test:

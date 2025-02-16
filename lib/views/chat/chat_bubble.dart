@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/message.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
@@ -13,11 +14,11 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: EdgeInsets.all(12),
+        margin: EdgeInsets.symmetric(vertical: 5.h, horizontal: 10.w),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: isUser ? Color(0xFF9B9FD0) : Colors.grey[300],
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: ConstrainedBox(
           constraints:
@@ -26,7 +27,7 @@ class ChatBubble extends StatelessWidget {
             message.content,
             style: TextStyle(
               color: isUser ? Colors.white : Colors.black,
-              fontSize: 16,
+              fontSize: 16.sp,
             ),
             softWrap: true, // 텍스트가 길어지면 자동 줄바꿈
           ),

@@ -2,7 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
-import 'package:storymate/views/mypage/payment_page.dart';
+//import 'package:storymate/views/mypage/payment_page.dart';
 import 'package:storymate/views/onboarding/info_page.dart';
 import 'package:storymate/views/onboarding/sign_in_page.dart';
 import 'package:storymate/views/onboarding/sign_up_page.dart';
@@ -108,10 +108,10 @@ class AppRoutes {
           page: () => ModifyInfoPage(),
         ),
         // 결제 화면
-        GetPage(
-          name: '/payments',
-          page: () => PaymentPage(),
-        ),
+        // GetPage(
+        //  name: '/payments',
+        // page: () => PaymentPage(),
+        // ),
       ],
     ),
   ];

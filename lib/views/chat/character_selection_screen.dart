@@ -223,7 +223,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                       Text(
                         character["book"]!,
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 14.sp,
                           fontFamily: 'Jua',
                           color: Colors.grey,
                         ),
