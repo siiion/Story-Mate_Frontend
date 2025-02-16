@@ -29,7 +29,7 @@ class BookSearchPage extends StatelessWidget {
                         color: Color(0xff090A0A)),
                   ),
                   Container(
-                    width: 320.w,
+                    width: 300.w,
                     height: 56.h,
                     decoration: ShapeDecoration(
                       color: Color(0xFF9B9ECF),

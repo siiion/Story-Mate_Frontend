@@ -37,6 +37,9 @@ class HomePage extends StatelessWidget {
             Obx(() => _buildCategorySection(
                 '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
             _buildRecommendedSection(),
+            SizedBox(
+              height: 20.h,
+            ),
             _buildPopularByAgeAndGender(),
             SizedBox(height: 15.h),
           ],
