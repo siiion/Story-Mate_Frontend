@@ -2,6 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
+import 'package:storymate/views/mypage/payment_fail_page.dart';
 import 'package:storymate/views/mypage/payment_page.dart';
 import 'package:storymate/views/mypage/payment_success_page.dart';
 import 'package:storymate/views/onboarding/info_page.dart';

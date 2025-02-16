@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/mypage/payment_controller.dart';
+import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
+import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';
+import 'package:tosspayments_widget_sdk_flutter/payment_widget.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/agreement.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/payment_method.dart';
 
@@ -14,6 +17,8 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  final PaymentController controller = Get.put(PaymentController());
+
   late PaymentWidget _paymentWidget;
   PaymentMethodWidgetControl? _paymentMethodWidgetControl;
   AgreementWidgetControl? _agreementWidgetControl;
