@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
@@ -23,8 +24,8 @@ class RecommendCardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 347,
-      height: 181,
+      width: 347.w,
+      height: 181.h,
       decoration: ShapeDecoration(
         color: Color(0xFFF2F2F2),
         shape: RoundedRectangleBorder(
@@ -44,13 +45,13 @@ class RecommendCardItem extends StatelessWidget {
               coverImage: '',
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10, left: 10),
+              padding: EdgeInsets.only(top: 10.h, left: 10.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 100),
+                    padding: EdgeInsets.only(right: 100.w),
                     child: Text(
                       isCharacter ? '주요 캐릭터' : '작품 설명',
                       style: TextStyle(
@@ -63,8 +64,8 @@ class RecommendCardItem extends StatelessWidget {
                   ),
                   // 주요 캐릭터/작품 설명 소개
                   Container(
-                    width: 191,
-                    height: 77,
+                    width: 191.w,
+                    height: 77.h,
                     decoration: ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -78,12 +79,12 @@ class RecommendCardItem extends StatelessWidget {
                               children: [
                                 // 캐릭터 사진
                                 Container(
-                                  width: 60,
-                                  height: 60,
+                                  width: 60.w,
+                                  height: 60.h,
                                   decoration: ShapeDecoration(
                                     color: Color(0xFFD9D9D9),
                                     shape: OvalBorder(
-                                      side: BorderSide(width: 0.30),
+                                      side: BorderSide(width: 0.30.w),
                                     ),
                                   ),
                                 ),
@@ -98,7 +99,7 @@ class RecommendCardItem extends StatelessWidget {
                                         character!,
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 18,
+                                          fontSize: 18.sp,
                                           fontFamily: 'Jua',
                                           fontWeight: FontWeight.w400,
                                         ),
@@ -108,7 +109,7 @@ class RecommendCardItem extends StatelessWidget {
                                         characterIntro!,
                                         style: TextStyle(
                                           color: Color(0xFF303030),
-                                          fontSize: 11,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Jua',
                                           fontWeight: FontWeight.w400,
                                         ),
@@ -124,7 +125,7 @@ class RecommendCardItem extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Color(0xFF303030),
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontFamily: 'Jua',
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -134,8 +135,8 @@ class RecommendCardItem extends StatelessWidget {
                   ),
                   // 대화하기/감상하기 버튼
                   Container(
-                    width: 161.80,
-                    height: 37,
+                    width: 161.80.w,
+                    height: 37.h,
                     decoration: ShapeDecoration(
                       color: AppTheme.primaryColor,
                       shape: RoundedRectangleBorder(
@@ -157,7 +158,7 @@ class RecommendCardItem extends StatelessWidget {
                             : '$title 감상하러 가기',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
                         ),

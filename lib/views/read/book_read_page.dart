@@ -1,26 +1,49 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_alert_dialog.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/read/book_read_controller.dart';
 
-class BookReadPage extends StatelessWidget {
+import '../../models/highlight.dart';
+
+class BookReadPage extends StatefulWidget {
   const BookReadPage({super.key});
+
+  @override
+  State<BookReadPage> createState() => _BookReadPageState();
+}
+
+class _BookReadPageState extends State<BookReadPage> {
+  final BookReadController controller = Get.put(BookReadController());
+
+  int? startSelection;
+  int? endSelection;
+  bool isSelecting = false;
+
+  final textStyle =
+      TextStyle(fontSize: 18.sp, height: 2.5.h, fontFamily: 'Nanum');
 
   @override
   Widget build(BuildContext context) {
     final BookReadController controller = Get.put(BookReadController());
-    // Get.arguments로 전달받은 데이터를 title로 사용
+
+    // Get.arguments로 전달받은 책 정보
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height * 0.65;
-    final textStyle = TextStyle(fontSize: 18, height: 2.5, fontFamily: 'Nanum');
 
-    // 로컬 파일로 테스트 (임시)
-    controller.loadBook(
-        'assets/book_example.txt', screenWidth, screenHeight, textStyle);
+    // TXT 파일명 생성 (공백을 "_"로 변환하여 파일명 안전하게)
+    final String fileName = '${title.replaceAll(' ', '_')}.txt';
+    final String filePath = 'assets/$fileName';
+
+    // 화면 크기 및 텍스트 스타일 설정
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height * 0.65.h;
+
+    // 동적으로 책 파일 로드
+    controller.loadBook(filePath, screenWidth, screenHeight, textStyle);
 
     return Obx(() {
       return Scaffold(
@@ -37,17 +60,17 @@ class BookReadPage extends StatelessWidget {
               )
             : AppBar(
                 forceMaterialTransparency: true,
-                toolbarHeight: 57,
+                toolbarHeight: 57.h,
               ),
         bottomNavigationBar: controller.isUIVisible.value
             ? Container(
                 width: MediaQuery.of(context).size.width,
-                height: 79,
+                height: 79.h,
                 decoration: ShapeDecoration(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     side: BorderSide(
-                      width: 0.50,
+                      width: 0.50.w,
                       strokeAlign: BorderSide.strokeAlignOutside,
                       color: Color(0xFFA2A2A2),
                     ),
@@ -55,7 +78,7 @@ class BookReadPage extends StatelessWidget {
                 ),
                 child: Padding(
                   padding:
-                      const EdgeInsets.only(left: 25, bottom: 20, right: 25),
+                      EdgeInsets.only(left: 25.w, bottom: 20.h, right: 25.w),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -76,7 +99,7 @@ class BookReadPage extends StatelessWidget {
                       // 페이지 정보와 프로그레스 바
                       Obx(
                         () => SizedBox(
-                          width: 258,
+                          width: 258.w,
                           child: Slider(
                             value: controller.pages.isEmpty
                                 ? 0
@@ -110,11 +133,11 @@ class BookReadPage extends StatelessWidget {
                           '${controller.currentPage.value + 1}/${controller.pages.length}',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w400,
-                            height: 1.33,
-                            letterSpacing: -0.23,
+                            height: 1.33.h,
+                            letterSpacing: -0.23.w,
                           ),
                         ),
                       ),
@@ -140,8 +163,24 @@ class BookReadPage extends StatelessWidget {
             } else {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  controller.pages[controller.currentPage.value],
+                child: SelectableText.rich(
+                  _buildHighlightedText(),
+                  onSelectionChanged: (TextSelection selection, cause) {
+                    if (selection.start != selection.end) {
+                      setState(() {
+                        startSelection = selection.start;
+                        endSelection = selection.end;
+                        isSelecting = true; // 드래그 시작
+                      });
+                    }
+                  },
+                  onTap: () {
+                    if (isSelecting &&
+                        startSelection != null &&
+                        endSelection != null) {
+                      _addHighlight();
+                    }
+                  },
                   style: textStyle,
                 ),
               );
@@ -150,5 +189,102 @@ class BookReadPage extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// 선택된 부분을 즉시 하이라이트 처리하는 `TextSpan` 생성
+  TextSpan _buildHighlightedText() {
+    String text = controller.pages[controller.currentPage.value];
+    List<InlineSpan> spans = [];
+    int currentIndex = 0;
+
+    debugPrint("[DEBUG] 현재 페이지 길이: ${text.length}");
+
+    try {
+      // 기존 하이라이트 적용
+      for (var highlight in controller.getHighlightsForCurrentPage()) {
+        if (currentIndex < highlight.startOffset) {
+          spans.add(TextSpan(
+              text: text.substring(currentIndex, highlight.startOffset),
+              style: textStyle));
+        }
+
+        final recognizer = TapGestureRecognizer()
+          ..onTap = () => _confirmDeleteHighlight(highlight);
+
+        spans.add(TextSpan(
+          text: text.substring(highlight.startOffset, highlight.endOffset),
+          style: textStyle.copyWith(backgroundColor: Colors.yellow),
+          recognizer: recognizer,
+        ));
+
+        currentIndex = highlight.endOffset;
+      }
+
+      // 드래그 중인 영역을 즉시 반영하여 하이라이트
+      if (startSelection != null &&
+          endSelection != null &&
+          isSelecting &&
+          startSelection! < endSelection!) {
+        if (currentIndex < startSelection!) {
+          spans.add(TextSpan(
+              text: text.substring(currentIndex, startSelection!),
+              style: textStyle));
+        }
+
+        spans.add(TextSpan(
+          text: text.substring(startSelection!, endSelection!),
+          style: textStyle.copyWith(
+              backgroundColor: Colors.yellow.withOpacity(0.5)),
+          recognizer: TapGestureRecognizer()..onTap = _addHighlight,
+        ));
+
+        currentIndex = endSelection!;
+      }
+
+      if (currentIndex < text.length) {
+        spans.add(
+            TextSpan(text: text.substring(currentIndex), style: textStyle));
+      }
+    } catch (e) {
+      debugPrint("[ERROR] 하이라이트 적용 중 오류 발생: $e");
+    }
+
+    return TextSpan(children: spans);
+  }
+
+  /// 하이라이트 자동 저장
+  void _addHighlight() {
+    if (startSelection == null || endSelection == null) return;
+
+    final text = controller.pages[controller.currentPage.value];
+
+    if (startSelection! >= endSelection! || endSelection! > text.length) {
+      debugPrint("[ERROR] 잘못된 선택 범위 - 시작: $startSelection, 끝: $endSelection");
+      return;
+    }
+
+    String selectedText = text.substring(startSelection!, endSelection!);
+    debugPrint("[DEBUG] 하이라이트 추가 요청 - 선택된 텍스트: \"$selectedText\"");
+
+    controller.addHighlight(startSelection!, endSelection!, selectedText);
+
+    setState(() {
+      isSelecting = false; // 드래그 종료
+    });
+  }
+
+  /// 하이라이트 삭제 전에 확인 알림창 표시
+  void _confirmDeleteHighlight(Highlight highlight) async {
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomAlertDialog(question: "정말 하이라이트를 \n삭제하시겠습니까?");
+      },
+    );
+
+    if (shouldDelete == true) {
+      controller.removeHighlight(highlight);
+      setState(() {});
+    }
   }
 }

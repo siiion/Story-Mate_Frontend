@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_app_bar.dart';
 import 'package:storymate/components/custom_bottom_bar.dart';
@@ -25,10 +26,10 @@ class HomePage extends StatelessWidget {
         currentIndex: 1,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
-            SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Obx(() => _buildCategorySection(
                 '동화', controller.getBooksByCategory('동화'), controller)),
             Obx(() => _buildCategorySection('단/중편 소설',
@@ -37,7 +38,7 @@ class HomePage extends StatelessWidget {
                 '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
             _buildRecommendedSection(),
             _buildPopularByAgeAndGender(),
-            SizedBox(height: 15),
+            SizedBox(height: 15.h),
           ],
         ),
       ),
@@ -55,22 +56,22 @@ class HomePage extends StatelessWidget {
               title,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontFamily: 'Jua',
                 fontWeight: FontWeight.w400,
               ),
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 10.w),
             GestureDetector(
               onTap: () {
                 controller.setCategory(title);
               },
-              child: Icon(Icons.arrow_forward_ios, size: 15),
+              child: Icon(Icons.arrow_forward_ios, size: 15.w),
             ),
           ],
         ),
-        SizedBox(height: 180, child: _buildBookList(books, controller)),
-        SizedBox(height: 20),
+        SizedBox(height: 180.h, child: _buildBookList(books, controller)),
+        SizedBox(height: 20.h),
       ],
     );
   }
@@ -82,7 +83,7 @@ class HomePage extends StatelessWidget {
       itemBuilder: (context, index) {
         final book = books[index];
         return Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10, right: 10),
+          padding: EdgeInsets.only(top: 10.h, bottom: 10.h, right: 10.w),
           child: CustomCard(
             title: book.title,
             tags: book.tags,
@@ -106,7 +107,7 @@ class HomePage extends StatelessWidget {
             'ㅇㅇ님을 위한 추천 작품',
             style: TextStyle(
               color: Colors.black,
-              fontSize: 18,
+              fontSize: 18.sp,
               fontFamily: 'Jua',
               fontWeight: FontWeight.w400,
             ),
@@ -135,7 +136,7 @@ class HomePage extends StatelessWidget {
                 '20',
                 style: TextStyle(
                   color: AppTheme.primaryColor,
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontFamily: 'Jua',
                   fontWeight: FontWeight.w400,
                 ),
@@ -144,7 +145,7 @@ class HomePage extends StatelessWidget {
                 '대 ',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontFamily: 'Jua',
                   fontWeight: FontWeight.w400,
                 ),
@@ -153,7 +154,7 @@ class HomePage extends StatelessWidget {
                 '여성',
                 style: TextStyle(
                   color: AppTheme.primaryColor,
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontFamily: 'Jua',
                   fontWeight: FontWeight.w400,
                 ),
@@ -162,7 +163,7 @@ class HomePage extends StatelessWidget {
                 '에게 인기 많아요',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontFamily: 'Jua',
                   fontWeight: FontWeight.w400,
                 ),

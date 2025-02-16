@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
@@ -19,8 +20,7 @@ class _TermsPageState extends State<TermsPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: (MediaQuery.of(context).size.width - 331) / 2),
+        padding: EdgeInsets.symmetric(horizontal: 35.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,15 +28,15 @@ class _TermsPageState extends State<TermsPage> {
             Center(
               child: Image.asset(
                 'assets/logo_terms.png',
-                width: 331,
+                width: 320.w,
               ),
             ),
             SizedBox(
-              height: 42,
+              height: 42.h,
             ),
             SvgPicture.asset('assets/terms_text.svg'),
             SizedBox(
-              height: 42,
+              height: 42.h,
             ),
             // 전체 동의 체크박스
             Row(
@@ -48,28 +48,28 @@ class _TermsPageState extends State<TermsPage> {
                       controller.allChecked.value
                           ? Icons.check_box
                           : Icons.check_box_outline_blank,
-                      size: 30,
+                      size: 30.w,
                     ),
                   );
                 }),
                 SizedBox(
-                  width: 16,
+                  width: 16.w,
                 ),
                 Text(
                   '모두 동의합니다.',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 25,
+                    fontSize: 25.sp,
                     fontFamily: 'Jua',
                     fontWeight: FontWeight.w400,
-                    height: 1.40,
-                    letterSpacing: -0.23,
+                    height: 1.40.h,
+                    letterSpacing: -0.23.w,
                   ),
                 ),
               ],
             ),
             SizedBox(
-              height: 42,
+              height: 42.h,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 19.5),
@@ -85,7 +85,7 @@ class _TermsPageState extends State<TermsPage> {
                     ),
                   ),
                   SizedBox(
-                    height: 8,
+                    height: 8.h,
                   ),
                   // 개인정보 수집 및 이용 동의 체크박스
                   Obx(
@@ -97,7 +97,7 @@ class _TermsPageState extends State<TermsPage> {
                     ),
                   ),
                   SizedBox(
-                    height: 8,
+                    height: 8.h,
                   ),
                   // 마케팅 정보 수신 동의 체크박스
                   Obx(
@@ -112,7 +112,7 @@ class _TermsPageState extends State<TermsPage> {
               ),
             ),
             SizedBox(
-              height: 84,
+              height: 84.h,
             ),
             Center(
               child: Obx(
@@ -123,8 +123,8 @@ class _TermsPageState extends State<TermsPage> {
                         }
                       : null,
                   child: Container(
-                    width: 300,
-                    height: 55,
+                    width: 300.w,
+                    height: 55.h,
                     decoration: ShapeDecoration(
                       color: controller.isAllRequiredChecked()
                           ? AppTheme.primaryColor
@@ -138,11 +138,11 @@ class _TermsPageState extends State<TermsPage> {
                         '확인',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 25,
+                          fontSize: 25.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
-                          height: 1.40,
-                          letterSpacing: -0.23,
+                          height: 1.40.h,
+                          letterSpacing: -0.23.w,
                         ),
                       ),
                     ),
@@ -181,25 +181,25 @@ class DetailTermsCheckBox extends StatelessWidget {
           onTap: onCheckToggle,
           child: Icon(
             isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 25,
+            size: 25.w,
           ),
         ),
         SizedBox(
-          width: 5,
+          width: 5.w,
         ),
         Text(
           terms,
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18,
+            fontSize: 18.sp,
             fontFamily: 'Jua',
             fontWeight: FontWeight.w400,
-            height: 1.94,
-            letterSpacing: -0.23,
+            height: 1.94.h,
+            letterSpacing: -0.23.w,
           ),
         ),
         SizedBox(
-          width: 5,
+          width: 5.w,
         ),
         isDetailVisible!
             ? // 세부 내용 보기 버튼
@@ -207,7 +207,7 @@ class DetailTermsCheckBox extends StatelessWidget {
                 onTap: onTap,
                 child: Icon(
                   Icons.arrow_forward_ios,
-                  size: 15,
+                  size: 15.sp,
                 ),
               )
             : SizedBox(),

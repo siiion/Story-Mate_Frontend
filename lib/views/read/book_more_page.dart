@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
@@ -34,8 +35,8 @@ class BookMorePage extends StatelessWidget {
             return GestureDetector(
               onTap: () => controller.toAddMemo(),
               child: Container(
-                width: 70,
-                height: 70,
+                width: 70.w,
+                height: 70.h,
                 decoration: ShapeDecoration(
                   color: const Color(0xFF9B9ECF),
                   shape: const OvalBorder(),
@@ -48,10 +49,10 @@ class BookMorePage extends StatelessWidget {
                     )
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.edit,
                   color: Colors.white,
-                  size: 30,
+                  size: 30.w,
                 ),
               ),
             );
@@ -71,11 +72,11 @@ class BookMorePage extends StatelessWidget {
               labelColor: AppTheme.primaryColor,
               unselectedLabelColor: Colors.black,
               labelStyle: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 fontFamily: 'Nanum',
                 fontWeight: FontWeight.w600,
-                height: 1.33,
-                letterSpacing: -0.23,
+                height: 1.33.h,
+                letterSpacing: -0.23.w,
               ),
               tabs: [
                 Tab(
@@ -144,7 +145,7 @@ class BookmarkTabContents extends StatelessWidget {
                 children: [
                   // 배경 컨테이너
                   Container(
-                    height: 170,
+                    height: 170.h,
                     decoration: ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -159,7 +160,8 @@ class BookmarkTabContents extends StatelessWidget {
                           // 책갈피 내용 미리보기 (어둡게 처리)
                           Positioned.fill(
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              filter:
+                                  ImageFilter.blur(sigmaX: 5.w, sigmaY: 5.h),
                               child: Container(
                                 color: Colors.black.withOpacity(0.1),
                               ),
@@ -173,13 +175,13 @@ class BookmarkTabContents extends StatelessWidget {
                                 alignment: Alignment.topLeft,
                                 child: Text(
                                   bookmark["content"]!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                     fontFamily: 'Nanum',
                                     fontWeight: FontWeight.w400,
-                                    height: 1.33,
-                                    letterSpacing: -0.23,
+                                    height: 1.33.h,
+                                    letterSpacing: -0.23.w,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   maxLines: 4, // 미리보기 최대 줄 수
@@ -194,8 +196,8 @@ class BookmarkTabContents extends StatelessWidget {
                   ),
                   // 삭제 버튼
                   Positioned(
-                    right: 10,
-                    top: 10,
+                    right: 10.w,
+                    top: 10.h,
                     child: GestureDetector(
                       onTap: () {
                         controller.removeBookmark(index);
@@ -208,19 +210,19 @@ class BookmarkTabContents extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 5,
+              SizedBox(
+                height: 5.h,
               ),
               // 페이지 번호
               Text(
                 bookmark["page"]!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontFamily: 'Nanum',
                   fontWeight: FontWeight.w600,
-                  height: 1.33,
-                  letterSpacing: -0.23,
+                  height: 1.33.h,
+                  letterSpacing: -0.23.w,
                 ),
               ),
             ],

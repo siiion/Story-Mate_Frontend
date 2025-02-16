@@ -4,12 +4,70 @@ import 'package:get/get.dart';
 import 'package:storymate/services/text_pagination_service.dart';
 import 'package:storymate/views/read/book_more_page.dart';
 
+import '../../models/highlight.dart';
+
 class BookReadController extends GetxController {
   RxList<String> pages = <String>[].obs; // 페이지 목록
   RxInt currentPage = 0.obs; // 현재 페이지
   RxSet<int> bookmarks = <int>{}.obs; // 북마크 저장
   RxBool isUIVisible = true.obs; // 상단바/하단바 가시성
   RxDouble progress = 0.0.obs; // 진행률
+  RxMap<int, List<Highlight>> highlightsPerPage = <int, List<Highlight>>{}.obs;
+
+  /// 현재 페이지의 하이라이트 목록 가져오기
+  List<Highlight> getHighlightsForCurrentPage() {
+    return highlightsPerPage[currentPage.value] ?? [];
+  }
+
+  /// 하이라이트 추가
+  void addHighlight(int start, int end, String content) {
+    try {
+      debugPrint("[DEBUG] 하이라이트 추가 시도 - 페이지: ${currentPage.value}");
+      debugPrint("[DEBUG] startOffset: $start, endOffset: $end");
+      debugPrint("[DEBUG] 선택한 텍스트: \"$content\"");
+
+      if (start >= end) {
+        debugPrint("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
+        return;
+      }
+
+      final highlight = Highlight(
+        startOffset: start,
+        endOffset: end,
+        content: content,
+      );
+
+      highlightsPerPage.update(
+        currentPage.value,
+        (existing) => [...existing, highlight],
+        ifAbsent: () => [highlight],
+      );
+
+      debugPrint("[DEBUG] 하이라이트 추가 완료: $highlight");
+    } catch (e) {
+      debugPrint("[ERROR] 하이라이트 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 하이라이트 삭제
+  void removeHighlight(Highlight highlight) {
+    try {
+      debugPrint("DEBUG] 하이라이트 삭제 시도 - 페이지: ${currentPage.value}");
+      debugPrint("삭제할 하이라이트: $highlight");
+
+      if (highlightsPerPage.containsKey(currentPage.value)) {
+        highlightsPerPage[currentPage.value]!.removeWhere((h) =>
+            h.startOffset == highlight.startOffset &&
+            h.endOffset == highlight.endOffset);
+        highlightsPerPage.refresh();
+        debugPrint("[DEBUG] 하이라이트 삭제 완료.");
+      } else {
+        debugPrint("[DEBUG] 해당 페이지에 하이라이트가 없음.");
+      }
+    } catch (e) {
+      debugPrint("[ERROR] 하이라이트 삭제 중 오류 발생: $e");
+    }
+  }
 
   // 뒤로 가기
   void goBack() {

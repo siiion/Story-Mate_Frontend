@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart'; // 추가된 부분
@@ -142,7 +143,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
           style: TextStyle(
             fontFamily: 'Jua',
             color: Colors.black,
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -169,9 +170,10 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
             child: GridView.builder(
               padding: const EdgeInsets.all(16.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 0.8,
                 crossAxisCount: 3,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
+                crossAxisSpacing: 10.w,
+                mainAxisSpacing: 10.h,
               ),
               itemCount: filteredCharacters.length,
               itemBuilder: (context, index) {
@@ -185,15 +187,48 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(character["image"]!),
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey, width: 2),
+                        ),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.grey.shade200,
+                          backgroundImage: character["image"] != null
+                              ? AssetImage(character["image"]!)
+                              : null,
+                          child: character["image"] == null
+                              ? Text(
+                                  character["name"]![0],
+                                  style: TextStyle(
+                                    fontSize: 24.sp,
+                                    color: Colors.black,
+                                    fontFamily: 'Jua',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ),
-                      SizedBox(height: 8),
-                      Text(character["name"]!,
-                          style: TextStyle(fontFamily: 'Jua', fontSize: 7)),
-                      Text(character["book"]!,
-                          style: TextStyle(fontSize: 5, color: Colors.grey)),
+                      SizedBox(height: 8.h),
+                      Text(
+                        character["name"]!,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontFamily: 'Jua',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        character["book"]!,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontFamily: 'Jua',
+                          color: Colors.grey,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
                     ],
                   ),
                 );

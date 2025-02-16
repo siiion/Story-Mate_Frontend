@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/routes/app_routes.dart';
@@ -18,8 +19,11 @@ class SignUpPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo_only.png', width: 233),
-            SizedBox(height: 130),
+            Image.asset(
+              'assets/logo_only.png',
+              width: 233.w,
+            ),
+            SizedBox(height: 130.h),
 
             //  카카오 로그인 버튼 (함수명 변경)
             GestureDetector(
@@ -27,7 +31,10 @@ class SignUpPage extends StatelessWidget {
                 loginController
                     .loginWithKakao(); //  login() → loginWithKakao() 변경
               },
-              child: Image.asset('assets/kakao_signup.png', width: 300),
+              child: Image.asset(
+                'assets/kakao_signup.png',
+                width: 300.w,
+              ),
             ),
 
             SizedBox(height: 18),
@@ -41,12 +48,12 @@ class SignUpPage extends StatelessWidget {
                 '이미 계정이 있으신가요?',
                 style: TextStyle(
                   color: Color(0xFF7C7C7C),
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Jua',
                   fontWeight: FontWeight.w400,
                   decoration: TextDecoration.underline,
-                  height: 2.19,
-                  letterSpacing: -0.23,
+                  height: 2.19.h,
+                  letterSpacing: -0.23.w,
                 ),
               ),
             ),
