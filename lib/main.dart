@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 임포트
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:storymate/view_models/onboarding/login_controller.dart';
+import 'package:storymate/views/onboarding/splash_screen.dart';
 import 'routes/app_routes.dart'; // 경로 정의 파일
 
 void main() async {
@@ -18,7 +19,6 @@ void main() async {
   // LoginController를 전역적으로 사용 가능하게 초기화
   Get.put(LoginController());
 
-  // ScreenUtil 초기화는 build() 메소드 내에서 처리합니다.
   runApp(MyApp());
 }
 
@@ -27,27 +27,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ScreenUtil 초기화 (context 전달)
-    ScreenUtil.init(
-      context, // 첫 번째 인자: BuildContext
+    return ScreenUtilInit(
       designSize: Size(375, 812), // 디자인 화면 크기 설정
       minTextAdapt: true,
       splitScreenMode: true,
+      builder: (_, child) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'StoryMate',
+          initialRoute: '/', // 스플래쉬 화면을 첫 번째 화면으로 설정
+          getPages: [
+            GetPage(name: '/', page: () => SplashScreen()), // 스플래쉬 화면 추가
+            ...AppRoutes.routes, // 기존 라우트 추가
+          ],
+        );
+      },
     );
-
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'StoryMate',
-      initialRoute: _checkLoginStatus()
-          ? AppRoutes.HOME
-          : AppRoutes.SIGNUP, // 로그인 여부에 따른 초기 화면
-      getPages: AppRoutes.routes, // 라우팅 정의
-    );
-  }
-
-  // 로그인 여부를 체크하는 함수
-  bool _checkLoginStatus() {
-    final accessToken = Get.find<LoginController>().accessToken.value;
-    return accessToken.isNotEmpty; // accessToken이 비어 있지 않으면 로그인 상태
   }
 }
