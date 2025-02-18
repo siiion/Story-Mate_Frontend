@@ -19,13 +19,17 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late WebSocketChannel channel;
   late int roomId;
+  late String bookTitle; // 소설 이름
   final ChatController controller = Get.put(ChatController());
   List<dynamic> chatMessages = [];
+  int answerCount = 0; // 답변 횟수 추적
 
   @override
   void initState() {
     super.initState();
     roomId = Get.arguments["roomId"] ?? 0;
+    bookTitle = Get.arguments["bookTitle"] ?? ""; // bookTitle 가져오기
+
     if (roomId != 0) {
       // WebSocket 서버 연결
       channel = WebSocketChannel.connect(
@@ -35,15 +39,16 @@ class _ChatScreenState extends State<ChatScreen> {
       // WebSocket에서 받은 메시지 처리
       channel.stream.listen((message) {
         try {
-          // 'sender:roomId:message' 또는 'sender:message' 형식으로 구분
+          // 'sender:roomId:bookTitle:message' 형식으로 구분
           var decodedMessage = message.split(':');
           String sender;
           String messageContent;
 
-          // 메시지가 'sender:roomId:message' 형식일 때
-          if (decodedMessage.length >= 3) {
+          // 메시지가 'sender:roomId:bookTitle:message' 형식일 때
+          if (decodedMessage.length >= 4) {
             sender = decodedMessage[0];
-            messageContent = decodedMessage.sublist(2).join(':');
+            messageContent =
+                decodedMessage.sublist(3).join(':'); // 소설 제목 이후 메시지 처리
           } else {
             // 'sender:message' 형식일 때
             sender = decodedMessage[0];
@@ -63,7 +68,13 @@ class _ChatScreenState extends State<ChatScreen> {
               'sender': sender,
               'isUser': false, // AI 응답
             });
+            answerCount++;
           });
+
+          //3번 답변 후 퀴즈 다이얼로그 띄우기
+          if (answerCount >= 3) {
+            _showQuizDialog(); //퀴즈 다이얼로그 띄움
+          }
         } catch (e) {
           print("JSON 파싱 오류: $e");
         }
@@ -95,15 +106,18 @@ class _ChatScreenState extends State<ChatScreen> {
       print("응답 상태 코드: ${response.statusCode}");
       print("서버 응답 본문: ${response.body}");
 
+      // 만약 응답이 바이트 형식으로 온다면, utf8.decode 사용
+      String decodedResponse = utf8.decode(response.bodyBytes);
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = json.decode(decodedResponse);
         setState(() {
           chatMessages =
               responseData['data']['chatMessages'] ?? []; // null일 경우 빈 배열로 처리
         });
       } else {
         print("채팅 메시지 조회 실패: ${response.statusCode}");
-        print("서버 응답: ${response.body}");
+        print("서버 응답: $decodedResponse");
       }
     } catch (e) {
       print("채팅 메시지 조회 중 오류 발생: $e");
@@ -128,7 +142,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     String sender = "testUser"; // 사용자가 보낸 메시지
-    channel.sink.add("$sender:$roomId:$message");
+    String bookTitle = Get.arguments["bookTitle"];
+    channel.sink.add("$sender:$roomId:$bookTitle:$message");
 
     // 전송한 메시지를 UI에 바로 반영
     setState(() {
@@ -141,6 +156,46 @@ class _ChatScreenState extends State<ChatScreen> {
 
     controller.textController.clear();
     controller.update(); // UI 갱신
+  }
+
+  // 퀴즈 다이얼로그를 띄우는 함수
+  void _showQuizDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("퀴즈 시작!"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("퀴즈를 풀어보세요!"),
+              // 퀴즈 질문을 추가할 수 있습니다.
+              // 예시 질문
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(""),
+              ),
+              TextField(
+                decoration: InputDecoration(hintText: "답을 입력하세요"),
+                onChanged: (value) {
+                  // 입력 받은 답을 처리하는 로직 추가 가능
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text("퀴즈 풀기"),
+              onPressed: () {
+                // 퀴즈 풀기 버튼 클릭 시 처리
+                print("퀴즈 풀기 버튼 클릭");
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

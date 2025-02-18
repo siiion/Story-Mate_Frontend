@@ -24,26 +24,22 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     {
       "id": 1,
       "name": "김첨지",
-      "book": "운수 좋은 날",
+      "book": "운수좋은날",
       "image": "assets/kim_cheomji.png"
     },
     {"id": 2, "name": "인어공주", "book": "인어공주", "image": "assets/mermaid.png"},
     {
       "id": 3,
       "name": "성냥팔이 소녀",
-      "book": "성냥팔이 소녀",
+      "book": "성냥팔이소녀",
       "image": "assets/TheLittleGirl.png"
     },
     {"name": "심봉사", "book": "심봉사", "image": "assets/SimCheong.png"},
     {"name": "엄지공주", "book": "엄지공주", "image": "assets/mermaid2.png"},
     {"name": "동백꽃", "book": "동백꽃", "image": "assets/Dongbaekkkot.png"},
-    {"name": "시골쥐", "book": "시골쥐 서울구경", "image": "assets/mouse.png"},
-    {"name": "미운 아기 오리", "book": "미운 아기 오리", "image": "assets/duck.png"},
-    {
-      "name": "허생원",
-      "book": "메밀꽃 필 무렵",
-      "image": "assets/theBuckwheatFlower.png"
-    },
+    {"name": "시골쥐", "book": "시골쥐서울구경", "image": "assets/mouse.png"},
+    {"name": "미운 아기 오리", "book": "미운아기오리", "image": "assets/duck.png"},
+    {"name": "허생원", "book": "메밀꽃필무렵", "image": "assets/theBuckwheatFlower.png"},
     {"name": "홍길동", "book": "홍길동전", "image": "assets/HongGildong.png"},
   ];
 
@@ -71,8 +67,10 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
   }
 
   // 채팅방 생성 (POST /api/chat-rooms)
-  Future<void> createChatRoom(String title, int characterId) async {
-    print("채팅방 생성 요청: title=$title, characterId=$characterId");
+  Future<void> createChatRoom(
+      String title, int characterId, String bookTitle) async {
+    print(
+        "채팅방 생성 요청: title=$title, characterId=$characterId, bookTitle=$bookTitle");
 
     // 토큰 가져오기
     final token = await getToken();
@@ -90,18 +88,21 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       body: json.encode({
         'title': title,
         'charactersId': characterId,
+        'bookTitle': bookTitle,
       }),
     );
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       int roomId = responseData['data']['roomId']; // 서버에서 받은 roomId 사용
+      String bookTitle = responseData['data']['bookTitle'];
 
       print("서버 응답 : $responseData");
-      print("채팅방 생성 성공, roomId: $roomId");
+      print("채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle");
 
       // 채팅방 생성 후 roomId를 기반으로 화면 전환
-      Get.toNamed(AppRoutes.CHAT, arguments: {"roomId": roomId});
+      Get.toNamed(AppRoutes.CHAT,
+          arguments: {"roomId": roomId, "bookTitle": bookTitle});
 
       // WebSocket 연결 예시 (roomId로 연결)
       connectToWebSocket(roomId);
@@ -183,7 +184,8 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                 return GestureDetector(
                   onTap: () {
                     print("캐릭터 선택됨: ${character["id"]},ID: ${character["id"]}");
-                    createChatRoom(character["name"], character["id"]);
+                    createChatRoom(
+                        character["name"], character["id"], character["book"]);
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

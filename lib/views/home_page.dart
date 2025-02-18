@@ -9,13 +9,18 @@ import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/home_controller.dart';
 import 'package:storymate/models/book.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final HomeController controller = Get.put(HomeController());
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  final HomeController controller = Get.put(HomeController());
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: CustomAppBar(
@@ -25,22 +30,22 @@ class HomePage extends StatelessWidget {
       bottomNavigationBar: CustomBottomBar(
         currentIndex: 1,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView(
-          children: [
-            SizedBox(height: 20.h),
-            Obx(() => _buildCategorySection(
-                '동화', controller.getBooksByCategory('동화'), controller)),
-            Obx(() => _buildCategorySection('단/중편 소설',
-                controller.getBooksByCategory('단/중편 소설'), controller)),
-            Obx(() => _buildCategorySection(
-                '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
-            _buildRecommendedSection(),
-            _buildPopularByAgeAndGender(),
-            SizedBox(height: 15.h),
-          ],
-        ),
+      body: ListView(
+        children: [
+          SizedBox(height: 20.h),
+          Obx(() => _buildCategorySection(
+              '동화', controller.getBooksByCategory('동화'), controller)),
+          Obx(() => _buildCategorySection(
+              '단/중편 소설', controller.getBooksByCategory('단/중편 소설'), controller)),
+          Obx(() => _buildCategorySection(
+              '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
+          _buildRecommendedSection(),
+          SizedBox(
+            height: 10.h,
+          ),
+          _buildPopularByAgeAndGender(),
+          SizedBox(height: 25.h),
+        ],
       ),
     );
   }
@@ -50,25 +55,28 @@ class HomePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20.sp,
-                fontFamily: 'Jua',
-                fontWeight: FontWeight.w400,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20.sp,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            SizedBox(width: 10.w),
-            GestureDetector(
-              onTap: () {
-                controller.setCategory(title);
-              },
-              child: Icon(Icons.arrow_forward_ios, size: 15.w),
-            ),
-          ],
+              SizedBox(width: 10.w),
+              GestureDetector(
+                onTap: () {
+                  controller.setCategory(title);
+                },
+                child: Icon(Icons.arrow_forward_ios, size: 15.w),
+              ),
+            ],
+          ),
         ),
         SizedBox(height: 180.h, child: _buildBookList(books, controller)),
         SizedBox(height: 20.h),
@@ -77,34 +85,39 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildBookList(List<Book> books, HomeController controller) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: books.length,
-      itemBuilder: (context, index) {
-        final book = books[index];
-        return Padding(
-          padding: EdgeInsets.only(top: 10.h, bottom: 10.h, right: 10.w),
-          child: CustomCard(
-            title: book.title,
-            tags: book.tags,
-            coverImage: book.coverImage,
-            onTap: () {
-              controller.toIntroPage(book.title);
-            },
-          ),
-        );
-      },
+    return Padding(
+      padding: EdgeInsets.only(left: 10.w),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: books.length,
+        itemBuilder: (context, index) {
+          final book = books[index];
+          return Padding(
+            padding: EdgeInsets.all(5),
+            child: CustomCard(
+              title: book.title,
+              tags: book.tags,
+              coverImage: book.coverImage,
+              onTap: () {
+                controller.toIntroPage(book.title);
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildRecommendedSection() {
+    final recommendedBook = controller.getRandomBook();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: Text(
-            'ㅇㅇ님을 위한 추천 작품',
+            '${controller.userName}님을 위한 추천 작품',
             style: TextStyle(
               color: Colors.black,
               fontSize: 18.sp,
@@ -115,8 +128,7 @@ class HomePage extends StatelessWidget {
         ),
         Center(
           child: RecommendCardItem(
-            title: '작품 제목',
-            tag: '#태그 #3개 #들어감',
+            book: recommendedBook,
             isCharacter: false,
           ),
         ),
@@ -125,15 +137,17 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildPopularByAgeAndGender() {
+    final recommendedBook = controller.getRecommendedBookForAgeAndGender();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: Row(
             children: [
               Text(
-                '20',
+                '${controller.userAgeGroup}',
                 style: TextStyle(
                   color: AppTheme.primaryColor,
                   fontSize: 18.sp,
@@ -142,25 +156,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Text(
-                '대 ',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18.sp,
-                  fontFamily: 'Jua',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                '여성',
-                style: TextStyle(
-                  color: AppTheme.primaryColor,
-                  fontSize: 18.sp,
-                  fontFamily: 'Jua',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                '에게 인기 많아요',
+                '대에게 인기 많아요',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 18.sp,
@@ -173,11 +169,9 @@ class HomePage extends StatelessWidget {
         ),
         Center(
           child: RecommendCardItem(
-            title: '작품 제목',
-            tag: '#태그 #3개 #들어감',
-            character: '캐릭터명',
-            characterIntro: '한 줄 소개',
+            book: recommendedBook,
             isCharacter: true,
+            characterId: recommendedBook.characterId,
           ),
         ),
       ],
