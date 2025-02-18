@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:storymate/models/book.dart';
 import 'package:storymate/views/read/book_intro_page.dart';
 
 class HomeController extends GetxController {
+  final box = GetStorage();
+  String userName = '사용자';
+
   // 전체 책 목록
   var books = <Book>[].obs;
 
@@ -10,6 +14,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     loadBooks();
+    userName = box.read("userName") ?? "사용자";
   }
 
   void loadBooks() {

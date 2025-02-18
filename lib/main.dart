@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // ScreenUtil 임포트
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 임포트
+import 'package:get_storage/get_storage.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:storymate/view_models/onboarding/login_controller.dart';
 import 'package:storymate/views/onboarding/splash_screen.dart';
@@ -9,6 +10,7 @@ import 'routes/app_routes.dart'; // 경로 정의 파일
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init(); // GetStorage 초기화
 
   // .env 파일 로드
   await dotenv.load();

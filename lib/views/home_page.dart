@@ -9,13 +9,18 @@ import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/home_controller.dart';
 import 'package:storymate/models/book.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final HomeController controller = Get.put(HomeController());
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  final HomeController controller = Get.put(HomeController());
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: CustomAppBar(
@@ -25,22 +30,22 @@ class HomePage extends StatelessWidget {
       bottomNavigationBar: CustomBottomBar(
         currentIndex: 1,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView(
-          children: [
-            SizedBox(height: 20.h),
-            Obx(() => _buildCategorySection(
-                '동화', controller.getBooksByCategory('동화'), controller)),
-            Obx(() => _buildCategorySection('단/중편 소설',
-                controller.getBooksByCategory('단/중편 소설'), controller)),
-            Obx(() => _buildCategorySection(
-                '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
-            _buildRecommendedSection(),
-            _buildPopularByAgeAndGender(),
-            SizedBox(height: 15.h),
-          ],
-        ),
+      body: ListView(
+        children: [
+          SizedBox(height: 20.h),
+          Obx(() => _buildCategorySection(
+              '동화', controller.getBooksByCategory('동화'), controller)),
+          Obx(() => _buildCategorySection(
+              '단/중편 소설', controller.getBooksByCategory('단/중편 소설'), controller)),
+          Obx(() => _buildCategorySection(
+              '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
+          _buildRecommendedSection(),
+          SizedBox(
+            height: 10.h,
+          ),
+          _buildPopularByAgeAndGender(),
+          SizedBox(height: 25.h),
+        ],
       ),
     );
   }
@@ -50,25 +55,28 @@ class HomePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20.sp,
-                fontFamily: 'Jua',
-                fontWeight: FontWeight.w400,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20.sp,
+                  fontFamily: 'Jua',
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            SizedBox(width: 10.w),
-            GestureDetector(
-              onTap: () {
-                controller.setCategory(title);
-              },
-              child: Icon(Icons.arrow_forward_ios, size: 15.w),
-            ),
-          ],
+              SizedBox(width: 10.w),
+              GestureDetector(
+                onTap: () {
+                  controller.setCategory(title);
+                },
+                child: Icon(Icons.arrow_forward_ios, size: 15.w),
+              ),
+            ],
+          ),
         ),
         SizedBox(height: 180.h, child: _buildBookList(books, controller)),
         SizedBox(height: 20.h),
@@ -83,7 +91,7 @@ class HomePage extends StatelessWidget {
       itemBuilder: (context, index) {
         final book = books[index];
         return Padding(
-          padding: EdgeInsets.only(top: 10.h, bottom: 10.h, right: 10.w),
+          padding: EdgeInsets.all(10),
           child: CustomCard(
             title: book.title,
             tags: book.tags,
@@ -102,9 +110,9 @@ class HomePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: Text(
-            'ㅇㅇ님을 위한 추천 작품',
+            '${controller.userName}님을 위한 추천 작품',
             style: TextStyle(
               color: Colors.black,
               fontSize: 18.sp,
@@ -129,7 +137,7 @@ class HomePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: Row(
             children: [
               Text(

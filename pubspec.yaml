@@ -22,6 +22,7 @@ dependencies:
   flutter_screenutil: ^5.9.3 # 반응형
   highlightable_text: ^0.0.1 # 하이라이트 기능
   in_app_purchase: ^3.2.1
+  get_storage: ^2.1.1 # Get_Storage
 
 dev_dependencies:
   flutter_test:
