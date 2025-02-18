@@ -19,6 +19,7 @@ class TermsController extends GetxController {
 
   void toggleMarketingAgreement() {
     marketingAgreement.value = !marketingAgreement.value;
+    updateAllCheckedStatus();
   }
 
   // 모든 필수 체크박스가 체크되었는지 확인
@@ -28,7 +29,9 @@ class TermsController extends GetxController {
 
   // 모두 동의 체크박스 상태 업데이트
   void updateAllCheckedStatus() {
-    allChecked.value = serviceAgreement.value && privacyAgreement.value;
+    allChecked.value = serviceAgreement.value &&
+        privacyAgreement.value &&
+        marketingAgreement.value;
   }
 
   // 전체 동의 체크박스 클릭 시 동작
@@ -103,7 +106,7 @@ class TermsController extends GetxController {
 부칙 이 약관은 <2025.02.XX>부터 시행합니다.'''
     });
   }
- 
+
   // 개인정보 처리 방침 전문 보기
   void toPersonalInfoTermsDetail() {
     Get.toNamed('/terms/detail', arguments: {

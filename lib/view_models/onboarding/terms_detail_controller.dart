@@ -30,6 +30,6 @@ class TermsDetailController extends GetxController {
     }
 
     termsController.updateAllCheckedStatus(); // 전체 동의 여부 업데이트
-    Get.toNamed('/home'); // 'home'
+    Get.back(); // 'home'
   }
 }

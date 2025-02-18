@@ -3,16 +3,36 @@ import 'package:get/get.dart';
 import 'package:storymate/components/theme.dart';
 
 class InfoController extends GetxController {
-  // 생년월일 상태
+  // 사용자 정보 상태
+  var userName = ''.obs;
   var selectedDate = Rxn<DateTime>();
+  TextEditingController nameController =
+      TextEditingController(); // 텍스트 필드 컨트롤러 추가
 
-  // 생년월일 선택 함수
+  /// 초기 정보 설정 (카카오에서 받은 값 적용)
+  void setInitialInfo(String name, String birth) {
+    userName.value = name;
+    nameController.text = name;
+
+    if (birth != "0000.00.00") {
+      // 생년월일이 존재하면 DateTime으로 변환
+      List<String> birthParts = birth.split('.');
+      if (birthParts.length == 3) {
+        int year = int.tryParse(birthParts[0]) ?? DateTime.now().year;
+        int month = int.tryParse(birthParts[1]) ?? 1;
+        int day = int.tryParse(birthParts[2]) ?? 1;
+        selectedDate.value = DateTime(year, month, day);
+      }
+    }
+  }
+
+  /// 생년월일 선택 함수
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900), // 최소 선택 가능한 날짜
-      lastDate: DateTime.now(), // 최대 선택 가능한 날짜
+      initialDate: selectedDate.value ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -29,7 +49,7 @@ class InfoController extends GetxController {
     }
   }
 
-  // 선택된 날짜를 문자열 형식으로 반환
+  /// 선택된 날짜를 문자열 형식으로 반환
   String getFormattedDate() {
     if (selectedDate.value == null) {
       return '0000.00.00'; // 기본값

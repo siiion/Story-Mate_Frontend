@@ -20,15 +20,18 @@ class _TermsPageState extends State<TermsPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 35.h),
+        padding: EdgeInsets.symmetric(horizontal: 35.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(
+              height: 30.h,
+            ),
             Center(
               child: Image.asset(
                 'assets/logo_terms.png',
-                width: 320.w,
+                width: 300.w,
               ),
             ),
             SizedBox(
@@ -112,14 +115,14 @@ class _TermsPageState extends State<TermsPage> {
               ),
             ),
             SizedBox(
-              height: 84.h,
+              height: 50.h,
             ),
             Center(
               child: Obx(
                 () => GestureDetector(
                   onTap: controller.isAllRequiredChecked()
                       ? () {
-                          controller.toServiceTermsDetail();
+                          Get.toNamed('/home');
                         }
                       : null,
                   child: Container(
@@ -191,7 +194,7 @@ class DetailTermsCheckBox extends StatelessWidget {
           terms,
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18.sp,
+            fontSize: 16.sp,
             fontFamily: 'Jua',
             fontWeight: FontWeight.w400,
             height: 1.94.h,

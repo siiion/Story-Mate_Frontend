@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:storymate/components/theme.dart';
-import 'package:storymate/controllers/login_controller.dart';
+import 'package:storymate/view_models/onboarding/login_controller.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final LoginExistController loginController =
-        Get.put(LoginExistController()); // 로그인 컨트롤러를 GetX로 연결
+    final LoginController loginController =
+        Get.put(LoginController()); // 로그인 컨트롤러를 GetX로 연결
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,

@@ -3,9 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // ScreenUtil 임�
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 임포트
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
+import 'package:storymate/view_models/onboarding/login_controller.dart';
 import 'routes/app_routes.dart'; // 경로 정의 파일
-import 'package:storymate/controllers/login_controller.dart'; // 로그인 컨트롤러
-import 'dart:ui';
 
 void main() async {
   await dotenv.load(); // .env 파일 로드
@@ -17,7 +16,7 @@ void main() async {
   );
 
   // LoginController를 전역적으로 사용 가능하게 초기화
-  Get.put(LoginExistController());
+  Get.put(LoginController());
 
   // ScreenUtil 초기화는 build() 메소드 내에서 처리합니다.
   runApp(MyApp());
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
 
   // 로그인 여부를 체크하는 함수
   bool _checkLoginStatus() {
-    final accessToken = Get.find<LoginExistController>().accessToken.value;
+    final accessToken = Get.find<LoginController>().accessToken.value;
     return accessToken.isNotEmpty; // accessToken이 비어 있지 않으면 로그인 상태
   }
 }

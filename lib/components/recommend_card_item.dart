@@ -64,7 +64,7 @@ class RecommendCardItem extends StatelessWidget {
                   ),
                   // 주요 캐릭터/작품 설명 소개
                   Container(
-                    width: 191.w,
+                    width: 185.w,
                     height: 77.h,
                     decoration: ShapeDecoration(
                       color: Colors.white,
