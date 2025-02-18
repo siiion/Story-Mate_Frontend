@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:storymate/components/custom_alert_dialog.dart';
 import 'package:storymate/components/custom_bottom_bar.dart';
 import 'package:storymate/components/custom_card.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/services/api_service.dart';
 import 'package:storymate/view_models/mypage/my_controller.dart';
 
 class MyPage extends StatefulWidget {
@@ -293,7 +295,10 @@ class _MyPageState extends State<MyPage> {
                       children: [
                         // 로그아웃 버튼
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () async {
+                            await ApiService().deleteToken(); //토큰 삭제
+                            Get.offAllNamed('/login');
+                          },
                           child: Text(
                             '로그아웃',
                             style: TextStyle(
@@ -329,6 +334,7 @@ class _MyPageState extends State<MyPage> {
                               },
                             );
                             if (result == true) {
+                              await ApiService().deleteToken();
                               // '예' 클릭 시
                               showDialog(
                                 context: context,
@@ -353,6 +359,10 @@ class _MyPageState extends State<MyPage> {
                                   );
                                 },
                               );
+
+                              // 3초 뒤에 앱 종료료
+                              await Future.delayed(Duration(seconds: 3));
+                              SystemNavigator.pop(); // 화면을 닫음
                             } else {
                               // '아니오' 클릭 시
                               // 아무 동작도 하지 않고 다이얼로그를 닫음
