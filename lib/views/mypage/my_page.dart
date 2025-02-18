@@ -68,34 +68,33 @@ class _MyPageState extends State<MyPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 유저 이름
-                            Text(
-                              '사용자님,',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 25.sp,
-                                fontFamily: 'Jua',
-                                fontWeight: FontWeight.w400,
-                                height: 0.80.h,
-                                letterSpacing: -0.23.w,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8.h,
-                            ),
-                            // 생년월일
-                            Text(
-                              'xxxx.xx.xx',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20.sp,
-                                fontFamily: 'Jua',
-                                fontWeight: FontWeight.w400,
-                                height: 1.h,
-                                letterSpacing: -0.23.w,
-                              ),
-                            ),
+                            // 사용자 이름 (동적 데이터 적용)
+                            Obx(() => Text(
+                                  '${controller.userName.value}님,',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 25.sp,
+                                    fontFamily: 'Jua',
+                                    fontWeight: FontWeight.w400,
+                                    height: 0.80.h,
+                                    letterSpacing: -0.23.w,
+                                  ),
+                                )),
+                            SizedBox(height: 8.h),
+                            // 생년월일 (동적 데이터 적용)
+                            Obx(() => Text(
+                                  controller.userBirth.value,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20.sp,
+                                    fontFamily: 'Jua',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.h,
+                                    letterSpacing: -0.23.w,
+                                  ),
+                                )),
                           ],
                         ),
                         // 내 정보 수정 버튼
