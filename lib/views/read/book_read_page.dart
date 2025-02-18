@@ -33,6 +33,7 @@ class _BookReadPageState extends State<BookReadPage> {
     // Get.arguments로 전달받은 책 정보
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
+    final int bookId = arguments['bookId'] ?? -1;
 
     // TXT 파일명 생성 (공백을 "_"로 변환하여 파일명 안전하게)
     final String fileName = '${title.replaceAll(' ', '_')}.txt';
@@ -151,7 +152,7 @@ class _BookReadPageState extends State<BookReadPage> {
           onHorizontalDragEnd: (details) {
             if (details.primaryVelocity! < 0) {
               // 오른쪽 -> 왼쪽 스와이프 (다음 페이지)
-              controller.goToNextPage();
+              controller.goToNextPage(bookId);
             } else if (details.primaryVelocity! > 0) {
               // 왼쪽 -> 오른쪽 스와이프 (이전 페이지)
               controller.goToPreviousPage();

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:storymate/services/api_service.dart';
 import 'package:storymate/services/text_pagination_service.dart';
 import 'package:storymate/views/read/book_more_page.dart';
 
 import '../../models/highlight.dart';
 
 class BookReadController extends GetxController {
+  final ApiService apiService = ApiService();
+
   RxList<String> pages = <String>[].obs; // 페이지 목록
   RxInt currentPage = 0.obs; // 현재 페이지
   RxSet<int> bookmarks = <int>{}.obs; // 북마크 저장
@@ -129,12 +132,20 @@ class BookReadController extends GetxController {
   }
 
   // 다음 페이지로 이동
-  void goToNextPage() {
+  void goToNextPage(int bookId) async {
     if (currentPage.value < pages.length - 1) {
       currentPage.value++;
       updateProgress();
     } else {
       Get.snackbar('알림', '마지막 페이지입니다.');
+
+      // 마지막 페이지까지 읽으면 API 호출
+      try {
+        await apiService.markBookAsRead(bookId);
+        Get.snackbar('알림', '책을 읽음으로 표시하였습니다.');
+      } catch (e) {
+        Get.snackbar('오류', '책 읽음 표시 중 오류 발생: $e');
+      }
     }
   }
 
