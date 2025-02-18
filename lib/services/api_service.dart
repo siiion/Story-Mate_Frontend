@@ -149,4 +149,32 @@ class ApiService {
       print("토큰 삭제 중 오류 발생: $e");
     }
   }
+
+  // 작품을 읽음으로 표시하는 메서드
+  Future<void> markBookAsRead(int bookId) async {
+    try {
+      String? accessToken = await getToken(); // 저장된 액세스 토큰 가져오기
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/books/$bookId/contents'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("책 ID: $bookId 읽음 표시 성공!");
+      } else {
+        print("책 ID: $bookId 읽음 표시 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책 ID: $bookId 읽음 표시 중 오류 발생: $e");
+    }
+  }
 }

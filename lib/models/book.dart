@@ -10,6 +10,7 @@ class Book {
   final String characterDescription; // 주요 캐릭터 설명 추가
   final String characterImage; // 캐릭터 이미지 추가
   final int? characterId; // 캐릭터 ID
+  final int bookId;
 
   Book({
     required this.title,
@@ -23,6 +24,7 @@ class Book {
     this.characterDescription = '',
     this.characterImage = 'assets/books/default_character.png', // 기본 캐릭터 이미지
     this.characterId,
+    required this.bookId,
   });
 
   // JSON을 Book 객체로 변환하는 factory 생성자
@@ -35,6 +37,7 @@ class Book {
       author: json['author'] ?? "미상",
       publishedYear: json['publishedYear'] ?? "미상",
       description: json['description'] ?? "작품 소개글이 없습니다.",
+      bookId: json['bookId'],
     );
   }
 
@@ -48,6 +51,7 @@ class Book {
       'author': author,
       'publishedYear': publishedYear,
       'description': description,
+      'bookId': bookId,
     };
   }
 }
