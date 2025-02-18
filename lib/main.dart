@@ -2,18 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // ScreenUtil 임포트
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 임포트
+import 'package:get_storage/get_storage.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:storymate/view_models/onboarding/login_controller.dart';
 import 'package:storymate/views/onboarding/splash_screen.dart';
 import 'routes/app_routes.dart'; // 경로 정의 파일
 
 void main() async {
-  await dotenv.load(); // .env 파일 로드
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init(); // GetStorage 초기화
+
+  // .env 파일 로드
+  await dotenv.load();
+
+  // 환경 변수에서 네이티브 앱 키 가져오기
+  String kakaoNativeAppKey = dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '';
 
   // 카카오 SDK 초기화 (앱 키는 환경 변수에서 불러오기)
   KakaoSdk.init(
-    nativeAppKey: '9b800199345edd7cccb05ce7ca02aa57',
+    nativeAppKey: kakaoNativeAppKey,
   );
 
   // LoginController를 전역적으로 사용 가능하게 초기화
