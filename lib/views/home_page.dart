@@ -85,27 +85,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBookList(List<Book> books, HomeController controller) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: books.length,
-      itemBuilder: (context, index) {
-        final book = books[index];
-        return Padding(
-          padding: EdgeInsets.all(10),
-          child: CustomCard(
-            title: book.title,
-            tags: book.tags,
-            coverImage: book.coverImage,
-            onTap: () {
-              controller.toIntroPage(book.title);
-            },
-          ),
-        );
-      },
+    return Padding(
+      padding: EdgeInsets.only(left: 10.w),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: books.length,
+        itemBuilder: (context, index) {
+          final book = books[index];
+          return Padding(
+            padding: EdgeInsets.all(5),
+            child: CustomCard(
+              title: book.title,
+              tags: book.tags,
+              coverImage: book.coverImage,
+              onTap: () {
+                controller.toIntroPage(book.title);
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildRecommendedSection() {
+    final recommendedBook = controller.getRandomBook();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -123,8 +128,7 @@ class _HomePageState extends State<HomePage> {
         ),
         Center(
           child: RecommendCardItem(
-            title: '작품 제목',
-            tag: '#태그 #3개 #들어감',
+            book: recommendedBook,
             isCharacter: false,
           ),
         ),
@@ -133,6 +137,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildPopularByAgeAndGender() {
+    final recommendedBook = controller.getRecommendedBookForAgeAndGender();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -141,7 +147,7 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             children: [
               Text(
-                '20',
+                '${controller.userAgeGroup}',
                 style: TextStyle(
                   color: AppTheme.primaryColor,
                   fontSize: 18.sp,
@@ -150,25 +156,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Text(
-                '대 ',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18.sp,
-                  fontFamily: 'Jua',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                '여성',
-                style: TextStyle(
-                  color: AppTheme.primaryColor,
-                  fontSize: 18.sp,
-                  fontFamily: 'Jua',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                '에게 인기 많아요',
+                '대에게 인기 많아요',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 18.sp,
@@ -181,11 +169,9 @@ class _HomePageState extends State<HomePage> {
         ),
         Center(
           child: RecommendCardItem(
-            title: '작품 제목',
-            tag: '#태그 #3개 #들어감',
-            character: '캐릭터명',
-            characterIntro: '한 줄 소개',
+            book: recommendedBook,
             isCharacter: true,
+            characterId: recommendedBook.characterId,
           ),
         ),
       ],

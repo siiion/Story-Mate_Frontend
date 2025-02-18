@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:storymate/components/theme.dart';
 
 class InfoController extends GetxController {
+  final box = GetStorage(); // GetStorage 인스턴스 생성
+
   // 사용자 정보 상태
   var userName = ''.obs;
   var selectedDate = Rxn<DateTime>();
-  TextEditingController nameController =
-      TextEditingController(); // 텍스트 필드 컨트롤러 추가
+  TextEditingController nameController = TextEditingController();
 
   /// 초기 정보 설정 (카카오에서 받은 값 적용)
   void setInitialInfo(String name, String birth) {
@@ -15,7 +17,6 @@ class InfoController extends GetxController {
     nameController.text = name;
 
     if (birth != "0000.00.00") {
-      // 생년월일이 존재하면 DateTime으로 변환
       List<String> birthParts = birth.split('.');
       if (birthParts.length == 3) {
         int year = int.tryParse(birthParts[0]) ?? DateTime.now().year;
@@ -45,7 +46,7 @@ class InfoController extends GetxController {
     );
 
     if (picked != null) {
-      selectedDate.value = picked; // 선택된 날짜 저장
+      selectedDate.value = picked;
     }
   }
 
@@ -56,5 +57,16 @@ class InfoController extends GetxController {
     }
     final date = selectedDate.value!;
     return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+  }
+
+  /// 사용자 정보 저장
+  void saveUserInfo() {
+    box.write("userName", userName.value);
+    box.write("userBirth", getFormattedDate());
+
+    print("사용자 정보 저장 완료: 이름 = ${userName.value}, 생년월일 = ${getFormattedDate()}");
+
+    // 다음 화면으로 이동
+    Get.toNamed('/terms');
   }
 }

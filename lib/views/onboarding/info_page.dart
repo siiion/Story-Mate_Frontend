@@ -169,7 +169,7 @@ class _InfoPageState extends State<InfoPage> {
               ),
               child: GestureDetector(
                 onTap: () {
-                  Get.toNamed('/terms');
+                  controller.saveUserInfo();
                 }, // 정보 저장 로직
                 child: Center(
                   child: Text(
