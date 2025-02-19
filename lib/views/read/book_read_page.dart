@@ -135,7 +135,7 @@ class _BookReadPageState extends State<BookReadPage> {
                           '${controller.currentPage.value + 1}/${controller.pages.length}',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15.sp,
+                            fontSize: 13.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w400,
                             height: 1.33.h,

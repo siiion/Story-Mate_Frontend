@@ -27,7 +27,8 @@ class SignInPage extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                loginController.loginWithKakao(); // 카카오 로그인 버튼을 클릭하면 로그인 처리
+                loginController.loginWithKakao(
+                    isSignUp: false); // 카카오 로그인 버튼을 클릭하면 로그인 처리
               },
               child: Image.asset(
                 'assets/kakao_signin.png',

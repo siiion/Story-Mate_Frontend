@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:storymate/routes/app_routes.dart';
 import 'package:storymate/services/api_service.dart';
 
 class LoginController extends GetxController {
   final ApiService _apiService = ApiService();
-  final box = GetStorage(); // GetStorage 인스턴스 생성
 
   RxString accessToken = ''.obs;
   RxString userName = ''.obs;
@@ -15,12 +14,24 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // 저장된 사용자 정보 불러오기
-    userName.value = box.read("userName") ?? "";
-    userBirth.value = box.read("userBirth") ?? "";
+    _loadStoredToken(); // 저장된 토큰 불러오기
   }
 
-  Future<void> loginWithKakao() async {
+  /// 저장된 토큰 불러오기
+  Future<void> _loadStoredToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? storedToken = prefs.getString('accessToken');
+
+    if (storedToken != null && storedToken.isNotEmpty) {
+      accessToken.value = storedToken;
+      print("저장된 액세스 토큰 로드: $storedToken");
+    } else {
+      print("저장된 액세스 토큰 없음");
+    }
+  }
+
+  /// 카카오 로그인 처리
+  Future<void> loginWithKakao({required bool isSignUp}) async {
     try {
       OAuthToken token;
       if (await isKakaoTalkInstalled()) {
@@ -36,33 +47,53 @@ class LoginController extends GetxController {
 
       await _apiService.socialLogin("kakao", accessTokenValue);
 
-      // 로그인 성공 후 이동
-      Get.offAllNamed(AppRoutes.INFO, arguments: {
-        "userName": userName.value,
-        "userBirth": userBirth.value,
-      });
+      // 저장된 토큰 다시 로드
+      await _loadStoredToken();
+
+      // 로그인 후 이동 로직
+      if (isSignUp) {
+        Get.offAllNamed(AppRoutes.INFO, arguments: {
+          "userName": userName.value,
+          "userBirth": userBirth.value,
+        });
+      } else {
+        Get.offAllNamed(AppRoutes.HOME); // 로그인 화면에서 호출 시 홈으로 이동
+      }
     } catch (error) {
       print("카카오 로그인 실패: $error");
     }
   }
 
+  /// 사용자 정보 불러오기
   Future<void> fetchUserInfo() async {
     try {
       User user = await UserApi.instance.me();
 
       if (user.kakaoAccount?.profile?.nickname != null) {
         userName.value = user.kakaoAccount!.profile!.nickname!;
-        box.write("userName", userName.value); // 이름 저장
       }
 
       if (user.kakaoAccount?.birthday != null) {
         userBirth.value = user.kakaoAccount!.birthday!;
-        box.write("userBirth", userBirth.value); // 생년월일 저장
       }
 
       print("사용자 정보: 이름=${userName.value}, 생년월일=${userBirth.value}");
     } catch (error) {
       print("사용자 정보 가져오기 실패: $error");
     }
+  }
+
+  /// 로그아웃 (토큰 삭제)
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('accessToken');
+    await prefs.remove('refreshToken');
+
+    accessToken.value = ''; // 상태값 초기화
+    userName.value = '';
+    userBirth.value = '';
+
+    print("로그아웃 완료, 저장된 토큰 삭제됨");
+    Get.offAllNamed(AppRoutes.SIGNUP); // 로그인 화면으로 이동
   }
 }

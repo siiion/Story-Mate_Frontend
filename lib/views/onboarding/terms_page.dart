@@ -62,7 +62,7 @@ class _TermsPageState extends State<TermsPage> {
                   '모두 동의합니다.',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 25.sp,
+                    fontSize: 22.sp,
                     fontFamily: 'Jua',
                     fontWeight: FontWeight.w400,
                     height: 1.40.h,
@@ -184,7 +184,7 @@ class DetailTermsCheckBox extends StatelessWidget {
           onTap: onCheckToggle,
           child: Icon(
             isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 25.w,
+            size: 20.w,
           ),
         ),
         SizedBox(
@@ -194,7 +194,7 @@ class DetailTermsCheckBox extends StatelessWidget {
           terms,
           style: TextStyle(
             color: Colors.black,
-            fontSize: 16.sp,
+            fontSize: 14.sp,
             fontFamily: 'Jua',
             fontWeight: FontWeight.w400,
             height: 1.94.h,

@@ -139,7 +139,7 @@ class BookmarkTabContents extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 20,
+          crossAxisSpacing: 30,
           mainAxisSpacing: 20,
           childAspectRatio: 0.8,
         ),
@@ -152,7 +152,7 @@ class BookmarkTabContents extends StatelessWidget {
                 children: [
                   // 배경 컨테이너
                   Container(
-                    height: 170.h,
+                    height: 165.h,
                     decoration: ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
