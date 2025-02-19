@@ -32,6 +32,49 @@ class BookReadController extends GetxController {
     }
   }
 
+  /// 책 읽기 진행도 업데이트 (API 연동)
+  Future<void> updateReadingProgress(int bookId) async {
+    if (pages.isEmpty) return;
+
+    int progress = ((currentPage.value + 1) / pages.length * 100)
+        .toInt(); // 100% 기준 진행도 계산
+    try {
+      await apiService.markBookAsRead(bookId, progress);
+      print("[DEBUG] 책 진행도 업데이트 완료: $progress%");
+    } catch (e) {
+      print("[ERROR] 책 진행도 업데이트 중 오류 발생: $e");
+    }
+  }
+
+  // 이전 페이지로 이동 (책 읽기 중단 시 진행도 저장)
+  void goToPreviousPage(int bookId) async {
+    if (currentPage.value > 0) {
+      currentPage.value--;
+      updateProgress();
+      await updateReadingProgress(bookId); // 진행도 저장
+    } else {
+      Get.snackbar('알림', '첫 페이지입니다.');
+    }
+  }
+
+  // 다음 페이지로 이동 (마지막 페이지일 경우 진행도 저장)
+  void goToNextPage(int bookId) async {
+    if (currentPage.value < pages.length - 1) {
+      currentPage.value++;
+      updateProgress();
+      await updateReadingProgress(bookId); // 진행도 저장
+    } else {
+      Get.snackbar('알림', '마지막 페이지입니다.');
+      await updateReadingProgress(bookId); // 마지막 페이지 읽음 표시
+    }
+  }
+
+  // 뒤로 가기 (책 읽기 중단 시 진행도 저장)
+  void goBack(int bookId) async {
+    await updateReadingProgress(bookId); // 진행도 저장 후 종료
+    Get.back();
+  }
+
   /// 특정 책의 하이라이트 목록 불러오기 (API 연동)
   Future<void> fetchHighlights(int bookId) async {
     try {
@@ -186,11 +229,6 @@ class BookReadController extends GetxController {
     }
   }
 
-  // 뒤로 가기
-  void goBack() {
-    Get.back();
-  }
-
   // 책 파일 로드 (초기 데이터 로드 포함)
   Future<void> loadBook(String filePath, double screenWidth,
       double screenHeight, TextStyle textStyle, int bookId) async {
@@ -232,34 +270,6 @@ class BookReadController extends GetxController {
   // UI 가시성 토글
   void toggleUIVisibility() {
     isUIVisible.value = !isUIVisible.value;
-  }
-
-  // 이전 페이지로 이동
-  void goToPreviousPage() {
-    if (currentPage.value > 0) {
-      currentPage.value--;
-      updateProgress();
-    } else {
-      Get.snackbar('알림', '첫 페이지입니다.');
-    }
-  }
-
-  // 다음 페이지로 이동
-  void goToNextPage(int bookId) async {
-    if (currentPage.value < pages.length - 1) {
-      currentPage.value++;
-      updateProgress();
-    } else {
-      Get.snackbar('알림', '마지막 페이지입니다.');
-
-      // 마지막 페이지까지 읽으면 API 호출
-      try {
-        await apiService.markBookAsRead(bookId);
-        Get.snackbar('알림', '책을 읽음으로 표시하였습니다.');
-      } catch (e) {
-        Get.snackbar('오류', '책 읽음 표시 중 오류 발생: $e');
-      }
-    }
   }
 
   // 첫 페이지로 리셋

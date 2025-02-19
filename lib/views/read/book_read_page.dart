@@ -52,7 +52,7 @@ class _BookReadPageState extends State<BookReadPage> {
         appBar: controller.isUIVisible.value
             ? BookAppBar(
                 title: title,
-                onLeadingTap: () => controller.goBack(),
+                onLeadingTap: () => controller.goBack(bookId),
                 isActionVisible: true,
                 onBookmarkTap: () {
                   controller.toggleBookmark(bookId);
@@ -158,7 +158,7 @@ class _BookReadPageState extends State<BookReadPage> {
               controller.goToNextPage(bookId);
             } else if (details.primaryVelocity! > 0) {
               // 왼쪽 -> 오른쪽 스와이프 (이전 페이지)
-              controller.goToPreviousPage();
+              controller.goToPreviousPage(bookId);
             }
           },
           child: Obx(() {

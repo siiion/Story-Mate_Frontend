@@ -151,7 +151,7 @@ class ApiService {
   }
 
   // 작품을 읽음으로 표시하는 메서드
-  Future<void> markBookAsRead(int bookId) async {
+  Future<void> markBookAsRead(int bookId, int progress) async {
     try {
       String? accessToken = await getToken(); // 저장된 액세스 토큰 가져오기
 
@@ -166,6 +166,9 @@ class ApiService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
         },
+        body: json.encode({
+          "progress": progress,
+        }),
       );
 
       if (response.statusCode == 200) {
