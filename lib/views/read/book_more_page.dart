@@ -20,6 +20,10 @@ class BookMorePage extends StatelessWidget {
         (arguments is Map<String, dynamic> && arguments.containsKey('title'))
             ? arguments['title']
             : '작품 제목';
+    final int bookId =
+        (arguments is Map<String, dynamic> && arguments.containsKey('bookId'))
+            ? arguments['bookId']
+            : -1;
 
     return DefaultTabController(
       length: 3,
@@ -33,7 +37,7 @@ class BookMorePage extends StatelessWidget {
           if (controller.currentTabIndex.value == 2) {
             // 메모 탭일 경우 플로팅 버튼 표시
             return GestureDetector(
-              onTap: () => controller.toAddMemo(),
+              onTap: () => controller.toAddMemo(bookId),
               child: Container(
                 width: 70.w,
                 height: 70.h,
@@ -102,9 +106,9 @@ class BookMorePage extends StatelessWidget {
                   // 책갈피 탭
                   BookmarkTabContents(controller: controller),
                   // 메모 탭
-                  TabContents(
+                  MemoTabContents(
                     controller: controller,
-                    tab: controller.memos,
+                    bookId: bookId,
                   ),
                 ],
               ),
@@ -233,7 +237,7 @@ class BookmarkTabContents extends StatelessWidget {
   }
 }
 
-// 하이라이트 & 메모 탭 내용
+// 하이라이트 탭 내용
 class TabContents extends StatelessWidget {
   final dynamic tab;
 
@@ -299,7 +303,7 @@ class TabContents extends StatelessWidget {
                         SizedBox(
                           width: 20,
                         ),
-                        // 하이라이트/메모 내용
+                        // 하이라이트 내용
                         Text(
                           item["content"]!,
                           style: TextStyle(
@@ -316,9 +320,7 @@ class TabContents extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         // 삭제
-                        tab == controller.highlights
-                            ? controller.removeHighlight(index)
-                            : controller.removeMemo(index);
+                        controller.removeHighlight(index);
                       },
                       child: Icon(
                         Icons.delete,
@@ -327,23 +329,121 @@ class TabContents extends StatelessWidget {
                     ),
                   ],
                 ),
-                // (메모일 경우) 작성한 날짜
-                tab == controller.highlights
-                    ? SizedBox() // highlights 탭에서는 날짜를 표시하지 않음
-                    : Text(
-                        item.containsKey("date")
-                            ? controller.formatDate(item["date"])
-                            : '', // "date" 키 존재 여부 확인
-                        style: TextStyle(
-                          color: Color(0xFF9B9ECF),
-                          fontSize: 12,
-                          fontFamily: 'Nanum',
-                          fontWeight: FontWeight.w400,
-                          height: 1.67,
-                          letterSpacing: -0.23,
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// 메모 탭 UI (실제 API 데이터와 연동)
+class MemoTabContents extends StatelessWidget {
+  final BookMoreController controller;
+  final int bookId;
+
+  const MemoTabContents({
+    super.key,
+    required this.controller,
+    required this.bookId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        itemCount: controller.memos.length,
+        itemBuilder: (context, index) {
+          final memo = controller.memos[index];
+          final int noteId = memo["id"]; // 메모 ID
+          final int position = memo["position"]; // 쪽수
+          final String content = memo["content"]; // 메모 내용
+
+          return GestureDetector(
+            onTap: () {
+              // 메모 클릭 시 수정 페이지로 이동
+              Get.toNamed(
+                '/memo',
+                arguments: {
+                  'isEdit': true, // 수정 모드 활성화
+                  'bookId': bookId,
+                  'noteId': noteId,
+                  'position': position,
+                  'content': content,
+                },
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              padding: EdgeInsets.all(10),
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1, color: AppTheme.primaryColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 쪽수 표시
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                        decoration: ShapeDecoration(
+                          color: AppTheme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          "p.$position",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontFamily: 'Nanum',
+                            fontWeight: FontWeight.w400,
+                            height: 1.33,
+                            letterSpacing: -0.23,
+                          ),
                         ),
                       ),
-              ],
+                      SizedBox(width: 20),
+                      // 메모 내용
+                      Expanded(
+                        child: Text(
+                          content,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontFamily: 'Nanum',
+                            fontWeight: FontWeight.w600,
+                            height: 1.33,
+                            letterSpacing: -0.23,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                      // 삭제 버튼
+                      GestureDetector(
+                        onTap: () {
+                          controller.removeMemo(bookId, noteId, index);
+                        },
+                        child: Icon(
+                          Icons.delete,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },

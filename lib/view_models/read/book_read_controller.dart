@@ -156,11 +156,12 @@ class BookReadController extends GetxController {
   }
 
   // 더보기 버튼 클릭 시
-  void toMorePage(String title) {
+  void toMorePage(String title, int bookId) {
     Get.to(
       BookMorePage(),
       arguments: {
         'title': title,
+        'bookId': bookId,
       },
     );
   }

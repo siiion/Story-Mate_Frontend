@@ -177,4 +177,127 @@ class ApiService {
       print("책 ID: $bookId 읽음 표시 중 오류 발생: $e");
     }
   }
+
+  /// 메모 추가
+  Future<void> addBookNote(int bookId, int position, String content) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "position": position, // 쪽수
+          "content": content, // 메모 내용
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("메모 추가 성공! [페이지: $position]");
+      } else {
+        print("메모 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 메모 목록 조회
+  Future<List<Map<String, dynamic>>> getBookNotes(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("메모 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("메모 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("메모 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 메모 수정
+  Future<void> updateBookNote(int bookId, int noteId, String newContent) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.patch(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "noteId": noteId,
+          "content": newContent,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("메모 수정 성공! [메모 ID: $noteId]");
+      } else {
+        print("메모 수정 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 수정 중 오류 발생: $e");
+    }
+  }
+
+  /// 메모 삭제
+  Future<void> deleteBookNote(int bookId, int noteId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/notes/$noteId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("메모 삭제 성공! [메모 ID: $noteId]");
+      } else {
+        print("메모 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 삭제 중 오류 발생: $e");
+    }
+  }
 }
