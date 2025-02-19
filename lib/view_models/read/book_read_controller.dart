@@ -25,22 +25,29 @@ class BookReadController extends GetxController {
       highlightsPerPage.clear();
 
       for (var highlight in fetchedHighlights) {
-        int page = highlight["startPosition"];
+        int id = highlight["id"]; // 하이라이트 ID
+        int page = highlight["page"]; // 서버에서 받은 페이지 (currentPage 기준)
+        int startPosition = highlight["startPosition"]; // 시작 Offset (텍스트 내 인덱스)
+        int endPosition = highlight["endPosition"]; // 끝 Offset
+        String paragraph = highlight["paragraph"]; // 하이라이트된 문장
+
         highlightsPerPage.update(
           page,
           (existing) => [
             ...existing,
             Highlight(
-              startOffset: highlight["startPosition"],
-              endOffset: highlight["endPosition"],
-              content: highlight["paragraph"],
+              id: id, // 하이라이트 ID 추가
+              startOffset: startPosition, // 서버의 position을 Offset으로 사용
+              endOffset: endPosition,
+              content: paragraph, // 하이라이트된 텍스트 저장
             ),
           ],
           ifAbsent: () => [
             Highlight(
-              startOffset: highlight["startPosition"],
-              endOffset: highlight["endPosition"],
-              content: highlight["paragraph"],
+              id: id,
+              startOffset: startPosition,
+              endOffset: endPosition,
+              content: paragraph,
             ),
           ],
         );
@@ -54,14 +61,12 @@ class BookReadController extends GetxController {
 
   /// 하이라이트 추가 (API 연동)
   Future<void> addHighlight(
-      int bookId, int start, int end, String content) async {
+      int bookId, int startOffset, int endOffset, String content) async {
     try {
-      if (start >= end) {
-        print("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
-        return;
-      }
+      int page = currentPage.value; // 현재 페이지 번호 사용
 
-      await apiService.addBookHighlights(bookId, start, end, content);
+      await apiService.addBookHighlights(
+          bookId, page, startOffset, endOffset, content);
 
       // API에서 최신 하이라이트 목록 불러와 UI 업데이트
       await fetchHighlights(bookId);
@@ -86,10 +91,10 @@ class BookReadController extends GetxController {
     }
   }
 
-  // /// 현재 페이지의 하이라이트 목록 가져오기
-  // List<Highlight> getHighlightsForCurrentPage() {
-  //   return highlightsPerPage[currentPage.value] ?? [];
-  // }
+  /// 현재 페이지의 하이라이트 목록 가져오기
+  List<Highlight> getHighlightsForCurrentPage() {
+    return highlightsPerPage[currentPage.value] ?? [];
+  }
 
   // /// 하이라이트 추가
   // void addHighlight(int start, int end, String content) {

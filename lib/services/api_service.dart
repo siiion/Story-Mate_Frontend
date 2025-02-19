@@ -301,9 +301,9 @@ class ApiService {
     }
   }
 
-  /// 하이라이트 추가
-  Future<void> addBookHighlights(
-      int bookId, int startPosition, int endPosition, String paragraph) async {
+  /// 하이라이트 추가 - 페이지도 추가해야 함
+  Future<void> addBookHighlights(int bookId, int page, int startPosition,
+      int endPosition, String paragraph) async {
     try {
       String? accessToken = await getToken();
 

@@ -166,7 +166,7 @@ class _BookReadPageState extends State<BookReadPage> {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SelectableText.rich(
-                  _buildHighlightedText(),
+                  _buildHighlightedText(bookId),
                   onSelectionChanged: (TextSelection selection, cause) {
                     if (selection.start != selection.end) {
                       setState(() {
@@ -180,7 +180,7 @@ class _BookReadPageState extends State<BookReadPage> {
                     if (isSelecting &&
                         startSelection != null &&
                         endSelection != null) {
-                      _addHighlight();
+                      _addHighlight(bookId);
                     }
                   },
                   style: textStyle,
@@ -194,7 +194,7 @@ class _BookReadPageState extends State<BookReadPage> {
   }
 
   /// 선택된 부분을 즉시 하이라이트 처리하는 `TextSpan` 생성
-  TextSpan _buildHighlightedText() {
+  TextSpan _buildHighlightedText(int bookId) {
     String text = controller.pages[controller.currentPage.value];
     List<InlineSpan> spans = [];
     int currentIndex = 0;
@@ -210,8 +210,8 @@ class _BookReadPageState extends State<BookReadPage> {
               style: textStyle));
         }
 
-        final recognizer = TapGestureRecognizer()
-          ..onTap = () => _confirmDeleteHighlight(highlight);
+        final recognizer = LongPressGestureRecognizer()
+          ..onLongPress = () => _showDeleteOption(bookId, highlight);
 
         spans.add(TextSpan(
           text: text.substring(highlight.startOffset, highlight.endOffset),
@@ -237,7 +237,8 @@ class _BookReadPageState extends State<BookReadPage> {
           text: text.substring(startSelection!, endSelection!),
           style: textStyle.copyWith(
               backgroundColor: Colors.yellow.withOpacity(0.5)),
-          recognizer: TapGestureRecognizer()..onTap = _addHighlight,
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => _confirmAddHighlight(bookId),
         ));
 
         currentIndex = endSelection!;
@@ -254,39 +255,63 @@ class _BookReadPageState extends State<BookReadPage> {
     return TextSpan(children: spans);
   }
 
-  /// 하이라이트 자동 저장
-  void _addHighlight() {
+  /// 하이라이트 추가 확인창 띄우기
+  void _confirmAddHighlight(int bookId) async {
+    bool? shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomAlertDialog(question: "이 부분을 하이라이트로 저장하시겠습니까?");
+      },
+    );
+
+    if (shouldSave == true) {
+      _addHighlight(bookId);
+    } else {
+      setState(() {
+        isSelecting = false; // 선택 취소
+      });
+    }
+  }
+
+  /// 하이라이트 추가 (선택한 텍스트의 Offset을 기반으로 API 호출)
+  void _addHighlight(int bookId) {
     if (startSelection == null || endSelection == null) return;
 
     final text = controller.pages[controller.currentPage.value];
 
-    if (startSelection! >= endSelection! || endSelection! > text.length) {
-      debugPrint("[ERROR] 잘못된 선택 범위 - 시작: $startSelection, 끝: $endSelection");
-      return;
-    }
-
+    // 선택한 문장을 기반으로 하이라이트 추가
     String selectedText = text.substring(startSelection!, endSelection!);
+    int startOffset = startSelection!;
+    int endOffset = endSelection!;
+
     debugPrint("[DEBUG] 하이라이트 추가 요청 - 선택된 텍스트: \"$selectedText\"");
 
-    controller.addHighlight(startSelection!, endSelection!, selectedText);
+    controller.addHighlight(bookId, startOffset, endOffset, selectedText);
 
     setState(() {
       isSelecting = false; // 드래그 종료
     });
   }
 
-  /// 하이라이트 삭제 전에 확인 알림창 표시
-  void _confirmDeleteHighlight(Highlight highlight) async {
+  /// 하이라이트 삭제 옵션창 띄우기
+  void _showDeleteOption(int bookId, Highlight highlight) async {
     bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return CustomAlertDialog(question: "정말 하이라이트를 \n삭제하시겠습니까?");
+        return CustomAlertDialog(
+          question: "이 하이라이트를 삭제하시겠습니까?",
+        );
       },
     );
 
     if (shouldDelete == true) {
-      controller.removeHighlight(highlight);
-      setState(() {});
+      _confirmDeleteHighlight(bookId, highlight);
     }
+  }
+
+  /// 하이라이트 삭제 (API 연동)
+  void _confirmDeleteHighlight(int bookId, Highlight highlight) async {
+    await controller.removeHighlight(bookId, highlight.id);
+    setState(() {});
   }
 }
