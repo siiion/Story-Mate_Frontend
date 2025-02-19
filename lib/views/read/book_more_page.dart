@@ -102,9 +102,12 @@ class BookMorePage extends StatelessWidget {
                   TabContents(
                     controller: controller,
                     tab: controller.highlights,
+                    bookId: bookId,
                   ),
                   // 책갈피 탭
-                  BookmarkTabContents(controller: controller),
+                  BookmarkTabContents(
+                    controller: controller,
+                  ),
                   // 메모 탭
                   MemoTabContents(
                     controller: controller,
@@ -240,11 +243,13 @@ class BookmarkTabContents extends StatelessWidget {
 // 하이라이트 탭 내용
 class TabContents extends StatelessWidget {
   final dynamic tab;
+  final int bookId;
 
   const TabContents({
     super.key,
     required this.controller,
     required this.tab,
+    required this.bookId,
   });
 
   final BookMoreController controller;
@@ -254,9 +259,14 @@ class TabContents extends StatelessWidget {
     return Obx(
       () => ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-        itemCount: tab.length,
+        itemCount: controller.highlights.length,
         itemBuilder: (context, index) {
-          final item = tab[index];
+          final highlight = controller.highlights[index];
+          final int highlightId = highlight["id"]; // 하이라이트 ID
+          final int startPosition = highlight["startPosition"]; // 시작 쪽수
+          final int endPosition = highlight["endPosition"]; // 끝 쪽수
+          final String paragraph = highlight["paragraph"]; // 하이라이트 내용
+
           return Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             padding: EdgeInsets.all(10),
@@ -289,7 +299,7 @@ class TabContents extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            item["page"]!,
+                            'p.$startPosition ~ p.$endPosition',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -305,7 +315,7 @@ class TabContents extends StatelessWidget {
                         ),
                         // 하이라이트 내용
                         Text(
-                          item["content"]!,
+                          paragraph,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -320,7 +330,7 @@ class TabContents extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         // 삭제
-                        controller.removeHighlight(index);
+                        controller.removeHighlights(bookId, highlightId, index);
                       },
                       child: Icon(
                         Icons.delete,

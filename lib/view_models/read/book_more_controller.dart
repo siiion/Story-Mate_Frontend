@@ -6,6 +6,7 @@ class BookMoreController extends GetxController {
   final ApiService apiService = ApiService();
 
   var memos = <dynamic>[].obs;
+  var highlights = <dynamic>[].obs;
 
   // 뒤로 가기
   void goBack() {
@@ -54,13 +55,30 @@ class BookMoreController extends GetxController {
     }
   }
 
-  // 하이라이트 데이터 (임시)
-  var highlights = <Map<String, String>>[
-    {"page": "p.12", "content": "하이라이트 내용 1"},
-    {"page": "p.34", "content": "하이라이트 내용 2"},
-    {"page": "p.56", "content": "하이라이트 내용 3"},
-    {"page": "p.78", "content": "하이라이트 내용 4"},
-  ].obs;
+  /// 하이라이트 목록 불러오기 (API 연동)
+  Future<void> fetchHighlights(int bookId) async {
+    try {
+      List<Map<String, dynamic>> fetchedHighlights =
+          await apiService.getBookHighlights(bookId);
+
+      // API에서 받아온 하이라이트를 업데이트
+      highlights.assignAll(fetchedHighlights);
+      print("[DEBUG] 하이라이트 목록 불러오기 완료: $highlights");
+    } catch (e) {
+      print("[ERROR] 하이라이트 불러오기 실패: $e");
+    }
+  }
+
+  // 하이라이트 삭제 (API 연동)
+  Future<void> removeHighlights(int bookId, int highlightId, int index) async {
+    try {
+      await apiService.deleteBookHighlights(bookId, highlightId);
+      highlights.removeAt(index); // UI 업데이트
+      print("[DEBUG] 하이라이트 삭제 완료 (ID: $highlightId)");
+    } catch (e) {
+      print("[ERROR] 하이라이트 삭제 실패: $e");
+    }
+  }
 
   // 책갈피 데이터 (임시)
   var bookmarks = <Map<String, String>>[
@@ -73,11 +91,6 @@ class BookMoreController extends GetxController {
   // DateTime -> String 변환 함수
   String formatDate(DateTime date) {
     return DateFormat('yyyy/MM/dd').format(date);
-  }
-
-  // 하이라이트 삭제 메서드 (UI만)
-  void removeHighlight(int index) {
-    highlights.removeAt(index);
   }
 
   // 책갈피 삭제 메서드 (UI만)

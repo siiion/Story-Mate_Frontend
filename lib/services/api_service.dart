@@ -300,4 +300,97 @@ class ApiService {
       print("메모 삭제 중 오류 발생: $e");
     }
   }
+
+  /// 하이라이트 추가
+  Future<void> addBookHighlights(
+      int bookId, int startPosition, int endPosition, String paragraph) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/highlights'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "startPosition": startPosition, // 시작 쪽수
+          "endPosition": endPosition, // 끝 쪽수
+          "paragraph": paragraph, // 하이라이트 내용
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("하이라이트 추가 성공! [내용: $paragraph]");
+      } else {
+        print("하이라이트 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("하이라이트 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 하이라이트 목록 조회
+  Future<List<Map<String, dynamic>>> getBookHighlights(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/highlights'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("하이라이트 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("하이라이트 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("하이라이트 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 하이라이트 삭제
+  Future<void> deleteBookHighlights(int bookId, int highlightId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/notes/$highlightId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("하이라이트 삭제 성공! [하이라이트 ID: $highlightId]");
+      } else {
+        print("하이라이트 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("하이라이트 삭제 중 오류 발생: $e");
+    }
+  }
 }

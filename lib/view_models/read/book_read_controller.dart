@@ -17,60 +17,129 @@ class BookReadController extends GetxController {
   RxDouble progress = 0.0.obs; // 진행률
   RxMap<int, List<Highlight>> highlightsPerPage = <int, List<Highlight>>{}.obs;
 
-  /// 현재 페이지의 하이라이트 목록 가져오기
-  List<Highlight> getHighlightsForCurrentPage() {
-    return highlightsPerPage[currentPage.value] ?? [];
+  /// 특정 책의 하이라이트 목록 불러오기 (API 연동)
+  Future<void> fetchHighlights(int bookId) async {
+    try {
+      List<Map<String, dynamic>> fetchedHighlights =
+          await apiService.getBookHighlights(bookId);
+      highlightsPerPage.clear();
+
+      for (var highlight in fetchedHighlights) {
+        int page = highlight["startPosition"];
+        highlightsPerPage.update(
+          page,
+          (existing) => [
+            ...existing,
+            Highlight(
+              startOffset: highlight["startPosition"],
+              endOffset: highlight["endPosition"],
+              content: highlight["paragraph"],
+            ),
+          ],
+          ifAbsent: () => [
+            Highlight(
+              startOffset: highlight["startPosition"],
+              endOffset: highlight["endPosition"],
+              content: highlight["paragraph"],
+            ),
+          ],
+        );
+      }
+      highlightsPerPage.refresh();
+      print("[DEBUG] 하이라이트 목록 업데이트 완료");
+    } catch (e) {
+      print("[ERROR] 하이라이트 목록 불러오기 실패: $e");
+    }
   }
 
-  /// 하이라이트 추가
-  void addHighlight(int start, int end, String content) {
+  /// 하이라이트 추가 (API 연동)
+  Future<void> addHighlight(
+      int bookId, int start, int end, String content) async {
     try {
-      debugPrint("[DEBUG] 하이라이트 추가 시도 - 페이지: ${currentPage.value}");
-      debugPrint("[DEBUG] startOffset: $start, endOffset: $end");
-      debugPrint("[DEBUG] 선택한 텍스트: \"$content\"");
-
       if (start >= end) {
-        debugPrint("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
+        print("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
         return;
       }
 
-      final highlight = Highlight(
-        startOffset: start,
-        endOffset: end,
-        content: content,
-      );
+      await apiService.addBookHighlights(bookId, start, end, content);
 
-      highlightsPerPage.update(
-        currentPage.value,
-        (existing) => [...existing, highlight],
-        ifAbsent: () => [highlight],
-      );
+      // API에서 최신 하이라이트 목록 불러와 UI 업데이트
+      await fetchHighlights(bookId);
 
-      debugPrint("[DEBUG] 하이라이트 추가 완료: $highlight");
+      print("[DEBUG] 하이라이트 추가 완료: $content");
     } catch (e) {
-      debugPrint("[ERROR] 하이라이트 추가 중 오류 발생: $e");
+      print("[ERROR] 하이라이트 추가 중 오류 발생: $e");
     }
   }
 
-  /// 하이라이트 삭제
-  void removeHighlight(Highlight highlight) {
+  /// 하이라이트 삭제 (API 연동)
+  Future<void> removeHighlight(int bookId, int highlightId) async {
     try {
-      debugPrint("DEBUG] 하이라이트 삭제 시도 - 페이지: ${currentPage.value}");
-      debugPrint("삭제할 하이라이트: $highlight");
+      await apiService.deleteBookHighlights(bookId, highlightId);
 
-      if (highlightsPerPage.containsKey(currentPage.value)) {
-        highlightsPerPage[currentPage.value]!.removeWhere((h) =>
-            h.startOffset == highlight.startOffset &&
-            h.endOffset == highlight.endOffset);
-        highlightsPerPage.refresh();
-        debugPrint("[DEBUG] 하이라이트 삭제 완료.");
-      } else {
-        debugPrint("[DEBUG] 해당 페이지에 하이라이트가 없음.");
-      }
+      // API에서 최신 하이라이트 목록 불러와 UI 업데이트
+      await fetchHighlights(bookId);
+
+      print("[DEBUG] 하이라이트 삭제 완료 (ID: $highlightId)");
     } catch (e) {
-      debugPrint("[ERROR] 하이라이트 삭제 중 오류 발생: $e");
+      print("[ERROR] 하이라이트 삭제 중 오류 발생: $e");
     }
   }
+
+  // /// 현재 페이지의 하이라이트 목록 가져오기
+  // List<Highlight> getHighlightsForCurrentPage() {
+  //   return highlightsPerPage[currentPage.value] ?? [];
+  // }
+
+  // /// 하이라이트 추가
+  // void addHighlight(int start, int end, String content) {
+  //   try {
+  //     debugPrint("[DEBUG] 하이라이트 추가 시도 - 페이지: ${currentPage.value}");
+  //     debugPrint("[DEBUG] startOffset: $start, endOffset: $end");
+  //     debugPrint("[DEBUG] 선택한 텍스트: \"$content\"");
+
+  //     if (start >= end) {
+  //       debugPrint("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
+  //       return;
+  //     }
+
+  //     final highlight = Highlight(
+  //       startOffset: start,
+  //       endOffset: end,
+  //       content: content,
+  //     );
+
+  //     highlightsPerPage.update(
+  //       currentPage.value,
+  //       (existing) => [...existing, highlight],
+  //       ifAbsent: () => [highlight],
+  //     );
+
+  //     debugPrint("[DEBUG] 하이라이트 추가 완료: $highlight");
+  //   } catch (e) {
+  //     debugPrint("[ERROR] 하이라이트 추가 중 오류 발생: $e");
+  //   }
+  // }
+
+  // /// 하이라이트 삭제
+  // void removeHighlight(Highlight highlight) {
+  //   try {
+  //     debugPrint("DEBUG] 하이라이트 삭제 시도 - 페이지: ${currentPage.value}");
+  //     debugPrint("삭제할 하이라이트: $highlight");
+
+  //     if (highlightsPerPage.containsKey(currentPage.value)) {
+  //       highlightsPerPage[currentPage.value]!.removeWhere((h) =>
+  //           h.startOffset == highlight.startOffset &&
+  //           h.endOffset == highlight.endOffset);
+  //       highlightsPerPage.refresh();
+  //       debugPrint("[DEBUG] 하이라이트 삭제 완료.");
+  //     } else {
+  //       debugPrint("[DEBUG] 해당 페이지에 하이라이트가 없음.");
+  //     }
+  //   } catch (e) {
+  //     debugPrint("[ERROR] 하이라이트 삭제 중 오류 발생: $e");
+  //   }
+  // }
 
   // 뒤로 가기
   void goBack() {
