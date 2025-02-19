@@ -237,17 +237,18 @@ class _MyPageState extends State<MyPage> {
                             ),
                           ),
                           child: Center(
-                            child: Text(
-                              '남은 메세지: 00개',
-                              style: TextStyle(
-                                color: Color(0xFF9B9ECF),
-                                fontSize: 16.sp,
-                                fontFamily: 'Jua',
-                                fontWeight: FontWeight.w400,
-                                height: 1.25.h,
-                                letterSpacing: -0.23.w,
-                              ),
-                            ),
+                            child: // 남은 메시지 개수
+                                Obx(() => Text(
+                                      '남은 메세지: ${controller.messageCount.value}개',
+                                      style: TextStyle(
+                                        color: Color(0xFF9B9ECF),
+                                        fontSize: 16.sp,
+                                        fontFamily: 'Jua',
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.25.h,
+                                        letterSpacing: -0.23.w,
+                                      ),
+                                    )),
                           ),
                         ),
                         SizedBox(
