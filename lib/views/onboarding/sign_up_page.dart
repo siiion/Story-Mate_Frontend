@@ -27,8 +27,8 @@ class SignUpPage extends StatelessWidget {
             //  카카오 로그인 버튼 (함수명 변경)
             GestureDetector(
               onTap: () {
-                loginController
-                    .loginWithKakao(); //  login() → loginWithKakao() 변경
+                loginController.loginWithKakao(
+                    isSignUp: true); //  login() → loginWithKakao() 변경
               },
               child: Image.asset(
                 'assets/kakao_signup.png',
