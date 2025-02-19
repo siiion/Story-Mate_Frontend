@@ -297,7 +297,7 @@ class _MyPageState extends State<MyPage> {
                         GestureDetector(
                           onTap: () async {
                             await ApiService().deleteToken(); //토큰 삭제
-                            Get.offAllNamed('/sign_in');
+                            Get.offAllNamed('/sign_up');
                           },
                           child: Text(
                             '로그아웃',

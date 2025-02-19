@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class InfoController extends GetxController {
   final box = GetStorage(); // GetStorage 인스턴스 생성
+  final String baseUrl = dotenv.env['API_URL']!;
 
   // 사용자 정보 상태
   var userName = ''.obs;
@@ -50,7 +55,7 @@ class InfoController extends GetxController {
     }
   }
 
-  /// 선택된 날짜를 문자열 형식으로 반환
+  /// 선택된 날짜를 YYYY-MM-DD 형식으로 반환
   String getFormattedDate() {
     if (selectedDate.value == null) {
       return '0000.00.00'; // 기본값
@@ -59,14 +64,52 @@ class InfoController extends GetxController {
     return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
   }
 
-  /// 사용자 정보 저장
-  void saveUserInfo() {
-    box.write("userName", userName.value);
-    box.write("userBirth", getFormattedDate());
+  /// 생년월일 등록 API 호출
+  Future<void> registerBirthDate() async {
+    if (selectedDate.value == null) {
+      Get.snackbar("오류", "생년월일을 선택해주세요.",
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
 
-    print("사용자 정보 저장 완료: 이름 = ${userName.value}, 생년월일 = ${getFormattedDate()}");
+    try {
+      // 저장된 accessToken 불러오기
+      final prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('accessToken');
 
-    // 다음 화면으로 이동
-    Get.toNamed('/terms');
+      if (accessToken == null || accessToken.isEmpty) {
+        print("Access Token 없음");
+        Get.snackbar("오류", "로그인이 필요합니다.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/member/register-birth-date'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken', // accessToken 추가
+        },
+        body: json.encode({"birthDate": getFormattedDate()}),
+      );
+
+      if (response.statusCode == 200) {
+        // 성공 시, 로컬 저장소에도 저장
+        box.write("userBirth", getFormattedDate());
+
+        print("생년월일 등록 성공: ${getFormattedDate()}");
+
+        // 다음 화면으로 이동
+        Get.toNamed('/terms');
+      } else {
+        print("생년월일 등록 실패: ${response.body}");
+        Get.snackbar("등록 실패", "다시 시도해주세요.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      print("API 오류 발생: $e");
+      Get.snackbar("오류", "서버와 연결할 수 없습니다.",
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
   }
 }
