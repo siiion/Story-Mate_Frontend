@@ -75,33 +75,21 @@ class ModifyInfoPage extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Obx(
-                            () => TextField(
-                              controller: TextEditingController(
-                                text: controller.username.value,
-                              ),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 25.sp,
-                                fontFamily: 'Jua',
-                                fontWeight: FontWeight.w400,
-                                height: 0.80.h,
-                                letterSpacing: -0.23.w,
-                              ),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: controller.username.value.isEmpty
-                                    ? '사용자'
-                                    : controller.username.value,
-                                hintStyle: TextStyle(
-                                  color: Color(0xFF7C7C7C),
-                                  fontSize: 25.sp,
-                                  fontFamily: 'Jua',
-                                  fontWeight: FontWeight.w400,
-                                  height: 0.80.h,
-                                  letterSpacing: -0.23.w,
-                                ),
-                              ),
+                          child: TextField(
+                            controller: controller.nameController, // 변경된 부분
+                            onChanged: (value) {
+                              controller.username.value = value;
+                            },
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 25.sp,
+                              fontFamily: 'Jua',
+                              fontWeight: FontWeight.w400,
+                              height: 0.80.h,
+                              letterSpacing: -0.23.w,
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
                             ),
                           ),
                         ),
@@ -125,7 +113,7 @@ class ModifyInfoPage extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => controller.selectDate(context), // 날짜 선택
+                      onTap: () => controller.selectDate(context),
                       child: Container(
                         width: 190.w,
                         height: 50.h,
@@ -142,7 +130,10 @@ class ModifyInfoPage extends StatelessWidget {
                               horizontal: 12.w, vertical: 13.h),
                           child: Obx(
                             () => Text(
-                              controller.getFormattedDate(), // 선택된 날짜 표시
+                              // 기존 생년월일이 있으면 표시, 없으면 기본값
+                              controller.selectedDate.value != null
+                                  ? controller.getFormattedDate()
+                                  : "0000.00.00",
                               style: TextStyle(
                                 color: controller.selectedDate.value != null
                                     ? Colors.black
@@ -171,7 +162,9 @@ class ModifyInfoPage extends StatelessWidget {
                     ),
                   ),
                   child: GestureDetector(
-                    onTap: () {}, // 정보 저장 로직
+                    onTap: () {
+                      controller.updateUserInfo();
+                    },
                     child: Center(
                       child: Text(
                         '수정하기',
