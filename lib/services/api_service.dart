@@ -35,14 +35,14 @@ class ApiService {
   }
 
   // 액세스 토큰 재발급
-  Future<void> refreshAccessToken() async {
+  Future<bool> refreshAccessToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? refreshToken = prefs.getString('refreshToken');
 
       if (refreshToken == null) {
-        print("리프레시 토큰 없음");
-        return;
+        print("리프레시 토큰 없음. 로그아웃 필요.");
+        return false;
       }
 
       final response = await http.post(
@@ -56,13 +56,17 @@ class ApiService {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         String newAccessToken = data["accessToken"];
-        await saveToken(newAccessToken, refreshToken); // 새로운 액세스 토큰 저장
-        print("새로운 액세스 토큰 발급!");
+
+        await saveToken(newAccessToken, refreshToken);
+        print("새로운 액세스 토큰 발급 완료!");
+        return true; // 토큰 갱신 성공
       } else {
         print("액세스 토큰 재발급 실패: ${response.body}");
+        return false; // 토큰 갱신 실패
       }
     } catch (e) {
       print("오류 발생: $e");
+      return false; // 토큰 갱신 실패
     }
   }
 

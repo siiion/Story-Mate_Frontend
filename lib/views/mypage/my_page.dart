@@ -237,17 +237,18 @@ class _MyPageState extends State<MyPage> {
                             ),
                           ),
                           child: Center(
-                            child: Text(
-                              '남은 메세지: 00개',
-                              style: TextStyle(
-                                color: Color(0xFF9B9ECF),
-                                fontSize: 16.sp,
-                                fontFamily: 'Jua',
-                                fontWeight: FontWeight.w400,
-                                height: 1.25.h,
-                                letterSpacing: -0.23.w,
-                              ),
-                            ),
+                            child: // 남은 메시지 개수
+                                Obx(() => Text(
+                                      '남은 메세지: ${controller.messageCount.value}개',
+                                      style: TextStyle(
+                                        color: Color(0xFF9B9ECF),
+                                        fontSize: 16.sp,
+                                        fontFamily: 'Jua',
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.25.h,
+                                        letterSpacing: -0.23.w,
+                                      ),
+                                    )),
                           ),
                         ),
                         SizedBox(
@@ -297,7 +298,7 @@ class _MyPageState extends State<MyPage> {
                         GestureDetector(
                           onTap: () async {
                             await ApiService().deleteToken(); //토큰 삭제
-                            Get.offAllNamed('/sign_in');
+                            Get.offAllNamed('/sign_up');
                           },
                           child: Text(
                             '로그아웃',
@@ -334,7 +335,8 @@ class _MyPageState extends State<MyPage> {
                               },
                             );
                             if (result == true) {
-                              await ApiService().deleteToken();
+                              // await ApiService().deleteToken();
+                              await controller.deleteUserAccount();
                               // '예' 클릭 시
                               showDialog(
                                 context: context,
@@ -362,7 +364,7 @@ class _MyPageState extends State<MyPage> {
 
                               // 3초 뒤에 앱 종료료
                               await Future.delayed(Duration(seconds: 3));
-                              SystemNavigator.pop(); // 화면을 닫음
+                              SystemNavigator.pop();
                             } else {
                               // '아니오' 클릭 시
                               // 아무 동작도 하지 않고 다이얼로그를 닫음
