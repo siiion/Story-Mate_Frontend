@@ -17,18 +17,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (await _checkLoginStatus()) {
-        Get.offNamed(AppRoutes.HOME); // 로그인 되어 있으면 홈으로 이동
-      } else {
-        Get.offNamed(AppRoutes.SIGNUP); // 로그인 안 되어 있으면 회원가입 화면으로 이동
-      }
+    // 앱이 실행된 후 프레임이 그려진 다음 자동 로그인 체크
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAutoLogin();
     });
   }
 
-  /// 저장된 토큰을 확인하여 로그인 여부 판단
-  Future<bool> _checkLoginStatus() async {
-    return loginController.accessToken.value.isNotEmpty;
+  /// 저장된 토큰을 확인하여 자동 로그인 여부 판단
+  Future<void> _checkAutoLogin() async {
+    bool isValid = await loginController.checkAutoLogin();
+    if (isValid) {
+      Get.offAllNamed(AppRoutes.HOME); // 자동 로그인 성공 시 홈 화면 이동
+    } else {
+      Get.offAllNamed(AppRoutes.SIGNUP); // 토큰이 없거나 만료되면 회원가입 화면으로 이동
+    }
   }
 
   @override

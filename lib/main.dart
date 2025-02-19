@@ -16,7 +16,7 @@ void main() async {
   String kakaoNativeAppKey = dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '';
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
 
-  // LoginController를 전역으로 등록
+  // LoginController를 전역 등록 (단, 여기서는 자동 로그인 체크를 하지 않음)
   Get.put(LoginController());
 
   runApp(MyApp());
@@ -35,9 +35,9 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'StoryMate',
-          initialRoute: '/terms', // 스플래쉬 화면이 첫 화면
+          initialRoute: '/', // SplashScreen에서 자동 로그인 체크
           getPages: [
-            GetPage(name: '/', page: () => SplashScreen()), // 자동 로그인 체크
+            GetPage(name: '/', page: () => SplashScreen()), // 자동 로그인 체크 화면
             ...AppRoutes.routes,
           ],
         );
