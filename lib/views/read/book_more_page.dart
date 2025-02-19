@@ -147,10 +147,10 @@ class BookmarkTabContents extends StatelessWidget {
     return Obx(
       () => GridView.builder(
         padding: const EdgeInsets.all(20),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 30,
-          mainAxisSpacing: 20,
+          crossAxisSpacing: 30.w,
+          mainAxisSpacing: 20.h,
           childAspectRatio: 0.8,
         ),
         itemCount: controller.bookmarks.length,
@@ -275,16 +275,16 @@ class TabContents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
         itemCount: controller.highlights.length,
         itemBuilder: (context, index) {
           final highlight = controller.highlights[index];
           final int highlightId = highlight["id"]; // 하이라이트 ID
-          final int page = highlight["page"]; // 시작 쪽수
+          final int page = highlight["pageNumber"]; // 시작 쪽수
           final String paragraph = highlight["paragraph"]; // 하이라이트 내용
 
           return Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
+            margin: EdgeInsets.symmetric(vertical: 10.h),
             padding: EdgeInsets.all(10),
             decoration: ShapeDecoration(
                 color: Colors.white,
@@ -306,8 +306,8 @@ class TabContents extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.w, vertical: 5.h),
                           decoration: ShapeDecoration(
                             color: AppTheme.primaryColor,
                             shape: RoundedRectangleBorder(
@@ -318,7 +318,7 @@ class TabContents extends StatelessWidget {
                             'p.$page',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontFamily: 'Nanum',
                               fontWeight: FontWeight.w400,
                               height: 1.33,
@@ -327,18 +327,21 @@ class TabContents extends StatelessWidget {
                           ),
                         ),
                         SizedBox(
-                          width: 20,
+                          width: 10.w,
                         ),
                         // 하이라이트 내용
-                        Text(
-                          paragraph,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontFamily: 'Nanum',
-                            fontWeight: FontWeight.w600,
-                            height: 1.33,
-                            letterSpacing: -0.23,
+                        SizedBox(
+                          width: 220.w,
+                          child: Text(
+                            paragraph,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.sp,
+                              fontFamily: 'Nanum',
+                              fontWeight: FontWeight.w600,
+                              height: 1.33,
+                              letterSpacing: -0.23,
+                            ),
                           ),
                         ),
                       ],
@@ -379,7 +382,7 @@ class MemoTabContents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
         itemCount: controller.memos.length,
         itemBuilder: (context, index) {
           final memo = controller.memos[index];
@@ -402,7 +405,7 @@ class MemoTabContents extends StatelessWidget {
               );
             },
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
+              margin: EdgeInsets.symmetric(vertical: 10.h),
               padding: EdgeInsets.all(10),
               decoration: ShapeDecoration(
                 color: Colors.white,
@@ -419,8 +422,8 @@ class MemoTabContents extends StatelessWidget {
                     children: [
                       // 쪽수 표시
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 5.h),
                         decoration: ShapeDecoration(
                           color: AppTheme.primaryColor,
                           shape: RoundedRectangleBorder(
@@ -431,7 +434,7 @@ class MemoTabContents extends StatelessWidget {
                           "p.$position",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w400,
                             height: 1.33,
@@ -439,14 +442,14 @@ class MemoTabContents extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: 20.w),
                       // 메모 내용
                       Expanded(
                         child: Text(
                           content,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Nanum',
                             fontWeight: FontWeight.w600,
                             height: 1.33,

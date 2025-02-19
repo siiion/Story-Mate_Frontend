@@ -326,9 +326,10 @@ class ApiService {
           'Authorization': 'Bearer $accessToken',
         },
         body: json.encode({
-          "startPosition": startPosition, // 시작 쪽수
-          "endPosition": endPosition, // 끝 쪽수
+          "startPosition": startPosition, // 시작 인덱스
+          "endPosition": endPosition, // 끝 인덱스
           "paragraph": paragraph, // 하이라이트 내용
+          "pageNumber": page, // 하이라이트 시작 쪽수
         }),
       );
 
@@ -385,7 +386,7 @@ class ApiService {
       }
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/books/$bookId/notes/$highlightId'),
+        Uri.parse('$baseUrl/api/books/$bookId/highlights/$highlightId'),
         headers: {
           'Authorization': 'Bearer $accessToken',
         },
@@ -475,7 +476,7 @@ class ApiService {
       }
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/books/$bookId/notes/$bookmarkId'),
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks/$bookmarkId'),
         headers: {
           'Authorization': 'Bearer $accessToken',
         },

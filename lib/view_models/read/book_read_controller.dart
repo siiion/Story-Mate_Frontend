@@ -84,7 +84,7 @@ class BookReadController extends GetxController {
 
       for (var highlight in fetchedHighlights) {
         int id = highlight["id"]; // 하이라이트 ID
-        int page = highlight["page"]; // 서버에서 받은 페이지 (currentPage 기준)
+        int page = highlight["pageNumber"] - 1; // 서버에서 받은 페이지 (currentPage 기준)
         int startPosition = highlight["startPosition"]; // 시작 Offset (텍스트 내 인덱스)
         int endPosition = highlight["endPosition"]; // 끝 Offset
         String paragraph = highlight["paragraph"]; // 하이라이트된 문장
@@ -121,7 +121,7 @@ class BookReadController extends GetxController {
   Future<void> addHighlight(
       int bookId, int startOffset, int endOffset, String content) async {
     try {
-      int page = currentPage.value; // 현재 페이지 번호 사용
+      int page = currentPage.value + 1; // 현재 페이지 번호 사용
 
       await apiService.addBookHighlights(
           bookId, page, startOffset, endOffset, content);
@@ -179,7 +179,7 @@ class BookReadController extends GetxController {
 
   /// 현재 페이지가 북마크 되어 있는지 여부 확인
   bool isBookmarked() {
-    return bookmarks.contains(currentPage.value);
+    return bookmarks.contains(currentPage.value + 1);
   }
 
   /// 북마크 추가 또는 삭제 (북마크 여부에 따라 다르게 동작)

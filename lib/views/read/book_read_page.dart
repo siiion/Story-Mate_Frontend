@@ -57,8 +57,8 @@ class _BookReadPageState extends State<BookReadPage> {
                 onBookmarkTap: () {
                   controller.toggleBookmark(bookId);
                 }, // 북마크 탭 클릭 로직 필요
-                bookmarkActive:
-                    controller.bookmarks.contains(controller.currentPage.value),
+                bookmarkActive: controller.bookmarks
+                    .contains(controller.currentPage.value + 1),
                 onMoreTap: () =>
                     controller.toMorePage(title, bookId), // 더보기 탭 클릭 로직 필요
               )
@@ -262,7 +262,7 @@ class _BookReadPageState extends State<BookReadPage> {
     bool? shouldSave = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return CustomAlertDialog(question: "이 부분을 하이라이트로 저장하시겠습니까?");
+        return CustomAlertDialog(question: "이 부분을\n하이라이트로 저장하시겠습니까?");
       },
     );
 
