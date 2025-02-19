@@ -30,7 +30,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 347.w,
+      width: 350.w,
       height: 181.h,
       decoration: ShapeDecoration(
         color: Color(0xFFF2F2F2),
@@ -72,7 +72,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                   ),
                   // 작품 설명 or 주요 캐릭터
                   Container(
-                    width: 185.w,
+                    width: 190.w,
                     height: 77.h,
                     decoration: ShapeDecoration(
                       color: Colors.white,
@@ -102,7 +102,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                                     widget.book.characterName,
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 18.sp,
+                                      fontSize: 15.sp,
                                       fontFamily: 'Jua',
                                       fontWeight: FontWeight.w400,
                                     ),
