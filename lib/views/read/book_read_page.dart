@@ -44,7 +44,7 @@ class _BookReadPageState extends State<BookReadPage> {
     final double screenHeight = MediaQuery.of(context).size.height * 0.65.h;
 
     // 동적으로 책 파일 로드
-    controller.loadBook(filePath, screenWidth, screenHeight, textStyle);
+    controller.loadBook(filePath, screenWidth, screenHeight, textStyle, bookId);
 
     return Obx(() {
       return Scaffold(
@@ -54,7 +54,9 @@ class _BookReadPageState extends State<BookReadPage> {
                 title: title,
                 onLeadingTap: () => controller.goBack(),
                 isActionVisible: true,
-                onBookmarkTap: controller.toggleBookmark, // 북마크 탭 클릭 로직 필요
+                onBookmarkTap: () {
+                  controller.toggleBookmark(bookId);
+                }, // 북마크 탭 클릭 로직 필요
                 bookmarkActive:
                     controller.bookmarks.contains(controller.currentPage.value),
                 onMoreTap: () =>

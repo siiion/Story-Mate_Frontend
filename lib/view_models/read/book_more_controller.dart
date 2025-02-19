@@ -1,12 +1,14 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:storymate/services/api_service.dart';
+import 'package:storymate/views/read/book_read_page.dart';
 
 class BookMoreController extends GetxController {
   final ApiService apiService = ApiService();
 
   var memos = <dynamic>[].obs;
   var highlights = <dynamic>[].obs;
+  var bookmarks = <dynamic>[].obs;
 
   // 뒤로 가기
   void goBack() {
@@ -27,6 +29,8 @@ class BookMoreController extends GetxController {
 
     if (bookId != -1) {
       fetchMemos(bookId); // 화면 초기화 시 메모 불러오기
+      fetchHighlights(bookId);
+      fetchBookmarks(bookId);
     }
   }
 
@@ -80,23 +84,46 @@ class BookMoreController extends GetxController {
     }
   }
 
-  // 책갈피 데이터 (임시)
-  var bookmarks = <Map<String, String>>[
-    {"page": "p.5", "content": "책갈피 페이지 내용 1입니다."},
-    {"page": "p.20", "content": "책갈피 페이지 내용 2입니다."},
-    {"page": "p.45", "content": "책갈피 페이지 내용 3입니다."},
-    {"page": "p.60", "content": "책갈피 페이지 내용 4입니다."},
-  ].obs;
+  /// 책갈피 목록 불러오기 (API 연동)
+  Future<void> fetchBookmarks(int bookId) async {
+    try {
+      List<Map<String, dynamic>> fetchedBookmarks =
+          await apiService.getBookBookmarks(bookId);
 
-  // DateTime -> String 변환 함수
-  String formatDate(DateTime date) {
-    return DateFormat('yyyy/MM/dd').format(date);
+      // API에서 받아온 책갈피를 업데이트
+      bookmarks.assignAll(fetchedBookmarks);
+      print("[DEBUG] 책갈피 목록 불러오기 완료: $bookmarks");
+    } catch (e) {
+      print("[ERROR] 책갈피 불러오기 실패: $e");
+    }
   }
 
-  // 책갈피 삭제 메서드 (UI만)
-  void removeBookmark(int index) {
-    bookmarks.removeAt(index);
+  // 책갈피 삭제 (API 연동)
+  Future<void> removeBookmark(int bookId, int bookmarkId, int index) async {
+    try {
+      await apiService.deleteBookBookmarks(bookId, bookmarkId);
+      bookmarks.removeAt(index); // UI 업데이트
+      print("[DEBUG] 책갈피 삭제 완료 (ID: $bookmarkId)");
+    } catch (e) {
+      print("[ERROR] 책갈피 삭제 실패: $e");
+    }
   }
+
+  /// 책갈피 클릭 시 해당 책의 해당 페이지로 이동
+  void navigateToPage(int bookId, int position) {
+    Get.to(
+      () => const BookReadPage(),
+      arguments: {
+        'bookId': bookId,
+        'startPage': position, // 초기 페이지 지정
+      },
+    );
+  }
+
+  // // DateTime -> String 변환 함수
+  // String formatDate(DateTime date) {
+  //   return DateFormat('yyyy/MM/dd').format(date);
+  // }
 
   // 메모 작성창으로 이동
   void toAddMemo(int bookId) {

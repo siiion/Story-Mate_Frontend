@@ -13,9 +13,24 @@ class BookReadController extends GetxController {
   RxList<String> pages = <String>[].obs; // 페이지 목록
   RxInt currentPage = 0.obs; // 현재 페이지
   RxSet<int> bookmarks = <int>{}.obs; // 북마크 저장
+  RxMap<int, int> bookmarkIds = <int, int>{}.obs; // {page: bookmarkId} 매핑
   RxBool isUIVisible = true.obs; // 상단바/하단바 가시성
   RxDouble progress = 0.0.obs; // 진행률
   RxMap<int, List<Highlight>> highlightsPerPage = <int, List<Highlight>>{}.obs;
+
+  /// 책 데이터 초기화 (북마크 & 하이라이트 불러오기)
+  Future<void> initializeBookData(int bookId) async {
+    try {
+      await Future.wait([
+        fetchBookmarks(bookId), // 북마크 불러오기
+        fetchHighlights(bookId), // 하이라이트 불러오기
+      ]);
+
+      print("[DEBUG] 책 데이터 초기화 완료! (북마크 & 하이라이트 불러옴)");
+    } catch (e) {
+      print("[ERROR] 책 데이터 초기화 중 오류 발생: $e");
+    }
+  }
 
   /// 특정 책의 하이라이트 목록 불러오기 (API 연동)
   Future<void> fetchHighlights(int bookId) async {
@@ -96,74 +111,109 @@ class BookReadController extends GetxController {
     return highlightsPerPage[currentPage.value] ?? [];
   }
 
-  // /// 하이라이트 추가
-  // void addHighlight(int start, int end, String content) {
-  //   try {
-  //     debugPrint("[DEBUG] 하이라이트 추가 시도 - 페이지: ${currentPage.value}");
-  //     debugPrint("[DEBUG] startOffset: $start, endOffset: $end");
-  //     debugPrint("[DEBUG] 선택한 텍스트: \"$content\"");
+  /// 특정 책의 북마크 목록 불러오기 (bookmarkId 포함)
+  Future<void> fetchBookmarks(int bookId) async {
+    try {
+      List<Map<String, dynamic>> fetchedBookmarks =
+          await apiService.getBookBookmarks(bookId);
 
-  //     if (start >= end) {
-  //       debugPrint("[ERROR] 시작 인덱스가 끝 인덱스보다 크거나 같음. 추가하지 않음.");
-  //       return;
-  //     }
+      bookmarks.clear();
+      bookmarkIds.clear();
 
-  //     final highlight = Highlight(
-  //       startOffset: start,
-  //       endOffset: end,
-  //       content: content,
-  //     );
+      for (var bookmark in fetchedBookmarks) {
+        int bookmarkId = bookmark['id'];
+        int page = bookmark['position'];
 
-  //     highlightsPerPage.update(
-  //       currentPage.value,
-  //       (existing) => [...existing, highlight],
-  //       ifAbsent: () => [highlight],
-  //     );
+        bookmarks.add(page);
+        bookmarkIds[page] = bookmarkId;
+      }
 
-  //     debugPrint("[DEBUG] 하이라이트 추가 완료: $highlight");
-  //   } catch (e) {
-  //     debugPrint("[ERROR] 하이라이트 추가 중 오류 발생: $e");
-  //   }
-  // }
+      print("[DEBUG] 북마크 목록 불러오기 완료: $bookmarkIds");
+    } catch (e) {
+      print("[ERROR] 북마크 목록 불러오기 실패: $e");
+    }
+  }
 
-  // /// 하이라이트 삭제
-  // void removeHighlight(Highlight highlight) {
-  //   try {
-  //     debugPrint("DEBUG] 하이라이트 삭제 시도 - 페이지: ${currentPage.value}");
-  //     debugPrint("삭제할 하이라이트: $highlight");
+  /// 현재 페이지가 북마크 되어 있는지 여부 확인
+  bool isBookmarked() {
+    return bookmarks.contains(currentPage.value);
+  }
 
-  //     if (highlightsPerPage.containsKey(currentPage.value)) {
-  //       highlightsPerPage[currentPage.value]!.removeWhere((h) =>
-  //           h.startOffset == highlight.startOffset &&
-  //           h.endOffset == highlight.endOffset);
-  //       highlightsPerPage.refresh();
-  //       debugPrint("[DEBUG] 하이라이트 삭제 완료.");
-  //     } else {
-  //       debugPrint("[DEBUG] 해당 페이지에 하이라이트가 없음.");
-  //     }
-  //   } catch (e) {
-  //     debugPrint("[ERROR] 하이라이트 삭제 중 오류 발생: $e");
-  //   }
-  // }
+  /// 북마크 추가 또는 삭제 (북마크 여부에 따라 다르게 동작)
+  Future<void> toggleBookmark(int bookId) async {
+    int page = currentPage.value + 1;
+
+    if (isBookmarked()) {
+      await removeBookmark(bookId, page);
+    } else {
+      await addBookmark(bookId, page);
+    }
+  }
+
+  /// 북마크 추가 (API 호출 후 최신 목록 조회)
+  Future<void> addBookmark(int bookId, int page) async {
+    try {
+      await apiService.addBookBookmarks(bookId, page);
+
+      // 북마크 추가 후 최신 목록 다시 조회하여 bookmarkId 매핑
+      await fetchBookmarks(bookId);
+
+      Get.snackbar('알림', '북마크가 설정되었습니다.');
+      print("[DEBUG] 북마크 추가 완료: p.$page");
+    } catch (e) {
+      print("[ERROR] 북마크 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 북마크 삭제 (bookmarkId 활용)
+  Future<void> removeBookmark(int bookId, int page) async {
+    try {
+      if (!bookmarkIds.containsKey(page)) {
+        print("[ERROR] 해당 페이지의 bookmarkId를 찾을 수 없음.");
+        return;
+      }
+
+      int bookmarkId = bookmarkIds[page]!;
+      await apiService.deleteBookBookmarks(bookId, bookmarkId);
+
+      bookmarks.remove(page);
+      bookmarkIds.remove(page);
+
+      Get.snackbar('알림', '북마크가 해제되었습니다.');
+      print("[DEBUG] 북마크 삭제 완료: p.$page (bookmarkId: $bookmarkId)");
+    } catch (e) {
+      print("[ERROR] 북마크 삭제 중 오류 발생: $e");
+    }
+  }
 
   // 뒤로 가기
   void goBack() {
     Get.back();
   }
 
-  // 책 파일 로드
+  // 책 파일 로드 (초기 데이터 로드 포함)
   Future<void> loadBook(String filePath, double screenWidth,
-      double screenHeight, TextStyle textStyle) async {
+      double screenHeight, TextStyle textStyle, int bookId) async {
     try {
       final String rawContent = await rootBundle.loadString(filePath);
       final String processedContent = preprocessText(rawContent); // 전처리 추가
-      // print(processedContent); // 전처리된 텍스트 출력 (테스트용)
       pages.value =
           paginateText(processedContent, screenWidth, screenHeight, textStyle);
       updateProgress();
+
+      // 초기 데이터 로드 (북마크 & 하이라이트)
+      await initializeBookData(bookId);
     } catch (e) {
       Get.snackbar('Error', '파일을 읽는 데 실패했습니다: $e');
     }
+  }
+
+  /// 특정 페이지의 미리보기 내용 가져오기
+  String getPagePreview(int position) {
+    if (pages.isNotEmpty && position < pages.length) {
+      return pages[position].substring(0, 100); // 앞 100자만 미리보기로 제공
+    }
+    return "미리보기를 불러올 수 없습니다.";
   }
 
   String preprocessText(String text) {
@@ -182,17 +232,6 @@ class BookReadController extends GetxController {
   // UI 가시성 토글
   void toggleUIVisibility() {
     isUIVisible.value = !isUIVisible.value;
-  }
-
-  // 북마크 추가/삭제
-  void toggleBookmark() {
-    if (bookmarks.contains(currentPage.value)) {
-      bookmarks.remove(currentPage.value); // 북마크 삭제
-      Get.snackbar('알림', '북마크가 해제되었습니다.');
-    } else {
-      bookmarks.add(currentPage.value); // 북마크 추가
-      Get.snackbar('알림', '북마크가 설정되었습니다.');
-    }
   }
 
   // 이전 페이지로 이동

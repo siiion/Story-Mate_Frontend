@@ -393,4 +393,94 @@ class ApiService {
       print("하이라이트 삭제 중 오류 발생: $e");
     }
   }
+
+  /// 책갈피 추가
+  Future<void> addBookBookmarks(int bookId, int position) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "position": position, // 쪽수
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("책갈피 추가 성공! [쪽수: $position]");
+      } else {
+        print("책갈피 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책갈피 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 책갈피  목록 조회
+  Future<List<Map<String, dynamic>>> getBookBookmarks(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("책갈피 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("책갈피 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("책갈피 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 책갈피 삭제
+  Future<void> deleteBookBookmarks(int bookId, int bookmarkId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/notes/$bookmarkId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("책갈피 삭제 성공! [책갈피 ID: $bookmarkId]");
+      } else {
+        print("책갈피 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책갈피 삭제 중 오류 발생: $e");
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/read/book_more_controller.dart';
+import 'package:storymate/view_models/read/book_read_controller.dart';
 
 class BookMorePage extends StatelessWidget {
   const BookMorePage({super.key});
@@ -13,6 +14,8 @@ class BookMorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BookMoreController controller = Get.put(BookMoreController());
+    final BookReadController bookReadController =
+        Get.find<BookReadController>();
 
     // Get.arguments로 전달받은 데이터를 title로 사용
     final arguments = Get.arguments;
@@ -107,6 +110,8 @@ class BookMorePage extends StatelessWidget {
                   // 책갈피 탭
                   BookmarkTabContents(
                     controller: controller,
+                    bookReadController: bookReadController,
+                    bookId: bookId,
                   ),
                   // 메모 탭
                   MemoTabContents(
@@ -125,9 +130,14 @@ class BookMorePage extends StatelessWidget {
 
 // 책갈피 탭 내용
 class BookmarkTabContents extends StatelessWidget {
+  final int bookId;
+  final dynamic bookReadController;
+
   const BookmarkTabContents({
     super.key,
     required this.controller,
+    required this.bookReadController,
+    required this.bookId,
   });
 
   final BookMoreController controller;
@@ -146,93 +156,100 @@ class BookmarkTabContents extends StatelessWidget {
         itemCount: controller.bookmarks.length,
         itemBuilder: (context, index) {
           final bookmark = controller.bookmarks[index];
-          return Column(
-            children: [
-              Stack(
-                children: [
-                  // 배경 컨테이너
-                  Container(
-                    height: 165.h,
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Colors.black),
-                        borderRadius: BorderRadius.circular(10),
+          final position = bookmark['position'];
+          final id = bookmark['id'];
+
+          return GestureDetector(
+            onTap: () => controller.navigateToPage(
+                bookId, position), // 책갈피 클릭 시 해당 페이지로 이동
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    // 배경 컨테이너
+                    Container(
+                      height: 165.h,
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 1, color: Colors.black),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Stack(
-                        children: [
-                          // 책갈피 내용 미리보기 (어둡게 처리)
-                          Positioned.fill(
-                            child: BackdropFilter(
-                              filter:
-                                  ImageFilter.blur(sigmaX: 5.w, sigmaY: 5.h),
-                              child: Container(
-                                color: Colors.black.withOpacity(0.1),
-                              ),
-                            ),
-                          ),
-                          // 내용 텍스트
-                          Positioned.fill(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  bookmark["content"]!,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12.sp,
-                                    fontFamily: 'Nanum',
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.33.h,
-                                    letterSpacing: -0.23.w,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  maxLines: 4, // 미리보기 최대 줄 수
-                                  textAlign: TextAlign.start,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Stack(
+                          children: [
+                            // 책갈피 내용 미리보기 (어둡게 처리)
+                            Positioned.fill(
+                              child: BackdropFilter(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 5.w, sigmaY: 5.h),
+                                child: Container(
+                                  color: Colors.black.withOpacity(0.1),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            // 내용 텍스트
+                            Positioned.fill(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    bookReadController.getPagePreview(position),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'Nanum',
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.33.h,
+                                      letterSpacing: -0.23.w,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 4, // 미리보기 최대 줄 수
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  // 삭제 버튼
-                  Positioned(
-                    right: 10.w,
-                    top: 10.h,
-                    child: GestureDetector(
-                      onTap: () {
-                        controller.removeBookmark(index);
-                      },
-                      child: const Icon(
-                        Icons.delete,
-                        color: Color.fromARGB(255, 245, 90, 79),
+                    // 삭제 버튼
+                    Positioned(
+                      right: 10.w,
+                      top: 10.h,
+                      child: GestureDetector(
+                        onTap: () {
+                          controller.removeBookmark(bookId, id, index);
+                        },
+                        child: const Icon(
+                          Icons.delete,
+                          color: Color.fromARGB(255, 245, 90, 79),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 5.h,
-              ),
-              // 페이지 번호
-              Text(
-                bookmark["page"]!,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontFamily: 'Nanum',
-                  fontWeight: FontWeight.w600,
-                  height: 1.33.h,
-                  letterSpacing: -0.23.w,
+                  ],
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 5.h,
+                ),
+                // 페이지 번호
+                Text(
+                  'p.$position',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14.sp,
+                    fontFamily: 'Nanum',
+                    fontWeight: FontWeight.w600,
+                    height: 1.33.h,
+                    letterSpacing: -0.23.w,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -263,8 +280,7 @@ class TabContents extends StatelessWidget {
         itemBuilder: (context, index) {
           final highlight = controller.highlights[index];
           final int highlightId = highlight["id"]; // 하이라이트 ID
-          final int startPosition = highlight["startPosition"]; // 시작 쪽수
-          final int endPosition = highlight["endPosition"]; // 끝 쪽수
+          final int page = highlight["page"]; // 시작 쪽수
           final String paragraph = highlight["paragraph"]; // 하이라이트 내용
 
           return Container(
@@ -299,7 +315,7 @@ class TabContents extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'p.$startPosition ~ p.$endPosition',
+                            'p.$page',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
