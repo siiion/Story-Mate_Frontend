@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'StoryMate',
-          initialRoute: '/', // 스플래쉬 화면이 첫 화면
+          initialRoute: '/terms', // 스플래쉬 화면이 첫 화면
           getPages: [
             GetPage(name: '/', page: () => SplashScreen()), // 자동 로그인 체크
             ...AppRoutes.routes,
