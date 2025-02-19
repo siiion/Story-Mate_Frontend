@@ -257,7 +257,7 @@ class _MyPageState extends State<MyPage> {
                         // 충전하러 가기 버튼
                         GestureDetector(
                           onTap: () {
-                            _showChargeBottomSheet(context);
+                            _showChargeBottomSheet(context, controller);
                           }, // 충전 화면으로
                           child: Container(
                             width: 150.w,
@@ -397,7 +397,7 @@ class _MyPageState extends State<MyPage> {
 }
 
 // 메세지 충전 모달창
-void _showChargeBottomSheet(BuildContext context) {
+void _showChargeBottomSheet(BuildContext context, MyController controller) {
   showModalBottomSheet(
     context: context,
     shape: RoundedRectangleBorder(
@@ -437,7 +437,7 @@ void _showChargeBottomSheet(BuildContext context) {
             SizedBox(height: 15.h),
             // 현재 메세지 갯수
             Text(
-              '현재 내 보유 메세지 갯수: 0개',
+              '현재 내 보유 메세지 갯수: ${controller.messageCount.value}개',
               style: TextStyle(
                 color: Color(0xFF7C7C7C),
                 fontSize: 18.sp,

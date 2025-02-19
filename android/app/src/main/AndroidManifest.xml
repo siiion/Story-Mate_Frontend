@@ -1,4 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+<manifest>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    
+    <application
+        android:usesCleartextTraffic="true">
+    </application>
+</manifest>
+
     <application
         android:label="스토리메이트"
         android:name="${applicationName}"
