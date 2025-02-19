@@ -21,8 +21,8 @@ class InfoController extends GetxController {
     userName.value = name;
     nameController.text = name;
 
-    if (birth != "0000.00.00") {
-      List<String> birthParts = birth.split('.');
+    if (birth != "0000-00-00") {
+      List<String> birthParts = birth.split('-');
       if (birthParts.length == 3) {
         int year = int.tryParse(birthParts[0]) ?? DateTime.now().year;
         int month = int.tryParse(birthParts[1]) ?? 1;
@@ -55,7 +55,7 @@ class InfoController extends GetxController {
     }
   }
 
-  /// 선택된 날짜를 YYYY-MM-DD 형식으로 반환
+  /// 선택된 날짜를 YYYY.MM.DD 형식으로 반환
   String getFormattedDate() {
     if (selectedDate.value == null) {
       return '0000.00.00'; // 기본값

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -53,6 +55,11 @@ class MyController extends GetxController {
         userBirth.value = userData["birthDate"] ?? "0000.00.00";
         messageCount.value = userData["messageCount"] ?? 0;
 
+        // GetStorage에 저장하여 다른 컨트롤러에서도 사용할 수 있도록 함
+        box.write("userName", userName.value);
+        box.write("userBirth", userBirth.value);
+        box.write("messageCount", messageCount.value);
+
         print(
             "회원 정보 조회 성공: 이름=${userName.value}, 생년월일=${userBirth.value}, 메시지 개수=${messageCount.value}");
       } else {
@@ -60,6 +67,53 @@ class MyController extends GetxController {
       }
     } catch (e) {
       print("API 오류 발생: $e");
+    }
+  }
+
+  /// 회원 탈퇴 API 호출
+  Future<void> deleteUserAccount() async {
+    try {
+      // 저장된 accessToken 가져오기
+      final prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('accessToken');
+
+      if (accessToken == null || accessToken.isEmpty) {
+        print("Access Token 없음");
+        Get.snackbar("오류", "로그인이 필요합니다.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/member/info'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // **회원 탈퇴 성공 처리**
+        print("회원 탈퇴 성공");
+
+        // 저장된 사용자 데이터 삭제
+        await prefs.clear();
+        box.erase();
+
+        // 로그아웃 후 회원가입 화면으로 이동
+        Get.snackbar("탈퇴 완료", "회원 탈퇴가 완료되었습니다.",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAllNamed('/sign_up'); // 회원가입 화면으로 이동
+        // SystemNavigator.pop(); // 화면을 닫음
+      } else {
+        print("회원 탈퇴 실패: ${response.body}");
+        Get.snackbar("실패", "회원 탈퇴에 실패했습니다.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      print("API 오류 발생: $e");
+      Get.snackbar("오류", "서버와 연결할 수 없습니다.",
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 

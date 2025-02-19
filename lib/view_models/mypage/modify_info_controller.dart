@@ -27,10 +27,10 @@ class ModifyInfoController extends GetxController {
     username.value = box.read("userName") ?? "사용자";
     nameController.text = username.value;
 
-    String birthDate = box.read("userBirth") ?? "0000.00.00";
+    String birthDate = box.read("userBirth") ?? "0000-00-00";
 
     // 생년월일이 존재하면 DateTime 객체로 변환하여 selectedDate에 반영
-    if (birthDate != "0000.00.00" && birthDate.contains('-')) {
+    if (birthDate != "0000-00-00" && birthDate.contains('-')) {
       List<String> parts = birthDate.split('-');
       if (parts.length == 3) {
         int year = int.tryParse(parts[0]) ?? DateTime.now().year;
