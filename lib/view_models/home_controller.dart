@@ -56,6 +56,7 @@ class HomeController extends GetxController {
 
     books.assignAll([
       Book(
+        bookId: 7,
         title: "시골 쥐 서울 구경",
         tags: ["동화", "교훈", "이솝우화"],
         coverImage: "assets/books/fairy_1.png",
@@ -74,6 +75,7 @@ class HomeController extends GetxController {
             "",
       ),
       Book(
+        bookId: 8,
         title: "미운 아기 오리",
         tags: ["동화", "교훈", "안데르센"],
         coverImage: "assets/books/fairy_2.png",
@@ -92,6 +94,7 @@ class HomeController extends GetxController {
             "",
       ),
       Book(
+        bookId: 3,
         title: "성냥팔이 소녀",
         tags: ["안데르센", "동화", "슬픔"],
         coverImage: "assets/books/fairy_4.png",
@@ -111,6 +114,7 @@ class HomeController extends GetxController {
         characterId: 3,
       ),
       Book(
+        bookId: 5,
         title: "엄지공주",
         tags: ["안데르센", "동화", "모험"],
         coverImage: "assets/books/fairy_5.png",
@@ -128,6 +132,7 @@ class HomeController extends GetxController {
             "",
       ),
       Book(
+        bookId: 2,
         title: "인어공주",
         tags: ["안데르센", "모험", "사랑"],
         coverImage: "assets/books/fairy_6.png",
@@ -146,6 +151,7 @@ class HomeController extends GetxController {
         characterId: 2,
       ),
       Book(
+        bookId: 1,
         title: "운수 좋은 날",
         tags: ["일제강점기", "아이러니", "전통"],
         coverImage: "assets/books/short_1.png",
@@ -165,6 +171,7 @@ class HomeController extends GetxController {
         characterId: 1,
       ),
       Book(
+        bookId: 4,
         title: "심봉사",
         tags: ["고전소설", "동화", "효"],
         coverImage: "assets/books/short_2.png",
@@ -180,6 +187,7 @@ class HomeController extends GetxController {
                 "",
       ),
       Book(
+        bookId: 6,
         title: "동백꽃",
         tags: ["봄감자", "사랑", "고전문학"],
         coverImage: "assets/books/short_3.png",
@@ -197,6 +205,7 @@ class HomeController extends GetxController {
                 "",
       ),
       Book(
+        bookId: 9,
         title: "메밀꽃 필 무렵",
         tags: ["향토문학", "사랑", "노스탤지어"],
         coverImage: "assets/books/short_4.png",
@@ -214,24 +223,24 @@ class HomeController extends GetxController {
                 "메밀꽃 필 무렵", localCharacters)["characterDescription"] ??
             "",
       ),
-      Book(
-        title: "홍길동전",
-        tags: ["조선히어로", "신분극복", "모험"],
-        coverImage: "assets/books/long_1.png",
-        category: "장편 소설",
-        author: "허균",
-        publishedYear: "17세기",
-        description:
-            "조선 시대 신분 차별을 극복하고 정의를 실현하는 영웅 홍길동의 이야기를 그린 한국 최초의 한글 소설입니다.",
-        characterName:
-            _getCharacterInfo("홍길동전", localCharacters)["characterName"] ?? "",
-        characterImage:
-            _getCharacterInfo("홍길동전", localCharacters)["characterImage"] ??
-                "assets/characters/default.png",
-        characterDescription: _getCharacterInfo(
-                "홍길동전", localCharacters)["characterDescription"] ??
-            "",
-      ),
+      // Book(
+      //   title: "홍길동전",
+      //   tags: ["조선히어로", "신분극복", "모험"],
+      //   coverImage: "assets/books/long_1.png",
+      //   category: "장편 소설",
+      //   author: "허균",
+      //   publishedYear: "17세기",
+      //   description:
+      //       "조선 시대 신분 차별을 극복하고 정의를 실현하는 영웅 홍길동의 이야기를 그린 한국 최초의 한글 소설입니다.",
+      //   characterName:
+      //       _getCharacterInfo("홍길동전", localCharacters)["characterName"] ?? "",
+      //   characterImage:
+      //       _getCharacterInfo("홍길동전", localCharacters)["characterImage"] ??
+      //           "assets/characters/default.png",
+      //   characterDescription: _getCharacterInfo(
+      //           "홍길동전", localCharacters)["characterDescription"] ??
+      //       "",
+      // ),
     ]);
   }
 
@@ -299,6 +308,7 @@ class HomeController extends GetxController {
     return filteredBooks.isNotEmpty
         ? filteredBooks[random.nextInt(filteredBooks.length)]
         : Book(
+            bookId: -1,
             title: "추천할 책 없음",
             tags: ["정보 없음"],
             coverImage: "assets/placeholder.png",
@@ -314,6 +324,7 @@ class HomeController extends GetxController {
   Book getRandomBook() {
     if (books.isEmpty) {
       return Book(
+        bookId: -1,
         title: "추천할 책 없음",
         tags: ["정보 없음"],
         coverImage: "assets/placeholder.png",

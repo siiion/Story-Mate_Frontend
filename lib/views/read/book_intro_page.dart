@@ -23,6 +23,9 @@ class BookIntroPage extends StatelessWidget {
     final Book? book =
         homeController.books.firstWhereOrNull((b) => b.title == title);
 
+    // 책 ID 가져오기 (없으면 기본값 -1)
+    final int bookId = book?.bookId ?? -1;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: BookAppBar(
@@ -154,7 +157,7 @@ class BookIntroPage extends StatelessWidget {
             ),
             // 작품 감상 버튼
             GestureDetector(
-              onTap: () => controller.toReadPage(title),
+              onTap: () => controller.toReadPage(title, bookId),
               child: Container(
                 width: 270.w,
                 height: 60.h,
