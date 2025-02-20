@@ -20,9 +20,8 @@ class _InfoPageState extends State<InfoPage> {
 
     // arguments에서 사용자 정보 가져오기
     final arguments = Get.arguments ?? {};
-    String userName = arguments["userName"] ?? "사용자"; // 기본값 "사용자"
-    String userBirth =
-        arguments["userBirth"] ?? "0000.00.00"; // 기본값 "0000.00.00"
+    String userName = arguments["userName"] ?? "사용자"; // 기본값
+    String userBirth = arguments["userBirth"] ?? "0000.00.00"; // 기본값
 
     // InfoController에 초기값 설정
     controller.setInitialInfo(userName, userBirth);
@@ -41,8 +40,6 @@ class _InfoPageState extends State<InfoPage> {
             fontSize: 25.sp,
             fontFamily: 'Jua',
             fontWeight: FontWeight.w400,
-            height: 0.80.h,
-            letterSpacing: -0.23.w,
           ),
         ),
         centerTitle: true,
@@ -70,8 +67,6 @@ class _InfoPageState extends State<InfoPage> {
                       fontSize: 25.sp,
                       fontFamily: 'Jua',
                       fontWeight: FontWeight.w400,
-                      height: 0.80.h,
-                      letterSpacing: -0.23.w,
                     ),
                   ),
                   Container(
@@ -88,9 +83,8 @@ class _InfoPageState extends State<InfoPage> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       child: TextField(
-                        controller: controller.nameController, // 텍스트 필드 컨트롤러 적용
-                        onChanged: (value) =>
-                            controller.userName.value = value, // 값 변경 시 업데이트
+                        controller: controller.nameController,
+                        enabled: false, // 이름 수정 불가능
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 22.sp,
@@ -117,8 +111,6 @@ class _InfoPageState extends State<InfoPage> {
                     fontSize: 25.sp,
                     fontFamily: 'Jua',
                     fontWeight: FontWeight.w400,
-                    height: 0.80.h,
-                    letterSpacing: -0.23.w,
                   ),
                 ),
                 GestureDetector(
@@ -135,20 +127,18 @@ class _InfoPageState extends State<InfoPage> {
                       ),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12.w, vertical: 13.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                       child: Obx(
                         () => Text(
-                          controller.getFormattedDate(), // 선택된 생년월일 표시
+                          controller.getFormattedDate(),
                           style: TextStyle(
                             color: controller.selectedDate.value != null
                                 ? Colors.black
                                 : Color(0xFF7C7C7C),
-                            fontSize: 25.sp,
+                            fontSize: 22.sp,
                             fontFamily: 'Jua',
                             fontWeight: FontWeight.w400,
-                            height: 0.80.h,
-                            letterSpacing: -0.23.w,
                           ),
                         ),
                       ),
@@ -158,28 +148,29 @@ class _InfoPageState extends State<InfoPage> {
               ],
             ),
             SizedBox(height: 20.h),
-            Container(
-              width: 164.w,
-              height: 50.h,
-              decoration: ShapeDecoration(
-                color: AppTheme.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  controller.saveUserInfo();
-                }, // 정보 저장 로직
-                child: Center(
-                  child: Text(
-                    '등록하기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25.sp,
-                      fontFamily: 'Jua',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.23.w,
+            Obx(
+              () => GestureDetector(
+                onTap: controller.selectedDate.value != null
+                    ? controller.registerBirthDate
+                    : null,
+                child: Container(
+                  width: 164.w,
+                  height: 50.h,
+                  decoration: ShapeDecoration(
+                    color: controller.selectedDate.value != null
+                        ? AppTheme.primaryColor
+                        : Colors.grey, // 유효한 생년월일 입력 전에는 버튼 비활성화
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '등록하기',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25.sp,
+                          fontFamily: 'Jua'),
                     ),
                   ),
                 ),
