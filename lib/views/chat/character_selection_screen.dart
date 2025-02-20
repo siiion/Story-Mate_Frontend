@@ -34,13 +34,23 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       "book": "성냥팔이소녀",
       "image": "assets/TheLittleGirl.png"
     },
-    {"name": "심봉사", "book": "심봉사", "image": "assets/SimCheong.png"},
-    {"name": "엄지공주", "book": "엄지공주", "image": "assets/mermaid2.png"},
-    {"name": "동백꽃", "book": "동백꽃", "image": "assets/Dongbaekkkot.png"},
-    {"name": "시골쥐", "book": "시골쥐서울구경", "image": "assets/mouse.png"},
-    {"name": "미운 아기 오리", "book": "미운아기오리", "image": "assets/duck.png"},
-    {"name": "허생원", "book": "메밀꽃필무렵", "image": "assets/theBuckwheatFlower.png"},
-    {"name": "홍길동", "book": "홍길동전", "image": "assets/HongGildong.png"},
+    {"id": 4, "name": "심봉사", "book": "심봉사", "image": "assets/SimCheong.png"},
+    {"id": 5, "name": "엄지공주", "book": "엄지공주", "image": "assets/mermaid2.png"},
+    {"id": 6, "name": "동백꽃", "book": "동백꽃", "image": "assets/Dongbaekkkot.png"},
+    {"id": 7, "name": "시골쥐", "book": "시골쥐서울구경", "image": "assets/mouse.png"},
+    {"id": 8, "name": "미운 아기 오리", "book": "미운아기오리", "image": "assets/duck.png"},
+    {
+      "id": 9,
+      "name": "허생원",
+      "book": "메밀꽃필무렵",
+      "image": "assets/theBuckwheatFlower.png"
+    },
+    {
+      "id": 10,
+      "name": "홍길동",
+      "book": "홍길동전",
+      "image": "assets/HongGildong.png"
+    },
   ];
 
   List<Map<String, dynamic>> filteredCharacters = [];
@@ -66,6 +76,11 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     });
   }
 
+  //이전 대화 보기
+  void ChatHistory() {
+    Get.toNamed(AppRoutes.CHAT_HISTORY);
+  }
+
   // 채팅방 생성 (POST /api/chat-rooms)
   Future<void> createChatRoom(
       String title, int characterId, String bookTitle) async {
@@ -79,36 +94,50 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       return;
     }
 
-    final response = await http.post(
-      Uri.parse('https://be.dev.storymate.site/api/chat-rooms'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode({
-        'title': title,
-        'charactersId': characterId,
-        'bookTitle': bookTitle,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('https://be.dev.storymate.site/api/chat-rooms'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'title': title,
+          'charactersId': characterId,
+          'bookTitle': bookTitle,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      int roomId = responseData['data']['roomId']; // 서버에서 받은 roomId 사용
-      String bookTitle = responseData['data']['bookTitle'];
+      //  UTF-8 강제 변환
+      String decodedResponse = utf8.decode(response.bodyBytes);
+      final responseData = json.decode(decodedResponse);
 
-      print("서버 응답 : $responseData");
-      print("채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle");
+      if (response.statusCode == 200) {
+        final responseData = json.decode(decodedResponse);
+        int roomId = responseData['data']['roomId']; // 서버에서 받은 roomId
+        String bookTitle =
+            responseData['data']['bookTitle']; // 서버에서 받은 bookTitle
 
-      // 채팅방 생성 후 roomId를 기반으로 화면 전환
-      Get.toNamed(AppRoutes.CHAT,
-          arguments: {"roomId": roomId, "bookTitle": bookTitle});
+        //  한글 깨짐 방지: UTF-8 변환
+        bookTitle = utf8.decode(utf8.encode(bookTitle));
 
-      // WebSocket 연결 예시 (roomId로 연결)
-      connectToWebSocket(roomId);
-    } else {
-      print("채팅방 생성 실패: ${response.statusCode}");
-      print("서버 응답: ${response.body}");
+        print("서버 응답: $responseData");
+        print("채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle");
+
+        //  채팅방 생성 후 화면 이동
+        Get.toNamed(AppRoutes.CHAT, arguments: {
+          "roomId": roomId,
+          "bookTitle": bookTitle,
+        });
+
+        //  WebSocket 연결
+        connectToWebSocket(roomId);
+      } else {
+        print("채팅방 생성 실패: ${response.statusCode}");
+        print("서버 응답: $decodedResponse");
+      }
+    } catch (e) {
+      print("채팅방 생성 중 오류 발생: $e");
     }
   }
 
@@ -137,7 +166,6 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        forceMaterialTransparency: true,
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
@@ -145,7 +173,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
           style: TextStyle(
             fontFamily: 'Jua',
             color: Colors.black,
-            fontSize: 20.sp,
+            fontSize: 15.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -168,6 +196,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
               ),
             ),
           ),
+
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16.0),
@@ -218,7 +247,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                       Text(
                         character["name"]!,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 10.sp,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.bold,
                         ),
@@ -226,7 +255,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                       Text(
                         character["book"]!,
                         style: TextStyle(
-                          fontSize: 14.sp,
+                          fontSize: 10.sp,
                           fontFamily: 'Jua',
                           color: Colors.grey,
                         ),
@@ -236,6 +265,24 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                   ),
                 );
               },
+            ),
+          ), // 🔹 "이전 대화 보기" 버튼 추가
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: ChatHistory,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                backgroundColor: Colors.white, // 버튼 색상
+              ),
+              child: Text(
+                "이전 대화 보기",
+                style: TextStyle(
+                    fontFamily: 'Jua',
+                    color: Colors.black,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
