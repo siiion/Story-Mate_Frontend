@@ -153,4 +153,342 @@ class ApiService {
       print("토큰 삭제 중 오류 발생: $e");
     }
   }
+
+  // 작품을 읽음으로 표시하는 메서드
+  Future<void> markBookAsRead(int bookId, int progress) async {
+    try {
+      String? accessToken = await getToken(); // 저장된 액세스 토큰 가져오기
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/books/$bookId/contents'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "progress": progress,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("책 ID: $bookId 읽음 표시 성공!");
+      } else {
+        print("책 ID: $bookId 읽음 표시 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책 ID: $bookId 읽음 표시 중 오류 발생: $e");
+    }
+  }
+
+  /// 메모 추가
+  Future<void> addBookNote(int bookId, int position, String content) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "position": position, // 쪽수
+          "content": content, // 메모 내용
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("메모 추가 성공! [페이지: $position]");
+      } else {
+        print("메모 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 메모 목록 조회
+  Future<List<Map<String, dynamic>>> getBookNotes(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("메모 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("메모 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("메모 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 메모 수정
+  Future<void> updateBookNote(int bookId, int noteId, String newContent) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.patch(
+        Uri.parse('$baseUrl/api/books/$bookId/notes'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "noteId": noteId,
+          "content": newContent,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("메모 수정 성공! [메모 ID: $noteId]");
+      } else {
+        print("메모 수정 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 수정 중 오류 발생: $e");
+    }
+  }
+
+  /// 메모 삭제
+  Future<void> deleteBookNote(int bookId, int noteId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/notes/$noteId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("메모 삭제 성공! [메모 ID: $noteId]");
+      } else {
+        print("메모 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("메모 삭제 중 오류 발생: $e");
+    }
+  }
+
+  /// 하이라이트 추가 - 페이지도 추가해야 함
+  Future<void> addBookHighlights(int bookId, int page, int startPosition,
+      int endPosition, String paragraph) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/highlights'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "startPosition": startPosition, // 시작 인덱스
+          "endPosition": endPosition, // 끝 인덱스
+          "paragraph": paragraph, // 하이라이트 내용
+          "pageNumber": page, // 하이라이트 시작 쪽수
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("하이라이트 추가 성공! [내용: $paragraph]");
+      } else {
+        print("하이라이트 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("하이라이트 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 하이라이트 목록 조회
+  Future<List<Map<String, dynamic>>> getBookHighlights(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/highlights'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("하이라이트 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("하이라이트 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("하이라이트 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 하이라이트 삭제
+  Future<void> deleteBookHighlights(int bookId, int highlightId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/highlights/$highlightId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("하이라이트 삭제 성공! [하이라이트 ID: $highlightId]");
+      } else {
+        print("하이라이트 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("하이라이트 삭제 중 오류 발생: $e");
+    }
+  }
+
+  /// 책갈피 추가
+  Future<void> addBookBookmarks(int bookId, int position) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({
+          "position": position, // 쪽수
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("책갈피 추가 성공! [쪽수: $position]");
+      } else {
+        print("책갈피 추가 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책갈피 추가 중 오류 발생: $e");
+    }
+  }
+
+  /// 책갈피  목록 조회
+  Future<List<Map<String, dynamic>>> getBookBookmarks(int bookId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedData =
+            json.decode(utf8.decode(response.bodyBytes)); // UTF-8 변환
+        print("책갈피 조회 성공: ${decodedData['data']}");
+        return List<Map<String, dynamic>>.from(decodedData['data']);
+      } else {
+        print("책갈피 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("책갈피 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 책갈피 삭제
+  Future<void> deleteBookBookmarks(int bookId, int bookmarkId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/books/$bookId/bookmarks/$bookmarkId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("책갈피 삭제 성공! [책갈피 ID: $bookmarkId]");
+      } else {
+        print("책갈피 삭제 실패: ${response.body}");
+      }
+    } catch (e) {
+      print("책갈피 삭제 중 오류 발생: $e");
+    }
+  }
 }

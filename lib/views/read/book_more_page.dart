@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:storymate/components/book_app_bar.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/view_models/read/book_more_controller.dart';
+import 'package:storymate/view_models/read/book_read_controller.dart';
 
 class BookMorePage extends StatelessWidget {
   const BookMorePage({super.key});
@@ -13,6 +14,8 @@ class BookMorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BookMoreController controller = Get.put(BookMoreController());
+    final BookReadController bookReadController =
+        Get.find<BookReadController>();
 
     // Get.arguments로 전달받은 데이터를 title로 사용
     final arguments = Get.arguments;
@@ -20,6 +23,10 @@ class BookMorePage extends StatelessWidget {
         (arguments is Map<String, dynamic> && arguments.containsKey('title'))
             ? arguments['title']
             : '작품 제목';
+    final int bookId =
+        (arguments is Map<String, dynamic> && arguments.containsKey('bookId'))
+            ? arguments['bookId']
+            : -1;
 
     return DefaultTabController(
       length: 3,
@@ -33,7 +40,7 @@ class BookMorePage extends StatelessWidget {
           if (controller.currentTabIndex.value == 2) {
             // 메모 탭일 경우 플로팅 버튼 표시
             return GestureDetector(
-              onTap: () => controller.toAddMemo(),
+              onTap: () => controller.toAddMemo(bookId),
               child: Container(
                 width: 70.w,
                 height: 70.h,
@@ -98,13 +105,18 @@ class BookMorePage extends StatelessWidget {
                   TabContents(
                     controller: controller,
                     tab: controller.highlights,
+                    bookId: bookId,
                   ),
                   // 책갈피 탭
-                  BookmarkTabContents(controller: controller),
-                  // 메모 탭
-                  TabContents(
+                  BookmarkTabContents(
                     controller: controller,
-                    tab: controller.memos,
+                    bookReadController: bookReadController,
+                    bookId: bookId,
+                  ),
+                  // 메모 탭
+                  MemoTabContents(
+                    controller: controller,
+                    bookId: bookId,
                   ),
                 ],
               ),
@@ -118,9 +130,14 @@ class BookMorePage extends StatelessWidget {
 
 // 책갈피 탭 내용
 class BookmarkTabContents extends StatelessWidget {
+  final int bookId;
+  final dynamic bookReadController;
+
   const BookmarkTabContents({
     super.key,
     required this.controller,
+    required this.bookReadController,
+    required this.bookId,
   });
 
   final BookMoreController controller;
@@ -130,102 +147,109 @@ class BookmarkTabContents extends StatelessWidget {
     return Obx(
       () => GridView.builder(
         padding: const EdgeInsets.all(20),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 30,
-          mainAxisSpacing: 20,
+          crossAxisSpacing: 30.w,
+          mainAxisSpacing: 20.h,
           childAspectRatio: 0.8,
         ),
         itemCount: controller.bookmarks.length,
         itemBuilder: (context, index) {
           final bookmark = controller.bookmarks[index];
-          return Column(
-            children: [
-              Stack(
-                children: [
-                  // 배경 컨테이너
-                  Container(
-                    height: 165.h,
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Colors.black),
-                        borderRadius: BorderRadius.circular(10),
+          final position = bookmark['position'];
+          final id = bookmark['id'];
+
+          return GestureDetector(
+            onTap: () => controller.navigateToPage(
+                bookId, position), // 책갈피 클릭 시 해당 페이지로 이동
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    // 배경 컨테이너
+                    Container(
+                      height: 165.h,
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 1, color: Colors.black),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Stack(
-                        children: [
-                          // 책갈피 내용 미리보기 (어둡게 처리)
-                          Positioned.fill(
-                            child: BackdropFilter(
-                              filter:
-                                  ImageFilter.blur(sigmaX: 5.w, sigmaY: 5.h),
-                              child: Container(
-                                color: Colors.black.withOpacity(0.1),
-                              ),
-                            ),
-                          ),
-                          // 내용 텍스트
-                          Positioned.fill(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  bookmark["content"]!,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12.sp,
-                                    fontFamily: 'Nanum',
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.33.h,
-                                    letterSpacing: -0.23.w,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  maxLines: 4, // 미리보기 최대 줄 수
-                                  textAlign: TextAlign.start,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Stack(
+                          children: [
+                            // 책갈피 내용 미리보기 (어둡게 처리)
+                            Positioned.fill(
+                              child: BackdropFilter(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 5.w, sigmaY: 5.h),
+                                child: Container(
+                                  color: Colors.black.withOpacity(0.1),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            // 내용 텍스트
+                            Positioned.fill(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    bookReadController.getPagePreview(position),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'Nanum',
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.33.h,
+                                      letterSpacing: -0.23.w,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 4, // 미리보기 최대 줄 수
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  // 삭제 버튼
-                  Positioned(
-                    right: 10.w,
-                    top: 10.h,
-                    child: GestureDetector(
-                      onTap: () {
-                        controller.removeBookmark(index);
-                      },
-                      child: const Icon(
-                        Icons.delete,
-                        color: Color.fromARGB(255, 245, 90, 79),
+                    // 삭제 버튼
+                    Positioned(
+                      right: 10.w,
+                      top: 10.h,
+                      child: GestureDetector(
+                        onTap: () {
+                          controller.removeBookmark(bookId, id, index);
+                        },
+                        child: const Icon(
+                          Icons.delete,
+                          color: Color.fromARGB(255, 245, 90, 79),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 5.h,
-              ),
-              // 페이지 번호
-              Text(
-                bookmark["page"]!,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontFamily: 'Nanum',
-                  fontWeight: FontWeight.w600,
-                  height: 1.33.h,
-                  letterSpacing: -0.23.w,
+                  ],
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 5.h,
+                ),
+                // 페이지 번호
+                Text(
+                  'p.$position',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14.sp,
+                    fontFamily: 'Nanum',
+                    fontWeight: FontWeight.w600,
+                    height: 1.33.h,
+                    letterSpacing: -0.23.w,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -233,14 +257,16 @@ class BookmarkTabContents extends StatelessWidget {
   }
 }
 
-// 하이라이트 & 메모 탭 내용
+// 하이라이트 탭 내용
 class TabContents extends StatelessWidget {
   final dynamic tab;
+  final int bookId;
 
   const TabContents({
     super.key,
     required this.controller,
     required this.tab,
+    required this.bookId,
   });
 
   final BookMoreController controller;
@@ -249,12 +275,16 @@ class TabContents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-        itemCount: tab.length,
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+        itemCount: controller.highlights.length,
         itemBuilder: (context, index) {
-          final item = tab[index];
+          final highlight = controller.highlights[index];
+          final int highlightId = highlight["id"]; // 하이라이트 ID
+          final int page = highlight["pageNumber"]; // 시작 쪽수
+          final String paragraph = highlight["paragraph"]; // 하이라이트 내용
+
           return Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
+            margin: EdgeInsets.symmetric(vertical: 10.h),
             padding: EdgeInsets.all(10),
             decoration: ShapeDecoration(
                 color: Colors.white,
@@ -276,8 +306,8 @@ class TabContents extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.w, vertical: 5.h),
                           decoration: ShapeDecoration(
                             color: AppTheme.primaryColor,
                             shape: RoundedRectangleBorder(
@@ -285,10 +315,10 @@ class TabContents extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            item["page"]!,
+                            'p.$page',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontFamily: 'Nanum',
                               fontWeight: FontWeight.w400,
                               height: 1.33,
@@ -297,18 +327,21 @@ class TabContents extends StatelessWidget {
                           ),
                         ),
                         SizedBox(
-                          width: 20,
+                          width: 10.w,
                         ),
-                        // 하이라이트/메모 내용
-                        Text(
-                          item["content"]!,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontFamily: 'Nanum',
-                            fontWeight: FontWeight.w600,
-                            height: 1.33,
-                            letterSpacing: -0.23,
+                        // 하이라이트 내용
+                        SizedBox(
+                          width: 220.w,
+                          child: Text(
+                            paragraph,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.sp,
+                              fontFamily: 'Nanum',
+                              fontWeight: FontWeight.w600,
+                              height: 1.33,
+                              letterSpacing: -0.23,
+                            ),
                           ),
                         ),
                       ],
@@ -316,9 +349,7 @@ class TabContents extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         // 삭제
-                        tab == controller.highlights
-                            ? controller.removeHighlight(index)
-                            : controller.removeMemo(index);
+                        controller.removeHighlights(bookId, highlightId, index);
                       },
                       child: Icon(
                         Icons.delete,
@@ -327,23 +358,121 @@ class TabContents extends StatelessWidget {
                     ),
                   ],
                 ),
-                // (메모일 경우) 작성한 날짜
-                tab == controller.highlights
-                    ? SizedBox() // highlights 탭에서는 날짜를 표시하지 않음
-                    : Text(
-                        item.containsKey("date")
-                            ? controller.formatDate(item["date"])
-                            : '', // "date" 키 존재 여부 확인
-                        style: TextStyle(
-                          color: Color(0xFF9B9ECF),
-                          fontSize: 12,
-                          fontFamily: 'Nanum',
-                          fontWeight: FontWeight.w400,
-                          height: 1.67,
-                          letterSpacing: -0.23,
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// 메모 탭 UI (실제 API 데이터와 연동)
+class MemoTabContents extends StatelessWidget {
+  final BookMoreController controller;
+  final int bookId;
+
+  const MemoTabContents({
+    super.key,
+    required this.controller,
+    required this.bookId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+        itemCount: controller.memos.length,
+        itemBuilder: (context, index) {
+          final memo = controller.memos[index];
+          final int noteId = memo["id"]; // 메모 ID
+          final int position = memo["position"]; // 쪽수
+          final String content = memo["content"]; // 메모 내용
+
+          return GestureDetector(
+            onTap: () {
+              // 메모 클릭 시 수정 페이지로 이동
+              Get.toNamed(
+                '/memo',
+                arguments: {
+                  'isEdit': true, // 수정 모드 활성화
+                  'bookId': bookId,
+                  'noteId': noteId,
+                  'position': position,
+                  'content': content,
+                },
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10.h),
+              padding: EdgeInsets.all(10),
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1, color: AppTheme.primaryColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 쪽수 표시
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 5.h),
+                        decoration: ShapeDecoration(
+                          color: AppTheme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          "p.$position",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15.sp,
+                            fontFamily: 'Nanum',
+                            fontWeight: FontWeight.w400,
+                            height: 1.33,
+                            letterSpacing: -0.23,
+                          ),
                         ),
                       ),
-              ],
+                      SizedBox(width: 20.w),
+                      // 메모 내용
+                      Expanded(
+                        child: Text(
+                          content,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15.sp,
+                            fontFamily: 'Nanum',
+                            fontWeight: FontWeight.w600,
+                            height: 1.33,
+                            letterSpacing: -0.23,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                      // 삭제 버튼
+                      GestureDetector(
+                        onTap: () {
+                          controller.removeMemo(bookId, noteId, index);
+                        },
+                        child: Icon(
+                          Icons.delete,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },
