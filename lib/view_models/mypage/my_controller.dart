@@ -30,10 +30,11 @@ class MyController extends GetxController {
     Book(bookId: 3, title: "성냥팔이소녀", coverImage: "assets/books/fairy_3.png"),
     Book(bookId: 5, title: "엄지공주", coverImage: "assets/books/fairy_4.png"),
     Book(bookId: 2, title: "인어공주", coverImage: "assets/books/fairy_5.png"),
-    Book(bookId: 1, title: "운수좋은날", coverImage: "assets/books/short_1.png"),
+    Book(bookId: 1, title: "운수좋은날", coverImage: "assets/books/long_1.png"),
     Book(bookId: 4, title: "심봉사", coverImage: "assets/books/short_2.png"),
     Book(bookId: 6, title: "동백꽃", coverImage: "assets/books/short_3.png"),
     Book(bookId: 9, title: "메밀꽃필무렵", coverImage: "assets/books/short_4.png"),
+    Book(bookId: 10, title: "날개", coverImage: "assets/books/long_2.png"),
   ];
 
   @override

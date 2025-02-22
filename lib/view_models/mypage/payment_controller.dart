@@ -34,10 +34,10 @@ class PaymentController extends GetxController {
 
     if (response != null) {
       print("결제 승인 응답: $response");
-      Get.offNamed('/payment/success', arguments: response);
+      Get.offNamed('my_page/payments/success', arguments: response);
     } else {
       print("결제 승인 실패");
-      Get.offNamed('/payment/fail');
+      Get.offNamed('my_page/payments/fail');
     }
   }
 }
