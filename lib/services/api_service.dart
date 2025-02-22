@@ -666,4 +666,84 @@ class ApiService {
     }
     return null;
   }
+
+  // 결제 준비 API 호출
+  Future<Map<String, dynamic>?> prepareKakaoPay(int productId) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return {};
+      }
+
+      String apiUrl = '$baseUrl/api/payment/kakao-pay/prepare';
+
+      // 요청 전 출력
+      print('카카오페이 결제 준비 요청 시작: $productId');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({'productId': productId}),
+      );
+
+      // 응답 로그
+      print("요청 상태 코드: ${response.statusCode}");
+      print("서버 응답 본문: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      } else {
+        print('결제 준비 요청 실패: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print("결제 준비 중 오류 발생: $e");
+    }
+    return null;
+  }
+
+  // 결제 승인 API 호출
+  Future<Map<String, dynamic>?> approveKakaoPay(
+      String tid, String pgToken) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return null;
+      }
+
+      String apiUrl =
+          '$baseUrl/api/payment/kakao-pay/approve?pg_token=$pgToken';
+
+      print('결제 승인 요청 시작: TID=$tid, pg_token=$pgToken');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({'tid': tid}),
+      );
+
+      print("결제 승인 상태 코드: ${response.statusCode}");
+      print("결제 승인 응답 본문: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('결제 승인 요청 실패: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print("결제 승인 중 오류 발생: $e");
+    }
+    return null;
+  }
 }
