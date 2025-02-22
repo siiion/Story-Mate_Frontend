@@ -95,11 +95,11 @@ class _HomePageState extends State<HomePage> {
           return Padding(
             padding: EdgeInsets.all(5),
             child: CustomCard(
-              title: book.title,
-              tags: book.tags,
-              coverImage: book.coverImage,
+              title: book.title!,
+              tags: book.tags!,
+              coverImage: book.coverImage!,
               onTap: () {
-                controller.toIntroPage(book.title);
+                controller.toIntroPage(book.title!);
               },
             ),
           );

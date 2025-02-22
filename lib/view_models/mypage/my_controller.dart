@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:storymate/models/book.dart';
+import 'package:storymate/services/api_service.dart';
 import 'package:storymate/views/read/book_intro_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:convert' show utf8; // UTF-8 디코딩을 위해 추가
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyController extends GetxController {
+  final _apiService = ApiService();
   final box = GetStorage(); // GetStorage 인스턴스 생성
   final String baseUrl = dotenv.env['API_URL']!;
 
@@ -18,44 +20,86 @@ class MyController extends GetxController {
   var userBirth = '0000.00.00'.obs;
   var messageCount = 0.obs;
 
+  var readingBooks = <Book>[].obs; // 감상 중인 작품
+  var finishedBooks = <Book>[].obs; // 감상한 작품
+
+  // 로컬에 저장된 작품 리스트
+  final List<Book> localBooks = [
+    Book(bookId: 7, title: "시골쥐서울구경", coverImage: "assets/books/fairy_1.png"),
+    Book(bookId: 8, title: "미운아기오리", coverImage: "assets/books/fairy_2.png"),
+    Book(bookId: 3, title: "성냥팔이소녀", coverImage: "assets/books/fairy_3.png"),
+    Book(bookId: 5, title: "엄지공주", coverImage: "assets/books/fairy_4.png"),
+    Book(bookId: 2, title: "인어공주", coverImage: "assets/books/fairy_5.png"),
+    Book(bookId: 1, title: "운수좋은날", coverImage: "assets/books/short_1.png"),
+    Book(bookId: 4, title: "심봉사", coverImage: "assets/books/short_2.png"),
+    Book(bookId: 6, title: "동백꽃", coverImage: "assets/books/short_3.png"),
+    Book(bookId: 9, title: "메밀꽃필무렵", coverImage: "assets/books/short_4.png"),
+  ];
+
   @override
   void onInit() {
     super.onInit();
     fetchUserInfo();
+    fetchReadingBooks();
+    fetchFinishedBooks();
+  }
+
+  /// 감상 중인 작품 목록 조회
+  Future<void> fetchReadingBooks() async {
+    try {
+      final data = await _apiService.fetchBooks('/books/reading');
+      readingBooks.assignAll(_mapBooksFromApi(data));
+    } catch (e) {
+      print("감상 중인 책 목록 로드 실패: $e");
+    }
+  }
+
+  /// 감상한 작품 목록 조회
+  Future<void> fetchFinishedBooks() async {
+    try {
+      final data = await _apiService.fetchBooks('/books/finished');
+      finishedBooks.assignAll(_mapBooksFromApi(data));
+    } catch (e) {
+      print("감상한 책 목록 로드 실패: $e");
+    }
+  }
+
+  /// 서버에서 받아온 데이터를 로컬 데이터와 매핑하는 함수
+  List<Book> _mapBooksFromApi(List<dynamic> data) {
+    return data.map((bookData) {
+      String title = bookData['title'];
+      List<String> tags = List<String>.from(bookData['tags'] ?? []);
+
+      // 로컬 데이터에서 제목을 기준으로 일치하는 작품 찾기
+      Book? matchedBook = localBooks.firstWhereOrNull(
+        (book) => _normalizeString(book.title!) == _normalizeString(title),
+      );
+
+      return Book(
+        bookId: bookData['id'],
+        title: title,
+        tags: tags,
+        coverImage: matchedBook?.coverImage ?? "assets/default.png",
+      );
+    }).toList();
+  }
+
+  /// 띄어쓰기 무시하고 문자열 비교를 위한 정규화 함수
+  String _normalizeString(String text) {
+    return text.replaceAll(' ', '').toLowerCase();
   }
 
   /// 회원 정보 조회 API 호출
   Future<void> fetchUserInfo() async {
     try {
-      // 저장된 accessToken 가져오기
-      final prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('accessToken');
+      final userData = await _apiService.fetchUserInfo();
 
-      if (accessToken == null || accessToken.isEmpty) {
-        print("Access Token 없음");
-        return;
-      }
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/member/info'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8', // UTF-8 지정
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // **UTF-8로 디코딩하여 한글 깨짐 방지**
-        var decodedBody = utf8.decode(response.bodyBytes);
-        var data = json.decode(decodedBody);
-        var userData = data["data"];
-
-        // 받은 데이터 적용
+      if (userData != null) {
         userName.value = userData["nickname"] ?? "사용자";
         userBirth.value = userData["birthDate"] ?? "0000.00.00";
         messageCount.value = userData["messageCount"] ?? 0;
 
-        // GetStorage에 저장하여 다른 컨트롤러에서도 사용할 수 있도록 함
+        // GetStorage에 저장
         box.write("userName", userName.value);
         box.write("userBirth", userBirth.value);
         box.write("messageCount", messageCount.value);
@@ -63,55 +107,36 @@ class MyController extends GetxController {
         print(
             "회원 정보 조회 성공: 이름=${userName.value}, 생년월일=${userBirth.value}, 메시지 개수=${messageCount.value}");
       } else {
-        print("회원 정보 조회 실패: ${response.body}");
+        print("회원 정보 조회 실패");
       }
     } catch (e) {
-      print("API 오류 발생: $e");
+      print("회원 정보 조회 중 오류 발생: $e");
     }
   }
 
   /// 회원 탈퇴 API 호출
   Future<void> deleteUserAccount() async {
     try {
-      // 저장된 accessToken 가져오기
-      final prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('accessToken');
+      bool success = await _apiService.deleteUserAccount();
 
-      if (accessToken == null || accessToken.isEmpty) {
-        print("Access Token 없음");
-        Get.snackbar("오류", "로그인이 필요합니다.",
-            backgroundColor: Colors.red, colorText: Colors.white);
-        return;
-      }
-
-      final response = await http.delete(
-        Uri.parse('$baseUrl/member/info'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // **회원 탈퇴 성공 처리**
+      if (success) {
         print("회원 탈퇴 성공");
 
         // 저장된 사용자 데이터 삭제
+        final prefs = await SharedPreferences.getInstance();
         await prefs.clear();
         box.erase();
 
-        // 로그아웃 후 회원가입 화면으로 이동
+        // 로그아웃 처리 및 회원가입 화면 이동
         Get.snackbar("탈퇴 완료", "회원 탈퇴가 완료되었습니다.",
             backgroundColor: Colors.green, colorText: Colors.white);
-        Get.offAllNamed('/sign_up'); // 회원가입 화면으로 이동
-        // SystemNavigator.pop(); // 화면을 닫음
+        Get.offAllNamed('/sign_up');
       } else {
-        print("회원 탈퇴 실패: ${response.body}");
         Get.snackbar("실패", "회원 탈퇴에 실패했습니다.",
             backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
-      print("API 오류 발생: $e");
+      print("회원 탈퇴 중 오류 발생: $e");
       Get.snackbar("오류", "서버와 연결할 수 없습니다.",
           backgroundColor: Colors.red, colorText: Colors.white);
     }

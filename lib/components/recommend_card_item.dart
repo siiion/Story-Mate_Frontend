@@ -44,12 +44,12 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
           children: [
             // 책 커버 이미지 추가
             CustomCard(
-              title: widget.book.title,
-              tags: widget.book.tags,
+              title: widget.book.title!,
+              tags: widget.book.tags!,
               onTap: () {
                 Get.to(BookIntroPage(), arguments: widget.book.title);
               },
-              coverImage: widget.book.coverImage, // 실제 이미지 경로 적용
+              coverImage: widget.book.coverImage!, // 실제 이미지 경로 적용
             ),
             Padding(
               padding: EdgeInsets.only(top: 10.h, left: 10.w),
@@ -88,7 +88,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                                 // 캐릭터 사진 (원형)
                                 ClipOval(
                                   child: Image.asset(
-                                    widget.book.characterImage,
+                                    widget.book.characterImage!,
                                     width: 60.w,
                                     height: 60.h,
                                     fit: BoxFit.cover,
@@ -99,7 +99,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 8.w),
                                   child: Text(
-                                    widget.book.characterName,
+                                    widget.book.characterName!,
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 15.sp,
@@ -112,9 +112,9 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                             )
                           : Center(
                               child: Text(
-                                widget.book.description.length > 50
-                                    ? "${widget.book.description.substring(0, 50)}..."
-                                    : widget.book.description, // 작품 설명 적용
+                                widget.book.description!.length > 50
+                                    ? "${widget.book.description!.substring(0, 50)}..."
+                                    : widget.book.description!, // 작품 설명 적용
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Color(0xFF303030),
@@ -134,7 +134,8 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                         if (widget.isCharacter) {
                           if (widget.characterId != null) {
                             controller.createChatRoom(
-                                widget.book.characterName, widget.characterId!);
+                                widget.book.characterName!,
+                                widget.characterId!);
                           } else {
                             Get.snackbar(
                               "알림",

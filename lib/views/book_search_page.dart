@@ -139,11 +139,11 @@ class BookSearchPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final book = controller.searchResults[index];
                           return CustomCard(
-                            title: book.title,
-                            tags: book.tags,
-                            coverImage: book.coverImage,
+                            title: book.title!,
+                            tags: book.tags!,
+                            coverImage: book.coverImage!,
                             onTap: () {
-                              controller.toIntroPage(book.title);
+                              controller.toIntroPage(book.title!);
                             },
                           );
                         },

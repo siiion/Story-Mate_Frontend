@@ -491,4 +491,99 @@ class ApiService {
       print("책갈피 삭제 중 오류 발생: $e");
     }
   }
+
+  /// 감상 중인 작품 또는 감상한 작품 목록 조회
+  Future<List<dynamic>> fetchBooks(String endpoint) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api$endpoint?page=0&size=10'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedBody = utf8.decode(response.bodyBytes);
+        var data = json.decode(decodedBody)['data']['content'] as List;
+        return data;
+      } else {
+        print("책 목록 조회 실패: ${response.body}");
+        return [];
+      }
+    } catch (e) {
+      print("책 목록 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  /// 사용자 정보 조회
+  Future<Map<String, dynamic>?> fetchUserInfo() async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return null;
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/member/info'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var decodedBody = utf8.decode(response.bodyBytes);
+        var data = json.decode(decodedBody)['data'];
+        return data;
+      } else {
+        print("회원 정보 조회 실패: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("회원 정보 조회 중 오류 발생: $e");
+      return null;
+    }
+  }
+
+  /// 회원 탈퇴 요청
+  Future<bool> deleteUserAccount() async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return false;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/member/info'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("회원 탈퇴 성공");
+        return true;
+      } else {
+        print("회원 탈퇴 실패: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("회원 탈퇴 중 오류 발생: $e");
+      return false;
+    }
+  }
 }

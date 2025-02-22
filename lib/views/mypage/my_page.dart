@@ -151,55 +151,62 @@ class _MyPageState extends State<MyPage> {
                   // 감상 중인 작품 리스트
                   SizedBox(
                     height: 180.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: 10.h, bottom: 10.h, right: 10.w),
-                          child: CustomCard(
-                            title: item["title"] ?? "",
-                            tags: [],
-                            onTap: () {
-                              controller.toIntroPage(item["title"]!);
-                            },
-                            coverImage: '',
-                          ),
-                        );
-                      },
-                    ),
+                    child: Obx(() {
+                      if (controller.readingBooks.isEmpty) {
+                        return Center(child: Text("감상 중인 작품이 없습니다."));
+                      }
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.readingBooks.length,
+                        itemBuilder: (context, index) {
+                          final book = controller.readingBooks[index];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: 10.h, bottom: 10.h, right: 10.w),
+                            child: CustomCard(
+                              title: book.title!,
+                              tags: book.tags!, // 태그 데이터 삽입
+                              onTap: () {
+                                controller.toIntroPage(book.title!);
+                              },
+                              coverImage: book.coverImage!, // 표지 이미지
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
+
+                  SizedBox(height: 20.h),
                   CategoryText(text: '감상한 작품'),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  // 감상한 작품 리스트
+                  SizedBox(height: 5.h),
+// 감상한 작품 리스트
                   SizedBox(
                     height: 180.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: 10.h, bottom: 10.h, right: 10.w),
-                          child: CustomCard(
-                            title: item["title"] ?? "",
-                            tags: [],
-                            onTap: () {
-                              controller.toIntroPage(item["title"]!);
-                            },
-                            coverImage: '',
-                          ),
-                        );
-                      },
-                    ),
+                    child: Obx(() {
+                      if (controller.finishedBooks.isEmpty) {
+                        return Center(child: Text("감상한 작품이 없습니다."));
+                      }
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.finishedBooks.length,
+                        itemBuilder: (context, index) {
+                          final book = controller.finishedBooks[index];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: 10.h, bottom: 10.h, right: 10.w),
+                            child: CustomCard(
+                              title: book.title!,
+                              tags: book.tags!, // 태그 데이터 삽입
+                              onTap: () {
+                                controller.toIntroPage(book.title!);
+                              },
+                              coverImage: book.coverImage!, // 표지 이미지
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
                   SizedBox(
                     height: 20.h,

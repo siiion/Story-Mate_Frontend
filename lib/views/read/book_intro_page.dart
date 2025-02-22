@@ -10,6 +10,11 @@ import 'package:storymate/view_models/read/book_intro_controller.dart';
 class BookIntroPage extends StatelessWidget {
   const BookIntroPage({super.key});
 
+  /// 문자열에서 띄어쓰기를 제거하고 소문자로 변환해 비교할 수 있도록 정규화
+  String _normalizeString(String text) {
+    return text.replaceAll(' ', '').toLowerCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final BookIntroController controller = Get.put(BookIntroController());
@@ -19,9 +24,10 @@ class BookIntroPage extends StatelessWidget {
     final arguments = Get.arguments as Map<String, dynamic>;
     final String title = arguments['title'] ?? '작품 제목';
 
-    // 해당 제목과 일치하는 책 찾기
-    final Book? book =
-        homeController.books.firstWhereOrNull((b) => b.title == title);
+    // 해당 제목과 일치하는 책 찾기 (띄어쓰기 및 대소문자 무시)
+    final Book? book = homeController.books.firstWhereOrNull(
+      (b) => _normalizeString(b.title!) == _normalizeString(title),
+    );
 
     // 책 ID 가져오기 (없으면 기본값 -1)
     final int bookId = book?.bookId ?? -1;
@@ -45,7 +51,7 @@ class BookIntroPage extends StatelessWidget {
               decoration: ShapeDecoration(
                 image: book != null
                     ? DecorationImage(
-                        image: AssetImage(book.coverImage),
+                        image: AssetImage(book.coverImage!),
                         fit: BoxFit.cover,
                       )
                     : null,
@@ -100,7 +106,7 @@ class BookIntroPage extends StatelessWidget {
                 ),
                 // 태그 (최대 3개)
                 Text(
-                  book?.tags.take(3).map((tag) => "#$tag").join(' ') ??
+                  book?.tags!.take(3).map((tag) => "#$tag").join(' ') ??
                       '#태그 없음',
                   style: TextStyle(
                     color: Color(0xFF9B9ECF),
