@@ -1,22 +1,22 @@
 class Book {
-  final String title;
-  final List<String> tags;
-  final String coverImage;
-  final String category;
-  final String author;
-  final String publishedYear;
-  final String description;
-  final String characterName; // 주요 캐릭터 이름 추가
-  final String characterDescription; // 주요 캐릭터 설명 추가
-  final String characterImage; // 캐릭터 이미지 추가
+  final String? title;
+  final List<String>? tags;
+  final String? coverImage;
+  final String? category;
+  final String? author;
+  final String? publishedYear;
+  final String? description;
+  final String? characterName; // 주요 캐릭터 이름 추가
+  final String? characterDescription; // 주요 캐릭터 설명 추가
+  final String? characterImage; // 캐릭터 이미지 추가
   final int? characterId; // 캐릭터 ID
-  final int bookId;
+  final int? bookId;
 
   Book({
-    required this.title,
+    this.title,
     this.tags = const ["태그 없음"], // 기본값 추가
     this.coverImage = "assets/books/broken_image.png", // 기본 이미지 추가
-    required this.category,
+    this.category,
     this.author = "미상",
     this.publishedYear = "미상",
     this.description = "작품 소개글이 없습니다.",
@@ -24,7 +24,7 @@ class Book {
     this.characterDescription = '',
     this.characterImage = 'assets/books/default_character.png', // 기본 캐릭터 이미지
     this.characterId,
-    required this.bookId,
+    this.bookId,
   });
 
   // JSON을 Book 객체로 변환하는 factory 생성자

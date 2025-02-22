@@ -28,11 +28,11 @@ class BookListController extends GetxController {
     selectedSort.value = sortOrder;
 
     if (sortOrder == "기본순") {
-      filteredBooks.sort((a, b) => a.title.compareTo(b.title)); // 기본순: 제목순
+      filteredBooks.sort((a, b) => a.title!.compareTo(b.title!)); // 기본순: 제목순
     } else if (sortOrder == "인기순") {
       filteredBooks.shuffle(); // 예제: 랜덤 정렬 (실제 인기순 적용 필요)
     } else if (sortOrder == "최신순") {
-      filteredBooks.sort((a, b) => b.title.compareTo(a.title)); // 역순 정렬
+      filteredBooks.sort((a, b) => b.title!.compareTo(a.title!)); // 역순 정렬
     }
   }
 

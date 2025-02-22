@@ -1,233 +1,140 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:get/get.dart';
-// import 'package:storymate/components/theme.dart';
-// import 'package:storymate/view_models/mypage/payment_controller.dart';
-// import 'package:tosspayments_widget_sdk_flutter/widgets/agreement.dart';
-// import 'package:tosspayments_widget_sdk_flutter/widgets/payment_method.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:storymate/components/theme.dart';
+import 'package:storymate/view_models/mypage/payment_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-// class PaymentPage extends StatelessWidget {
-//   const PaymentPage({super.key});
+class PaymentPage extends StatefulWidget {
+  const PaymentPage({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final PaymentController controller = Get.put(PaymentController());
+  @override
+  State<PaymentPage> createState() => _PaymentPageState();
+}
 
-//     return Scaffold(
-//       backgroundColor: AppTheme.backgroundColor,
-//       appBar: AppBar(
-//         forceMaterialTransparency: true,
-//         automaticallyImplyLeading: false,
-//         title: const Text(
-//           '메시지 충전',
-//           style: TextStyle(
-//             fontFamily: 'Jua',
-//           ),
-//         ),
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back_ios_new),
-//           onPressed: () => Get.back(),
-//         ),
-//       ),
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             Expanded(
-//               child: ListView(
-//                 padding: const EdgeInsets.all(16),
-//                 children: [
-//                   Padding(
-//                     padding: EdgeInsets.symmetric(horizontal: 15.w),
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(
-//                           '충전 금액',
-//                           style: TextStyle(
-//                             fontSize: 20.sp,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         Text(
-//                           '${controller.amount}원',
-//                           style: TextStyle(
-//                             fontSize: 18.sp,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(top: 10.h),
-//                     child: Divider(
-//                       color: Color(0xffa2a2a2),
-//                     ),
-//                   ),
-//                   PaymentMethodWidget(
-//                     paymentWidget: controller.paymentWidget,
-//                     selector: 'methods',
-//                   ),
-//                   AgreementWidget(
-//                       paymentWidget: controller.paymentWidget,
-//                       selector: 'agreement'),
-//                   const SizedBox(height: 20),
-//                   Center(
-//                     child: GestureDetector(
-//                       onTap: () => controller.requestPayment(),
-//                       child: Container(
-//                         width: 300.w,
-//                         height: 60.h,
-//                         decoration: ShapeDecoration(
-//                           color: Color(0xFF9B9ECF),
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(30),
-//                           ),
-//                         ),
-//                         child: Center(
-//                           child: Text(
-//                             '결제하기',
-//                             style: TextStyle(
-//                               color: Colors.white,
-//                               fontSize: 22.sp,
-//                               fontFamily: 'Jua',
-//                               fontWeight: FontWeight.w400,
-//                               height: 1,
-//                               letterSpacing: -0.23,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+class _PaymentPageState extends State<PaymentPage> {
+  final PaymentController controller = Get.put(PaymentController());
+  late final WebViewController _webViewController;
 
-//import 'package:flutter/material.dart';
-//import 'package:flutter_screenutil/flutter_screenutil.dart';
-//import 'package:get/get.dart';
-//import 'package:in_app_purchase/in_app_purchase.dart';
-//import 'package:storymate/components/theme.dart';
-//import 'package:storymate/view_models/mypage/payment_controller.dart';
+  @override
+  void initState() {
+    super.initState();
+    _initializeWebView();
+    final int productId = Get.arguments?['productId'] ?? 0;
+    controller.preparePayment(productId);
+  }
 
-//class PaymentPage extends StatelessWidget {
-//  const PaymentPage({super.key});
+  void _initializeWebView() {
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) async {
+            controller.currentUrl.value = request.url; // 현재 URL 상태 업데이트
+            print("현재 요청된 URL: ${request.url}");
 
-//  @override
-//  Widget build(BuildContext context) {
-//    final PaymentController controller = Get.put(PaymentController());
+            // 실제 pg_token 포함된 리디렉션 감지
+            if (request.url.contains('pg_token')) {
+              final Uri uri = Uri.parse(request.url);
+              final String? pgToken = uri.queryParameters['pg_token'];
+              if (pgToken != null) {
+                print("결제 승인용 pg_token 수신: $pgToken");
+                controller.approvePayment(pgToken);
+              }
+              return NavigationDecision.prevent;
+            }
 
-//    return Scaffold(
-//      backgroundColor: AppTheme.backgroundColor,
-//      appBar: AppBar(
-//        forceMaterialTransparency: true,
-//        automaticallyImplyLeading: false,
-//        title: const Text(
-//          '메시지 충전',
-//          style: TextStyle(fontFamily: 'Jua'),
-//        ),
-//        leading: IconButton(
-//          icon: const Icon(Icons.arrow_back_ios_new),
-//          onPressed: () => Get.back(),
-//        ),
-//      ),
-//      body: SafeArea(
-//        child: Column(
-//          children: [
-//            Expanded(
-//              child: ListView(
-//                padding: const EdgeInsets.all(16),
-//                children: [
-//                  Padding(
-//                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-//                    child: Row(
-//                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                      children: [
-//                        Text(
-//                          '충전 금액',
-//                          style: TextStyle(
-//                            fontSize: 20.sp,
-//                            fontWeight: FontWeight.bold,
-//                          ),
-//                        ),
-//                        Obx(() => Text(
-//                            '${controller.amount}원',
-//                              style: TextStyle(
-//                                fontSize: 18.sp,
-//                                fontWeight: FontWeight.bold,
-//                              ),
-//                            )),
-//                      ],
-//                    ),
-//                  ),
-//                  Padding(
-//                    padding: EdgeInsets.only(top: 10.h),
-//                    child: Divider(color: Color(0xffa2a2a2)),
-//                  ),
-//                  // 상품 리스트 (In-App Purchase 제품 표시)
-//                  Obx(
-//                    () => Column(
-//                      children: controller.products.map((product) {
-//                        return ListTile(
-//                          title: Text(
-//                            product.title,
-//                            style: TextStyle(fontSize: 18.sp),
-//                          ),
-//                          subtitle: Text(
-//                            product.description,
-//                            style: TextStyle(fontSize: 14.sp),
-//                          ),
-//                          trailing: Text(
-//                            product.price,
-//                            style: TextStyle(fontSize: 16.sp),
-//                          ),
-//                          onTap: () => controller.purchaseProduct(product),
-//                        );
-//                      }).toList(),
-//                    ),
-//                  ),
-//                  const SizedBox(height: 20),
-//                  Center(
-//                    child: GestureDetector(
-//                      onTap: () => controller.restorePurchases(),
-//                      child: Container(
-//                        width: 300.w,
-//                        height: 60.h,
-//                        decoration: ShapeDecoration(
-//                          color: Color(0xFF9B9ECF),
-//                          shape: RoundedRectangleBorder(
-//                            borderRadius: BorderRadius.circular(30),
-//                          ),
-//                        ),
-//                        child: Center(
-//                          child: Text(
-//                            '구매 복원',
-//                            style: TextStyle(
-//                              color: Colors.white,
-//                              fontSize: 22.sp,
-//                              fontFamily: 'Jua',
-//                              fontWeight: FontWeight.w400,
-//                              height: 1,
-//                              letterSpacing: -0.23,
-//                            ),
-//                          ),
-//                        ),
-//                      ),
-//                    ),
-//                  ),
-//                ],
-//              ),
-//            ),
-//          ],
-//        ),
-//      ),
-//    );
-//  }
-//}
+            // 카카오톡 딥링크 처리
+            else if (request.url.startsWith('kakaotalk://')) {
+              print("카카오톡 딥링크 감지: ${request.url}");
+              if (await canLaunchUrl(Uri.parse(request.url))) {
+                await launchUrl(Uri.parse(request.url));
+              } else {
+                print("카카오톡 앱이 설치되어 있지 않음, 대체 URL로 이동");
+                String fallbackUrl = Uri.decodeComponent(
+                    Uri.parse(request.url).queryParameters['url'] ?? '');
+                if (fallbackUrl.isNotEmpty) {
+                  _webViewController.loadRequest(Uri.parse(fallbackUrl));
+                }
+              }
+              return NavigationDecision.prevent;
+            }
+
+            // 카카오페이 내부 명령 처리
+            else if (request.url.startsWith('app://kakaopay/')) {
+              print("카카오페이 내부 명령 처리: ${request.url}");
+
+              // 결제 완료 후 닫기 명령어 처리
+              if (request.url.contains('close')) {
+                print("결제 창 닫기 명령어 수신");
+                // 성공 또는 실패 페이지로 이동 (결제 성공 처리 가정)
+                Get.offNamed('my_page/payments/success');
+                return NavigationDecision.prevent;
+              }
+
+              // UI 설정 관련 명령어는 무시
+              else if (request.url.contains('navigation_bar_hidden')) {
+                print("UI 설정 명령어 감지 - 무시");
+                return NavigationDecision.prevent;
+              }
+
+              return NavigationDecision.prevent;
+            }
+
+            // 결제 실패 감지
+            else if (request.url.contains('fail')) {
+              print("결제 실패 URL 감지");
+              Get.offNamed('my_page/payments/fail');
+              return NavigationDecision.prevent;
+            }
+
+            // 잘못된 URL 로드 시 차단
+            else if (request.url.isEmpty || !request.url.startsWith('https')) {
+              print("잘못된 URL 형식 감지: ${request.url}");
+              return NavigationDecision.prevent;
+            }
+
+            // 기본적으로 이동 허용
+            return NavigationDecision.navigate;
+          },
+
+          // 페이지 로딩 완료 로그 출력
+          onPageFinished: (String url) {
+            print("페이지 로딩 완료: $url");
+          },
+
+          // 웹 리소스 로딩 에러 처리
+          onWebResourceError: (WebResourceError error) {
+            print("웹 리소스 에러 발생: ${error.description}");
+          },
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        title: const Text(
+          '카카오페이 결제',
+          style: TextStyle(
+            fontFamily: 'Jua',
+          ),
+        ),
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (controller.paymentUrl.value.isNotEmpty) {
+          _webViewController
+              .loadRequest(Uri.parse(controller.paymentUrl.value));
+          return WebViewWidget(controller: _webViewController);
+        } else {
+          return const Center(child: Text('유효한 결제 URL을 받지 못했습니다.'));
+        }
+      }),
+    );
+  }
+}

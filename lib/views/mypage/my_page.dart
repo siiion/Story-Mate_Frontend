@@ -151,55 +151,62 @@ class _MyPageState extends State<MyPage> {
                   // 감상 중인 작품 리스트
                   SizedBox(
                     height: 180.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: 10.h, bottom: 10.h, right: 10.w),
-                          child: CustomCard(
-                            title: item["title"] ?? "",
-                            tags: [],
-                            onTap: () {
-                              controller.toIntroPage(item["title"]!);
-                            },
-                            coverImage: '',
-                          ),
-                        );
-                      },
-                    ),
+                    child: Obx(() {
+                      if (controller.readingBooks.isEmpty) {
+                        return Center(child: Text("감상 중인 작품이 없습니다."));
+                      }
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.readingBooks.length,
+                        itemBuilder: (context, index) {
+                          final book = controller.readingBooks[index];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: 10.h, bottom: 10.h, right: 10.w),
+                            child: CustomCard(
+                              title: book.title!,
+                              tags: book.tags!, // 태그 데이터 삽입
+                              onTap: () {
+                                controller.toIntroPage(book.title!);
+                              },
+                              coverImage: book.coverImage!, // 표지 이미지
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
+
+                  SizedBox(height: 20.h),
                   CategoryText(text: '감상한 작품'),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  // 감상한 작품 리스트
+                  SizedBox(height: 5.h),
+// 감상한 작품 리스트
                   SizedBox(
                     height: 180.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: 10.h, bottom: 10.h, right: 10.w),
-                          child: CustomCard(
-                            title: item["title"] ?? "",
-                            tags: [],
-                            onTap: () {
-                              controller.toIntroPage(item["title"]!);
-                            },
-                            coverImage: '',
-                          ),
-                        );
-                      },
-                    ),
+                    child: Obx(() {
+                      if (controller.finishedBooks.isEmpty) {
+                        return Center(child: Text("감상한 작품이 없습니다."));
+                      }
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.finishedBooks.length,
+                        itemBuilder: (context, index) {
+                          final book = controller.finishedBooks[index];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: 10.h, bottom: 10.h, right: 10.w),
+                            child: CustomCard(
+                              title: book.title!,
+                              tags: book.tags!, // 태그 데이터 삽입
+                              onTap: () {
+                                controller.toIntroPage(book.title!);
+                              },
+                              coverImage: book.coverImage!, // 표지 이미지
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
                   SizedBox(
                     height: 20.h,
@@ -257,7 +264,7 @@ class _MyPageState extends State<MyPage> {
                         // 충전하러 가기 버튼
                         GestureDetector(
                           onTap: () {
-                            _showChargeBottomSheet(context);
+                            _showChargeBottomSheet(context, controller);
                           }, // 충전 화면으로
                           child: Container(
                             width: 150.w,
@@ -397,7 +404,7 @@ class _MyPageState extends State<MyPage> {
 }
 
 // 메세지 충전 모달창
-void _showChargeBottomSheet(BuildContext context) {
+void _showChargeBottomSheet(BuildContext context, MyController controller) {
   showModalBottomSheet(
     context: context,
     shape: RoundedRectangleBorder(
@@ -437,7 +444,7 @@ void _showChargeBottomSheet(BuildContext context) {
             SizedBox(height: 15.h),
             // 현재 메세지 갯수
             Text(
-              '현재 내 보유 메세지 갯수: 0개',
+              '현재 내 보유 메세지 갯수: ${controller.messageCount.value}개',
               style: TextStyle(
                 color: Color(0xFF7C7C7C),
                 fontSize: 18.sp,
@@ -452,12 +459,12 @@ void _showChargeBottomSheet(BuildContext context) {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 30.h),
               child: Column(
                 children: [
-                  _buildChargeOption(context, 30, 500),
+                  _buildChargeOption(context, 30, 500, 1), // ProductId 1
                   SizedBox(height: 10.h),
-                  _buildChargeOption(context, 70, 1000),
+                  _buildChargeOption(context, 70, 1000, 2), // ProductId 2
                 ],
               ),
-            ),
+            )
           ],
         ),
       );
@@ -465,11 +472,12 @@ void _showChargeBottomSheet(BuildContext context) {
   );
 }
 
-Widget _buildChargeOption(BuildContext context, int amount, int price) {
+Widget _buildChargeOption(
+    BuildContext context, int amount, int price, int productId) {
   return GestureDetector(
     onTap: () {
       Navigator.pop(context); // 모달 닫기
-      _requestPayment(price); // 결제 요청
+      _requestPayment(productId); // 결제 요청 (상품 ID 전달)
     },
     child: Padding(
       padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -544,8 +552,8 @@ Widget _buildChargeOption(BuildContext context, int amount, int price) {
   );
 }
 
-void _requestPayment(int amount) {
-  Get.toNamed('/my_page/payments', arguments: {"amount": amount});
+void _requestPayment(int productId) {
+  Get.toNamed('/my_page/payments', arguments: {"productId": productId});
 }
 
 class CategoryText extends StatelessWidget {

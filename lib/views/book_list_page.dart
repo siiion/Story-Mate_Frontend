@@ -108,11 +108,11 @@ class BookListPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final book = controller.filteredBooks[index];
                     return CustomCard(
-                      title: book.title,
-                      tags: book.tags,
-                      coverImage: book.coverImage,
+                      title: book.title!,
+                      tags: book.tags!,
+                      coverImage: book.coverImage!,
                       onTap: () {
-                        controller.toIntroPage(book.title);
+                        controller.toIntroPage(book.title!);
                       },
                     );
                   },

@@ -33,8 +33,8 @@ class BookSearchController extends GetxController {
 
     List<Book> results = homeController.books.where((book) {
       bool matchesTitle =
-          book.title.toLowerCase().contains(query.toLowerCase());
-      bool matchesTags = book.tags
+          book.title!.toLowerCase().contains(query.toLowerCase());
+      bool matchesTags = book.tags!
           .any((tag) => tag.toLowerCase().contains(query.toLowerCase()));
 
       // 검색 카테고리 선택에 따른 필터링

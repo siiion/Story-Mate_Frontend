@@ -23,6 +23,8 @@ dependencies:
   highlightable_text: ^0.0.1 # 하이라이트 기능
   in_app_purchase: ^3.2.1
   get_storage: ^2.1.1 # Get_Storage
+  webview_flutter: ^4.9.0
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
