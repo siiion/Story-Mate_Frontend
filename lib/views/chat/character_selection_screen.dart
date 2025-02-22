@@ -112,17 +112,21 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
         int roomId = responseData['data']['roomId']; // 서버에서 받은 roomId
         String bookTitle =
             responseData['data']['bookTitle']; // 서버에서 받은 bookTitle
+        String charactersName =
+            responseData['data']['charactersName']; // 서버에서 받은 캐릭터 이름
 
         //  한글 깨짐 방지: UTF-8 변환
         bookTitle = utf8.decode(utf8.encode(bookTitle));
 
         print("서버 응답: $responseData");
-        print("채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle");
+        print(
+            "채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle, charactersName: $charactersName");
 
         //  채팅방 생성 후 화면 이동
         Get.toNamed(AppRoutes.CHAT, arguments: {
           "roomId": roomId,
           "bookTitle": bookTitle,
+          "charactersName": charactersName,
         });
 
         //  WebSocket 연결

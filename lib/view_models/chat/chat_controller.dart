@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import '../models/message.dart';
+import '../../models/message.dart';
 
 class ChatController extends GetxController {
   var messages = <Message>[].obs; // 메시지 리스트 (Obx로 반응형 처리)
   var messageInput = ''.obs; // 입력값 (반응형 처리)
-  late TextEditingController textController; // 🔹 수정: late로 선언
+  late TextEditingController textController; // 수정: late로 선언
 
   @override
   void onInit() {

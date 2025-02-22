@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:storymate/views/chat/quiz_screen.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../view_models/chat_controller.dart';
+import '../../view_models/chat/chat_controller.dart';
 import 'package:storymate/views/chat/chat_bubble.dart';
 import 'package:storymate/models/message.dart';
 
@@ -20,6 +21,7 @@ class _ChatScreenState extends State<ChatScreen> {
   WebSocketChannel? channel;
   late int roomId;
   late String bookTitle;
+  late String charactersName;
   final ChatController controller = Get.put(ChatController());
   List<dynamic> chatMessages = [];
   int answerCount = 0;
@@ -29,6 +31,9 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     roomId = Get.arguments["roomId"] ?? 0;
     bookTitle = Get.arguments["bookTitle"] ?? "";
+    charactersName = Get.arguments["charactersName"] ?? "";
+
+    debugPrint("bookTitle: $bookTitle, charactersName: $charactersName");
 
     if (roomId != 0) {
       // WebSocket 서버 연결
@@ -160,9 +165,9 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Text("퀴즈 풀기"),
               onPressed: () {
                 Navigator.of(context).pop();
-                Get.toNamed('/quiz', arguments: {
+                Get.to(() => QuizScreen(), arguments: {
+                  "characterName": charactersName,
                   "bookTitle": bookTitle,
-                  "roomId": roomId,
                 });
               },
             ),
@@ -199,9 +204,9 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 40, // 버튼 높이 조정
               child: ElevatedButton(
                 onPressed: () {
-                  Get.toNamed('/quiz', arguments: {
+                  Get.to(() => QuizScreen(), arguments: {
+                    "characterName": charactersName,
                     "bookTitle": bookTitle,
-                    "roomId": roomId,
                   });
                 },
                 style: ElevatedButton.styleFrom(

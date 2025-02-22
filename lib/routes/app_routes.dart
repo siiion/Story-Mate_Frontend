@@ -55,7 +55,7 @@ class AppRoutes {
       name: '/terms',
       page: () => TermsPage(),
       children: [
-        // 약관 전문 화면
+        // 약관 전문
         GetPage(
           name: '/detail',
           page: () => TermsDetailPage(),
