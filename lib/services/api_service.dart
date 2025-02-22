@@ -492,98 +492,83 @@ class ApiService {
     }
   }
 
-  /// 감상 중인 작품 또는 감상한 작품 목록 조회
-  Future<List<dynamic>> fetchBooks(String endpoint) async {
+  // 결제 준비 API 호출
+  Future<Map<String, dynamic>?> prepareKakaoPay(int productId) async {
     try {
       String? accessToken = await getToken();
 
       if (accessToken == null) {
         print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
-        return [];
+        return {};
       }
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/api$endpoint?page=0&size=10'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
+      String apiUrl = '$baseUrl/api/payment/kakao-pay/prepare';
 
-      if (response.statusCode == 200) {
-        var decodedBody = utf8.decode(response.bodyBytes);
-        var data = json.decode(decodedBody)['data']['content'] as List;
-        return data;
-      } else {
-        print("책 목록 조회 실패: ${response.body}");
-        return [];
-      }
-    } catch (e) {
-      print("책 목록 조회 중 오류 발생: $e");
-      return [];
-    }
-  }
+      // 요청 전 출력
+      print('카카오페이 결제 준비 요청 시작: $productId');
 
-  /// 사용자 정보 조회
-  Future<Map<String, dynamic>?> fetchUserInfo() async {
-    try {
-      String? accessToken = await getToken();
-
-      if (accessToken == null) {
-        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
-        return null;
-      }
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/member/info'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var decodedBody = utf8.decode(response.bodyBytes);
-        var data = json.decode(decodedBody)['data'];
-        return data;
-      } else {
-        print("회원 정보 조회 실패: ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      print("회원 정보 조회 중 오류 발생: $e");
-      return null;
-    }
-  }
-
-  /// 회원 탈퇴 요청
-  Future<bool> deleteUserAccount() async {
-    try {
-      String? accessToken = await getToken();
-
-      if (accessToken == null) {
-        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
-        return false;
-      }
-
-      final response = await http.delete(
-        Uri.parse('$baseUrl/member/info'),
+      final response = await http.post(
+        Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
         },
+        body: jsonEncode({'productId': productId}),
       );
 
+      // 응답 로그
+      print("요청 상태 코드: ${response.statusCode}");
+      print("서버 응답 본문: ${response.body}");
+
       if (response.statusCode == 200) {
-        print("회원 탈퇴 성공");
-        return true;
+        return jsonDecode(response.body)['data'];
       } else {
-        print("회원 탈퇴 실패: ${response.body}");
-        return false;
+        print('결제 준비 요청 실패: ${response.body}');
+        return null;
       }
     } catch (e) {
-      print("회원 탈퇴 중 오류 발생: $e");
-      return false;
+      print("결제 준비 중 오류 발생: $e");
     }
+    return null;
+  }
+
+  // 결제 승인 API 호출
+  Future<Map<String, dynamic>?> approveKakaoPay(
+      String tid, String pgToken) async {
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return null;
+      }
+
+      String apiUrl =
+          '$baseUrl/api/payment/kakao-pay/approve?pg_token=$pgToken';
+
+      print('결제 승인 요청 시작: TID=$tid, pg_token=$pgToken');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({'tid': tid}),
+      );
+
+      print("결제 승인 상태 코드: ${response.statusCode}");
+      print("결제 승인 응답 본문: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('결제 승인 요청 실패: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print("결제 승인 중 오류 발생: $e");
+    }
+    return null;
   }
 }

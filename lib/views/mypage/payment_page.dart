@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:storymate/view_models/mypage/payment_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -12,71 +11,78 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  final PaymentController controller = Get.put(PaymentController());
   late final WebViewController _webViewController;
-  String? paymentUrl;
-  late int amount;
 
   @override
   void initState() {
     super.initState();
-    amount = Get.arguments?['amount'] ?? 500; // 전달받은 결제 금액
+    _initializeWebView();
+    final int productId = Get.arguments?['productId'] ?? 0;
+    controller.preparePayment(productId);
+  }
 
-    // WebViewController 초기화
+  void _initializeWebView() {
     _webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.contains('success')) {
-              Get.offNamed('/payment/success');
+            controller.currentUrl.value = request.url; // 현재 URL 상태 업데이트
+            print("현재 요청된 URL: ${request.url}");
+
+            // 실제 pg_token 포함된 리디렉션 감지
+            if (request.url.contains('pg_token')) {
+              final Uri uri = Uri.parse(request.url);
+              final String? pgToken = uri.queryParameters['pg_token'];
+              if (pgToken != null) {
+                print("결제 승인용 pg_token 수신: $pgToken");
+                controller.approvePayment(pgToken);
+              }
               return NavigationDecision.prevent;
-            } else if (request.url.contains('fail')) {
+            }
+
+            // 결제 실패 감지
+            else if (request.url.contains('fail')) {
+              print("결제 실패 URL 감지");
               Get.offNamed('/payment/fail');
               return NavigationDecision.prevent;
             }
+
+            // 잘못된 URL 로드 시 재시도
+            else if (request.url.isEmpty || !request.url.startsWith('https')) {
+              print("잘못된 URL 형식 감지: ${request.url}");
+              return NavigationDecision.prevent;
+            }
+
+            // 기본적으로 이동 허용
             return NavigationDecision.navigate;
+          },
+          onPageFinished: (String url) {
+            print("페이지 로딩 완료: $url");
+          },
+          onWebResourceError: (WebResourceError error) {
+            print("웹 리소스 에러 발생: ${error.description}");
           },
         ),
       );
-
-    _requestKakaoPay(); // 카카오페이 결제 요청
-  }
-
-  // 카카오페이 결제 요청
-  Future<void> _requestKakaoPay() async {
-    final response = await http.post(
-      Uri.parse('https://yourserver.com/api/kakaopay/request'), // 서버 API 주소
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "amount": amount,
-        "orderId": "order_${DateTime.now().millisecondsSinceEpoch}",
-        "userId": "1234",
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        paymentUrl = data['next_redirect_mobile_url']; // 카카오페이 결제 URL 저장
-      });
-
-      // WebView에 URL 로딩
-      if (paymentUrl != null) {
-        _webViewController.loadRequest(Uri.parse(paymentUrl!));
-      }
-    } else {
-      print("결제 요청 실패: ${response.body}");
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('카카오페이 결제')),
-      body: paymentUrl == null
-          ? const Center(
-              child: CircularProgressIndicator()) // 결제 URL을 받을 때까지 로딩 표시
-          : WebViewWidget(controller: _webViewController), // 수정된 부분
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (controller.paymentUrl.value.isNotEmpty) {
+          _webViewController
+              .loadRequest(Uri.parse(controller.paymentUrl.value));
+          return WebViewWidget(controller: _webViewController);
+        } else {
+          return const Center(child: Text('유효한 결제 URL을 받지 못했습니다.'));
+        }
+      }),
     );
   }
 }

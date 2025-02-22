@@ -459,12 +459,12 @@ void _showChargeBottomSheet(BuildContext context, MyController controller) {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 30.h),
               child: Column(
                 children: [
-                  _buildChargeOption(context, 30, 500),
+                  _buildChargeOption(context, 30, 500, 1), // ProductId 1
                   SizedBox(height: 10.h),
-                  _buildChargeOption(context, 70, 1000),
+                  _buildChargeOption(context, 70, 1000, 2), // ProductId 2
                 ],
               ),
-            ),
+            )
           ],
         ),
       );
@@ -472,11 +472,12 @@ void _showChargeBottomSheet(BuildContext context, MyController controller) {
   );
 }
 
-Widget _buildChargeOption(BuildContext context, int amount, int price) {
+Widget _buildChargeOption(
+    BuildContext context, int amount, int price, int productId) {
   return GestureDetector(
     onTap: () {
       Navigator.pop(context); // 모달 닫기
-      _requestPayment(price); // 결제 요청
+      _requestPayment(productId); // 결제 요청 (상품 ID 전달)
     },
     child: Padding(
       padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -551,8 +552,8 @@ Widget _buildChargeOption(BuildContext context, int amount, int price) {
   );
 }
 
-void _requestPayment(int amount) {
-  Get.toNamed('/my_page/payments', arguments: {"amount": amount});
+void _requestPayment(int productId) {
+  Get.toNamed('/my_page/payments', arguments: {"productId": productId});
 }
 
 class CategoryText extends StatelessWidget {
