@@ -45,12 +45,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       "book": "메밀꽃필무렵",
       "image": "assets/theBuckwheatFlower.png"
     },
-    {
-      "id": 10,
-      "name": "홍길동",
-      "book": "홍길동전",
-      "image": "assets/HongGildong.png"
-    },
+    {"id": 10, "name": "화자", "book": "날개", "image": "assets/me.png"},
   ];
 
   List<Map<String, dynamic>> filteredCharacters = [];
@@ -287,7 +282,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomBar(currentIndex: 1),
+      bottomNavigationBar: CustomBottomBar(currentIndex: 0),
     );
   }
 }

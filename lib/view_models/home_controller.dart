@@ -51,7 +51,7 @@ class HomeController extends GetxController {
         "book": "메밀꽃 필 무렵",
         "image": "assets/theBuckwheatFlower.png"
       },
-      {"name": "홍길동", "book": "홍길동전", "image": "assets/HongGildong.png"},
+      {"name": "화자", "book": "날개", "image": "assets/me.png"},
     ];
 
     books.assignAll([
@@ -154,8 +154,8 @@ class HomeController extends GetxController {
         bookId: 1,
         title: "운수 좋은 날",
         tags: ["일제강점기", "아이러니", "전통"],
-        coverImage: "assets/books/short_1.png",
-        category: "단/중편 소설",
+        coverImage: "assets/books/long_1.png",
+        category: "중/장편 소설",
         author: "현진건",
         publishedYear: "1924",
         description: "가난한 인력거꾼이 운이 좋은 날이라고 믿지만, 결국 비극적인 결말을 맞이하는 작품입니다.",
@@ -175,7 +175,7 @@ class HomeController extends GetxController {
         title: "심봉사",
         tags: ["고전소설", "동화", "효"],
         coverImage: "assets/books/short_2.png",
-        category: "단/중편 소설",
+        category: "단편 소설",
         description: "맹인 심봉사가 기적적으로 눈을 뜨게 되는 이야기로, 효(孝)에 대한 교훈을 담고 있습니다.",
         characterName:
             _getCharacterInfo("심봉사", localCharacters)["characterName"] ?? "",
@@ -191,7 +191,7 @@ class HomeController extends GetxController {
         title: "동백꽃",
         tags: ["봄감자", "사랑", "고전문학"],
         coverImage: "assets/books/short_3.png",
-        category: "단/중편 소설",
+        category: "단편 소설",
         author: "김유정",
         publishedYear: "1936",
         description: "촌스러운 소년과 소녀 사이의 풋풋한 감정을 담은 한국 문학의 대표적인 단편소설입니다.",
@@ -209,7 +209,7 @@ class HomeController extends GetxController {
         title: "메밀꽃 필 무렵",
         tags: ["향토문학", "사랑", "노스탤지어"],
         coverImage: "assets/books/short_4.png",
-        category: "단/중편 소설",
+        category: "단편 소설",
         author: "이효석",
         publishedYear: "1936",
         description: "메밀꽃이 흐드러지게 핀 밤, 장돌뱅이 허생원이 자신의 과거와 사랑을 회상하는 이야기입니다.",
@@ -223,24 +223,25 @@ class HomeController extends GetxController {
                 "메밀꽃 필 무렵", localCharacters)["characterDescription"] ??
             "",
       ),
-      // Book(
-      //   title: "홍길동전",
-      //   tags: ["조선히어로", "신분극복", "모험"],
-      //   coverImage: "assets/books/long_1.png",
-      //   category: "장편 소설",
-      //   author: "허균",
-      //   publishedYear: "17세기",
-      //   description:
-      //       "조선 시대 신분 차별을 극복하고 정의를 실현하는 영웅 홍길동의 이야기를 그린 한국 최초의 한글 소설입니다.",
-      //   characterName:
-      //       _getCharacterInfo("홍길동전", localCharacters)["characterName"] ?? "",
-      //   characterImage:
-      //       _getCharacterInfo("홍길동전", localCharacters)["characterImage"] ??
-      //           "assets/characters/default.png",
-      //   characterDescription: _getCharacterInfo(
-      //           "홍길동전", localCharacters)["characterDescription"] ??
-      //       "",
-      // ),
+      Book(
+        bookId: 10,
+        title: "날개",
+        tags: ["모더니즘", "자아 탐색", "고독"],
+        coverImage: "assets/books/long_2.png",
+        category: "중/장편 소설",
+        author: "이상",
+        publishedYear: "1936",
+        description:
+            "자아의 혼란과 내면의 분열을 상징적으로 그린 작품으로, 주인공의 고독과 존재의 불안이 도심 속에서 심리적으로 표현됩니다.",
+        characterName:
+            _getCharacterInfo("날개", localCharacters)["characterName"] ?? "",
+        characterImage:
+            _getCharacterInfo("날개", localCharacters)["characterImage"] ??
+                "assets/characters/default.png",
+        characterDescription:
+            _getCharacterInfo("날개", localCharacters)["characterDescription"] ??
+                "",
+      ),
     ]);
   }
 
@@ -295,9 +296,9 @@ class HomeController extends GetxController {
     if (userAgeGroup < 20) {
       category = "동화";
     } else if (userAgeGroup < 30) {
-      category = "단/중편 소설";
+      category = "단편 소설";
     } else {
-      category = "장편 소설";
+      category = "중/장편 소설";
     }
 
     // 해당 카테고리의 책 필터링

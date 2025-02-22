@@ -36,9 +36,9 @@ class _HomePageState extends State<HomePage> {
           Obx(() => _buildCategorySection(
               '동화', controller.getBooksByCategory('동화'), controller)),
           Obx(() => _buildCategorySection(
-              '단/중편 소설', controller.getBooksByCategory('단/중편 소설'), controller)),
+              '단편 소설', controller.getBooksByCategory('단편 소설'), controller)),
           Obx(() => _buildCategorySection(
-              '장편 소설', controller.getBooksByCategory('장편 소설'), controller)),
+              '중/장편 소설', controller.getBooksByCategory('중/장편 소설'), controller)),
           _buildRecommendedSection(),
           SizedBox(
             height: 10.h,
