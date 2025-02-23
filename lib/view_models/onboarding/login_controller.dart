@@ -15,6 +15,7 @@ class LoginController extends GetxController {
   void onInit() {
     super.onInit();
     _loadStoredToken();
+    _loadUserInfo();
   }
 
   /// 저장된 토큰 불러오기
@@ -28,6 +29,14 @@ class LoginController extends GetxController {
     } else {
       print("저장된 액세스 토큰 없음");
     }
+  }
+
+  /// 저장된 사용자 정보 불러오기
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    userName.value = prefs.getString('userName') ?? ""; // 기본값 ""
+    userBirth.value = prefs.getString('userBirth') ?? ""; // 기본값 ""
+    print("저장된 사용자 정보 로드 완료: 이름=${userName.value}, 생년월일=${userBirth.value}");
   }
 
   /// 자동 로그인 체크 (토큰이 유효하면 true 반환, 아니면 false 반환)
@@ -80,10 +89,12 @@ class LoginController extends GetxController {
       if (user.kakaoAccount?.profile?.nickname != null) {
         userName.value = user.kakaoAccount!.profile!.nickname!;
       }
-      if (user.kakaoAccount?.birthday != null) {
-        userBirth.value = user.kakaoAccount!.birthday!;
-      }
-      print("사용자 정보: 이름=${userName.value}, 생년월일=${userBirth.value}");
+
+      // 사용자 이름을 SharedPreferences에 저장
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userName', userName.value);
+
+      print("사용자 정보: 이름=${userName.value}");
     } catch (error) {
       print("사용자 정보 가져오기 실패: $error");
     }

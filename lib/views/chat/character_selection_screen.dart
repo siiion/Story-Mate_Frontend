@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:storymate/views/chat/chat_room_list.dart';
 import 'package:web_socket_channel/web_socket_channel.dart'; // 추가된 부분
 import '../../../components/custom_bottom_bar.dart';
 import '../../../routes/app_routes.dart';
@@ -25,27 +26,74 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       "id": 1,
       "name": "김첨지",
       "book": "운수좋은날",
-      "image": "assets/kim_cheomji.png"
+      "image": "assets/characters/ch.1-1.png"
     },
-    {"id": 2, "name": "인어공주", "book": "인어공주", "image": "assets/mermaid.png"},
+    {
+      "id": 2,
+      "name": "인어공주",
+      "book": "인어공주",
+      "image": "assets/characters/ch.2-1.png"
+    },
     {
       "id": 3,
-      "name": "성냥팔이 소녀",
+      "name": "성냥팔이소녀",
       "book": "성냥팔이소녀",
-      "image": "assets/TheLittleGirl.png"
+      "image": "assets/characters/ch.3-1.png"
     },
-    {"id": 4, "name": "심봉사", "book": "심봉사", "image": "assets/SimCheong.png"},
-    {"id": 5, "name": "엄지공주", "book": "엄지공주", "image": "assets/mermaid2.png"},
-    {"id": 6, "name": "동백꽃", "book": "동백꽃", "image": "assets/Dongbaekkkot.png"},
-    {"id": 7, "name": "시골쥐", "book": "시골쥐서울구경", "image": "assets/mouse.png"},
-    {"id": 8, "name": "미운 아기 오리", "book": "미운아기오리", "image": "assets/duck.png"},
+    {
+      "id": 4,
+      "name": "심청",
+      "book": "심봉사",
+      "image": "assets/characters/ch.4-1.png"
+    },
+    {
+      "id": 5,
+      "name": "심봉사",
+      "book": "심봉사",
+      "image": "assets/characters/ch.5-1.png"
+    },
+    {
+      "id": 6,
+      "name": "엄지공주",
+      "book": "엄지공주",
+      "image": "assets/characters/ch.6-1.png"
+    },
+    {
+      "id": 7,
+      "name": "점순이",
+      "book": "동백꽃",
+      "image": "assets/characters/ch.7-1.png"
+    },
+    {
+      "id": 8,
+      "name": "화자",
+      "book": "동백꽃",
+      "image": "assets/characters/ch.8-1.png"
+    },
     {
       "id": 9,
+      "name": "시골쥐",
+      "book": "시골쥐서울구경",
+      "image": "assets/characters/ch.9-1.png"
+    },
+    {
+      "id": 10,
+      "name": "미운아기오리",
+      "book": "미운아기오리",
+      "image": "assets/characters/ch.10-1.png"
+    },
+    {
+      "id": 11,
       "name": "허생원",
       "book": "메밀꽃필무렵",
-      "image": "assets/theBuckwheatFlower.png"
+      "image": "assets/characters/ch.11-1.png"
     },
-    {"id": 10, "name": "화자", "book": "날개", "image": "assets/me.png"},
+    {
+      "id": 12,
+      "name": "화자",
+      "book": "날개",
+      "image": "assets/characters/ch.12-1.png"
+    },
   ];
 
   List<Map<String, dynamic>> filteredCharacters = [];
@@ -165,7 +213,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.purple[50],
         elevation: 0,
         title: Text(
           '작품 속 인물과 이야기를 나눠보세요!',
@@ -180,30 +228,39 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(10.0),
             child: TextField(
               controller: searchController,
               onChanged: (query) => filterCharacters(query),
               decoration: InputDecoration(
-                hintText: "인물/작품으로 검색",
-                suffixIcon: Icon(Icons.search, color: Color(0xFF9B9FD0)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+                  hintText: "인물/작품으로 검색",
+                  hintStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  suffixIcon: Icon(Icons.search, color: Color(0xFF9B9FD0)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 15.0,
+                  )),
             ),
           ),
 
           Expanded(
             child: GridView.builder(
+              shrinkWrap: true,
               padding: const EdgeInsets.all(16.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 childAspectRatio: 0.8,
                 crossAxisCount: 3,
-                crossAxisSpacing: 10.w,
-                mainAxisSpacing: 10.h,
+                crossAxisSpacing: 9.w,
+                mainAxisSpacing: 15.h,
               ),
               itemCount: filteredCharacters.length,
               itemBuilder: (context, index) {
@@ -224,7 +281,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                           border: Border.all(color: Colors.grey, width: 2),
                         ),
                         child: CircleAvatar(
-                          radius: 40,
+                          radius: 35,
                           backgroundColor: Colors.grey.shade200,
                           backgroundImage: character["image"] != null
                               ? AssetImage(character["image"]!)
@@ -242,7 +299,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                               : null,
                         ),
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: 7.h),
                       Text(
                         character["name"]!,
                         style: TextStyle(
@@ -251,35 +308,41 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      SizedBox(height: 2.h),
                       Text(
                         character["book"]!,
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 9.sp,
                           fontFamily: 'Jua',
                           color: Colors.grey,
                         ),
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 5.h),
                     ],
                   ),
                 );
               },
             ),
-          ), // 🔹 "이전 대화 보기" 버튼 추가
+          ), //  "이전 대화 보기" 버튼 추가
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
-              onPressed: ChatHistory,
+              onPressed: () {
+                Get.toNamed(AppRoutes.CHAT_ROOM_LIST);
+              },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                backgroundColor: Colors.white, // 버튼 색상
+                backgroundColor: Colors.grey[200], // 버튼 색상
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
               child: Text(
                 "이전 대화 보기",
                 style: TextStyle(
                     fontFamily: 'Jua',
                     color: Colors.black,
-                    fontSize: 12.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.bold),
               ),
             ),

@@ -49,14 +49,5 @@ flutter:
   assets:
     - assets/
     - assets/books/
-    - assets/kim_cheomji.png
-    - assets/mermaid.png
-    - assets/TheLittleGirl.png
-    - assets/SimCheong.png
-    - assets/mermaid2.png
-    - assets/Dongbaekkkot.png
-    - assets/mouse.png
-    - assets/duck.png
-    - assets/theBuckwheatFlower.png
-    - assets/HongGildong.png
+    - assets/characters/
     - .env
