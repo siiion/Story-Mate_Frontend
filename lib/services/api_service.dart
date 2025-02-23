@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -665,5 +666,107 @@ class ApiService {
       print("결제 승인 중 오류 발생: $e");
     }
     return null;
+  }
+
+  // 서버에서 퀴즈 데이터 가져오기
+  Future<dynamic> fetchQuizData(
+      String characterName, String bookTitle, String quizType) async {
+    final requestBody = json.encode({
+      "characterName": characterName,
+      "bookTitle": bookTitle,
+      "quizType": quizType
+    });
+
+    print("퀴즈 요청 데이터: $requestBody"); // 요청 데이터 출력
+
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      // http.Request를 사용해서 GET 요청에 body 포함
+      final uri = Uri.parse('$baseUrl/api/quiz/question');
+      var request = http.Request('GET', uri)
+        ..headers.addAll({
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        })
+        ..body = requestBody;
+
+      var response = await request.send();
+
+      // 응답 데이터 처리 (전체 응답 출력)
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        print("서버에서 받은 원본 응답 데이터: $responseBody"); // 응답 데이터 전체 출력
+
+        var decodedData = json.decode(responseBody);
+        print("디코딩된 JSON 데이터: $decodedData"); // JSON 파싱 후 전체 출력
+
+        return decodedData; // 구조 확인만 하고 반환
+      } else {
+        var responseBody = await response.stream.bytesToString();
+        print("퀴즈 데이터 조회 실패 (상태 코드 ${response.statusCode}): $responseBody");
+        return [];
+      }
+    } catch (e) {
+      print("퀴즈 데이터 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
+  // 퀴즈 답안 제출 (GET 요청에 body 포함)
+  Future<Map<String, dynamic>?> submitQuizAnswer(String characterName,
+      String bookTitle, String quizType, String userAnswer) async {
+    // // 긴 텍스트 데이터를 안전하게 전송하기 위해 URL 인코딩
+    // final sanitizedAnswer = Uri.encodeComponent(userAnswer);
+
+    final requestBody = json.encode({
+      "bookTitle": bookTitle,
+      "characterName": characterName,
+      "quizType": quizType,
+      "userAnswer": userAnswer, // 인코딩된 사용자 답변 전달
+    });
+
+    print("퀴즈 답안 전송 데이터 (인코딩 후): $requestBody");
+
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return null;
+      }
+
+      // GET 요청에서 body 포함
+      final uri = Uri.parse('$baseUrl/api/quiz/answer');
+      var request = http.Request('GET', uri)
+        ..headers.addAll({
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        })
+        ..body = requestBody;
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseBodyBytes = await response.stream.toBytes();
+        var responseBody = utf8.decode(responseBodyBytes, allowMalformed: true);
+        var decodedData = json.decode(responseBody);
+        print("퀴즈 제출 성공, 서버 응답 데이터: $decodedData");
+        return decodedData;
+      } else {
+        var responseBodyBytes = await response.stream.toBytes();
+        var responseBody = utf8.decode(responseBodyBytes, allowMalformed: true);
+        print("퀴즈 제출 실패 (상태 코드 ${response.statusCode}): $responseBody");
+        return null;
+      }
+    } catch (e) {
+      print("퀴즈 제출 오류 발생: $e");
+      return null;
+    }
   }
 }

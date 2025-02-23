@@ -112,21 +112,25 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
         int roomId = responseData['data']['roomId']; // 서버에서 받은 roomId
         String bookTitle =
             responseData['data']['bookTitle']; // 서버에서 받은 bookTitle
+        String charactersName =
+            responseData['data']['charactersName']; // 서버에서 받은 캐릭터 이름
 
         //  한글 깨짐 방지: UTF-8 변환
         bookTitle = utf8.decode(utf8.encode(bookTitle));
 
         print("서버 응답: $responseData");
-        print("채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle");
+        print(
+            "채팅방 생성 성공, roomId: $roomId, bookTitle: $bookTitle, charactersName: $charactersName");
 
         //  채팅방 생성 후 화면 이동
         Get.toNamed(AppRoutes.CHAT, arguments: {
           "roomId": roomId,
           "bookTitle": bookTitle,
+          "charactersName": charactersName,
         });
 
         //  WebSocket 연결
-        connectToWebSocket(roomId);
+        // connectToWebSocket(roomId);
       } else {
         print("채팅방 생성 실패: ${response.statusCode}");
         print("서버 응답: $decodedResponse");
@@ -136,19 +140,19 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     }
   }
 
-  // WebSocket 연결 함수
-  void connectToWebSocket(int roomId) {
-    // WebSocket 연결 URL은 roomId를 사용하여 연결
-    final channel = WebSocketChannel.connect(
-      Uri.parse('wss://be.dev.storymate.site/chat/$roomId'),
-    );
+  // // WebSocket 연결 함수
+  // void connectToWebSocket(int roomId) {
+  //   // WebSocket 연결 URL은 roomId를 사용하여 연결
+  //   final channel = WebSocketChannel.connect(
+  //     Uri.parse('wss://be.dev.storymate.site/chat/$roomId'),
+  //   );
 
-    // WebSocket 수신 처리
-    channel.stream.listen((message) {
-      print('Received message: $message');
-      // 추가적인 메시지 처리 로직
-    });
-  }
+  //   // WebSocket 수신 처리
+  //   channel.stream.listen((message) {
+  //     print('Received message: $message');
+  //     // 추가적인 메시지 처리 로직
+  //   });
+  // }
 
   // 토큰을 SharedPreferences에서 불러오기
   Future<String?> getToken() async {
