@@ -1,6 +1,7 @@
 // 라우팅 관리
 
 import 'package:get/get.dart';
+import 'package:storymate/views/chat/chat_room_list.dart';
 import 'package:storymate/views/chat/chat_room_screen.dart';
 import 'package:storymate/views/mypage/modify_info_page.dart';
 import 'package:storymate/views/mypage/payment_fail_page.dart';
@@ -34,6 +35,7 @@ class AppRoutes {
   static const MEMO = '/memo';
   static const CHAT_HISTORY = "/chat_history";
   static const CHAT_ROOM = '/chat-room';
+  static const CHAT_ROOM_LIST = '/chat-room-list';
 
   static final routes = [
     GetPage(
@@ -108,10 +110,15 @@ class AppRoutes {
       name: '/quiz',
       page: () => QuizScreen(),
     ),
-    //이전 채팅 내용
+    //특정 채팅방으로 이동
     GetPage(
       name: CHAT_HISTORY,
       page: () => ChatRoomScreen(),
+    ),
+    //이전 대화 목록
+    GetPage(
+      name: CHAT_ROOM_LIST,
+      page: () => ChatRoomListScreen(),
     ),
 
     // 마이페이지
