@@ -1,5 +1,7 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:storymate/components/theme.dart';
 import 'package:storymate/services/api_service.dart';
 
 class QuizController extends GetxController {
@@ -9,6 +11,10 @@ class QuizController extends GetxController {
   var currentQuizIndex = 0.obs; // 현재 퀴즈 인덱스
   var isLoading = true.obs;
   var isSubmitting = false.obs;
+
+  var isEssaySubmitting = false.obs; // 에세이 제출 로딩 상태
+  var essayResponse = ''.obs; // 에세이 응답 메시지
+  var essayAnswer = ''.obs; // 에세이 입력값 관리
 
   String characterName = "";
   String bookTitle = "";
@@ -66,6 +72,20 @@ class QuizController extends GetxController {
     isLoading.value = false;
   }
 
+  List<String> parseOptionsFromQuestion(String question) {
+    // 문제와 선택지를 분리하기 위한 정규 표현식 사용
+    final optionsRegex = RegExp(r'(\d+)\.(.*?)($|\n)');
+
+    List<String> options = [];
+    Iterable<RegExpMatch> matches = optionsRegex.allMatches(question);
+
+    for (final match in matches) {
+      options.add(match.group(2)!.trim());
+    }
+
+    return options;
+  }
+
   // 현재 퀴즈 설정
   void updateCurrentQuiz() {
     if (quizList.isNotEmpty && currentQuizIndex.value < quizList.length) {
@@ -85,6 +105,17 @@ class QuizController extends GetxController {
     }
   }
 
+  bool get isAnswerProvided {
+    if (quizType.value == "ox") {
+      return oxAnswer != -1;
+    } else if (quizType.value == "multiple_choice") {
+      return mcqAnswer != -1;
+    } else if (quizType.value == "essay") {
+      return essayAnswer.value.trim().isNotEmpty; // 에세이 입력 감지
+    }
+    return false;
+  }
+
   // 퀴즈 제출 및 결과 확인
   Future<void> submitQuiz(BuildContext context) async {
     if (isSubmitting.value) return;
@@ -95,9 +126,10 @@ class QuizController extends GetxController {
     if (quizType == "ox") {
       userAnswer = oxAnswer == 1 ? "O" : "X";
     } else if (quizType == "multiple_choice") {
-      userAnswer = mcqAnswer.toString();
+      userAnswer = (mcqAnswer + 1).toString();
     } else {
       userAnswer = essayController.text;
+      isEssaySubmitting.value = true;
     }
 
     // 서버로 답안 제출 (GET 요청 유지)
@@ -107,9 +139,15 @@ class QuizController extends GetxController {
     if (response != null) {
       print("서버 응답 전체 데이터: $response");
 
-      String resultMessage = response["data"]?.toString() ?? "응답 데이터가 없습니다.";
+      String resultMessage =
+          response["data"]["response"]?.toString() ?? "응답 데이터가 없습니다.";
 
-      showResultDialog(context, resultMessage);
+      if (quizType.value == "essay") {
+        essayResponse.value = resultMessage;
+        isEssaySubmitting.value = false;
+      } else {
+        showResultDialog(context, resultMessage);
+      }
     } else {
       print("퀴즈 제출 실패");
     }
@@ -139,14 +177,54 @@ class QuizController extends GetxController {
 
   // 결과 다이얼로그
   void showResultDialog(BuildContext context, String message) {
-    Get.defaultDialog(
-      title: "퀴즈 결과",
-      middleText: message,
-      textConfirm: "다음 문제로",
-      onConfirm: () {
-        Get.back();
-        moveToNextQuiz(context);
-      },
+    Get.dialog(
+      Dialog(
+        backgroundColor: AppTheme.backgroundColor, // 다이얼로그 배경색
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // 둥근 모서리 설정
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 내용만큼만 크기 설정
+            mainAxisAlignment: MainAxisAlignment.spaceAround, // 요소 간 공간 배분
+            children: [
+              // 다이얼로그 제목
+              Text(
+                message,
+                style: TextStyle(
+                  fontFamily: 'Jua',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black, // 텍스트 색상
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              // 확인 버튼
+              ElevatedButton(
+                onPressed: () {
+                  Get.back(); // 다이얼로그 닫기
+                  moveToNextQuiz(context); // 콜백 실행
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor, // 버튼 색상 설정
+                ),
+                child: Text(
+                  "다음 문제로",
+                  style: TextStyle(
+                    fontFamily: 'Jua',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
