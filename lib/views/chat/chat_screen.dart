@@ -369,7 +369,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
               // 설명 텍스트
               Text(
-                "퀴즈를 통해 추가 메세지 개수를 얻으실 수 있어요!",
+                "퀴즈를 통해 추가 메시지 개수를 얻으실 수 있어요!",
                 style: TextStyle(
                   fontFamily: 'Jua',
                   fontSize: 16.sp,

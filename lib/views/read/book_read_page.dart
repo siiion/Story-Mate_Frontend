@@ -37,7 +37,7 @@ class _BookReadPageState extends State<BookReadPage> {
     final int bookId = arguments['bookId'] ?? -1;
 
     // TXT 파일명 생성 (공백을 "_"로 변환하여 파일명 안전하게)
-    final String fileName = '${title.replaceAll(' ', '_')}.txt';
+    final String fileName = '${title.replaceAll(RegExp(r'\s+'), '')}.txt';
     final String filePath = 'assets/$fileName';
 
     // 화면 크기 및 텍스트 스타일 설정

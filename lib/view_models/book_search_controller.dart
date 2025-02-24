@@ -52,7 +52,7 @@ class BookSearchController extends GetxController {
   // 작품 소개 페이지로 이동
   void toIntroPage(String title) {
     Get.to(
-      BookIntroPage(),
+      () => BookIntroPage(),
       arguments: {
         'title': title,
       },

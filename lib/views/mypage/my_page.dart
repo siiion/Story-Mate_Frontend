@@ -44,14 +44,6 @@ class _MyPageState extends State<MyPage> with RouteAware {
     controller.fetchFinishedBooks();
   }
 
-  // 샘플 데이터
-  final List<Map<String, String>> items = [
-    {"title": "작품 제목 1", "tags": "#태그1 #태그2"},
-    {"title": "작품 제목 2", "tags": "#태그3 #태그4"},
-    {"title": "작품 제목 3", "tags": "#태그5 #태그6"},
-    {"title": "작품 제목 4", "tags": "#태그7 #태그8"},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +91,7 @@ class _MyPageState extends State<MyPage> with RouteAware {
                           children: [
                             // 사용자 이름 (동적 데이터 적용)
                             Obx(() => Text(
-                                  '${controller.userName.value}님,',
+                                  '${controller.userName.value}님',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 25.sp,
@@ -245,7 +237,7 @@ class _MyPageState extends State<MyPage> with RouteAware {
                       SizedBox(
                         width: 5.w,
                       ),
-                      CategoryText(text: '메세지 충전'),
+                      CategoryText(text: '메시지 충전'),
                     ],
                   ),
                   SizedBox(
@@ -256,7 +248,7 @@ class _MyPageState extends State<MyPage> with RouteAware {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // 남은 메세지 개수
+                        // 남은 메시지 개수
                         Container(
                           width: 150.w,
                           height: 35.h,
@@ -271,7 +263,7 @@ class _MyPageState extends State<MyPage> with RouteAware {
                           child: Center(
                             child: // 남은 메시지 개수
                                 Obx(() => Text(
-                                      '남은 메세지: ${controller.messageCount.value}개',
+                                      '남은 메시지: ${controller.messageCount.value}개',
                                       style: TextStyle(
                                         color: Color(0xFF9B9ECF),
                                         fontSize: 16.sp,
@@ -428,7 +420,7 @@ class _MyPageState extends State<MyPage> with RouteAware {
   }
 }
 
-// 메세지 충전 모달창
+// 메시지 충전 모달창
 void _showChargeBottomSheet(BuildContext context, MyController controller) {
   showModalBottomSheet(
     context: context,
@@ -456,7 +448,7 @@ void _showChargeBottomSheet(BuildContext context, MyController controller) {
             ),
             SizedBox(height: 30.h),
             Text(
-              '메세지 충전 단위를 선택해 주세요',
+              '메시지 충전 단위를 선택해 주세요',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 25.sp,
@@ -467,9 +459,9 @@ void _showChargeBottomSheet(BuildContext context, MyController controller) {
               ),
             ),
             SizedBox(height: 15.h),
-            // 현재 메세지 갯수
+            // 현재 메시지 갯수
             Text(
-              '현재 내 보유 메세지 갯수: ${controller.messageCount.value}개',
+              '현재 내 보유 메시지 갯수: ${controller.messageCount.value}개',
               style: TextStyle(
                 color: Color(0xFF7C7C7C),
                 fontSize: 18.sp,
@@ -513,7 +505,7 @@ Widget _buildChargeOption(
             TextSpan(
               children: [
                 TextSpan(
-                  text: '메세지 ',
+                  text: '메시지 ',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 22.sp,
