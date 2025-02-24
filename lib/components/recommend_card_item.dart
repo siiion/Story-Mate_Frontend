@@ -137,7 +137,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                                 await controller.createChatRoom(
                               widget.book.characterName!,
                               widget.characterId!,
-                              widget.book.title!,
+                              widget.book.title!.replaceAll(' ', ''),
                             );
 
                             if (!isChatRoomCreated) {
@@ -161,7 +161,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                           }
                         } else {
                           Get.to(() => BookIntroPage(), arguments: {
-                            'title': widget.book.title,
+                            'title': widget.book.title!.replaceAll(' ', ''),
                           });
                         }
                       },
