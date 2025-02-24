@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:storymate/view_models/onboarding/login_controller.dart';
+import 'package:storymate/views/mypage/my_page.dart';
 import 'package:storymate/views/onboarding/splash_screen.dart';
 import 'routes/app_routes.dart';
 
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (_, child) {
         return GetMaterialApp(
+          navigatorObservers: [routeObserver],
           debugShowCheckedModeBanner: false,
           title: 'StoryMate',
           initialRoute: '/', // SplashScreen에서 자동 로그인 체크
