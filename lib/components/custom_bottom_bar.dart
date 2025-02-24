@@ -59,15 +59,15 @@ class CustomBottomBar extends StatelessWidget {
           switch (index) {
             case 0:
               // 대화하기 탭
-              Get.toNamed(AppRoutes.CHARACTER_SELECTION);
+              Get.offNamed(AppRoutes.CHARACTER_SELECTION);
               break;
             case 1:
               // 홈 탭
-              Get.toNamed(AppRoutes.HOME);
+              Get.offNamed(AppRoutes.HOME);
               break;
             default:
               // 마이페이지 탭
-              Get.toNamed('/my_page');
+              Get.offNamed('/my_page');
               break;
           }
         },

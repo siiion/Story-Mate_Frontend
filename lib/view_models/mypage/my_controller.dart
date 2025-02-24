@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MyController extends GetxController {
+class MyController extends GetxController with WidgetsBindingObserver {
   final _apiService = ApiService();
   final box = GetStorage(); // GetStorage 인스턴스 생성
   final String baseUrl = dotenv.env['API_URL']!;
@@ -41,9 +41,34 @@ class MyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchUserInfo();
-    fetchReadingBooks();
-    fetchFinishedBooks();
+    WidgetsBinding.instance.addObserver(this);
+    fetchAllData();
+    // fetchUserInfo();
+    // fetchReadingBooks();
+    // fetchFinishedBooks();
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  // 앱 상태 감지
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      fetchAllData(); // 앱이 다시 활성화되면 데이터를 새로 불러오기
+    }
+  }
+
+  // 모든 데이터 새로고침
+  Future<void> fetchAllData() async {
+    await Future.wait([
+      fetchUserInfo(),
+      fetchReadingBooks(),
+      fetchFinishedBooks(),
+    ]);
   }
 
   /// 감상 중인 작품 목록 조회

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storymate/components/theme.dart';
+import 'package:storymate/views/chat/character_selection_screen.dart';
 import 'package:storymate/views/chat/quiz_screen.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
@@ -468,7 +469,7 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: GestureDetector(
-          onTap: () => Get.back(),
+          onTap: () => Get.off(() => CharacterSelectionScreen()),
           child: Icon(
             Icons.arrow_back_ios_new,
           ),
