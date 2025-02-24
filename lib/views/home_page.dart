@@ -57,25 +57,25 @@ class _HomePageState extends State<HomePage> {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20.sp,
-                  fontFamily: 'Jua',
-                  fontWeight: FontWeight.w400,
+          child: GestureDetector(
+            onTap: () {
+              controller.setCategory(title);
+            },
+            child: Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20.sp,
+                    fontFamily: 'Jua',
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-              SizedBox(width: 10.w),
-              GestureDetector(
-                onTap: () {
-                  controller.setCategory(title);
-                },
-                child: Icon(Icons.arrow_forward_ios, size: 15.w),
-              ),
-            ],
+                SizedBox(width: 10.w),
+                Icon(Icons.arrow_forward_ios, size: 15.w),
+              ],
+            ),
           ),
         ),
         SizedBox(height: 180.h, child: _buildBookList(books, controller)),
