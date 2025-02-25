@@ -132,26 +132,26 @@ class QuizController extends GetxController {
         String essayResult = "";
         String correctStatus = response["data"]["correct"]?.toString() ?? "";
 
-        // 메세지 개수 증가 안내 메시지 추가
+        // 메시지 개수 증가 안내 메시지 추가
         String messageIncrement = "";
         if (quizType == "ox" && correctStatus == "true") {
-          messageIncrement = "메세지 개수가 1개 추가되었습니다!";
+          messageIncrement = "메시지 개수가 1개 추가되었습니다!";
         } else if (quizType == "multiple_choice" && correctStatus == "true") {
-          messageIncrement = "메세지 개수가 2개 추가되었습니다!";
+          messageIncrement = "메시지 개수가 2개 추가되었습니다!";
         } else if (quizType == "essay") {
           if (correctStatus == "O") {
             essayResult = "정답입니다!";
-            messageIncrement = "메세지 개수가 3개 추가되었습니다!";
+            messageIncrement = "메시지 개수가 3개 추가되었습니다!";
           } else if (correctStatus == "C") {
             essayResult = "거의 맞췄어요! 좀 더 생각해보세요.";
-            messageIncrement = "메세지 개수가 1개 추가되었습니다!";
+            messageIncrement = "메시지 개수가 1개 추가되었습니다!";
           } else {
             essayResult = "오답입니다. 다시 생각해보세요.";
           }
         }
 
         if (quizType == "essay") {
-          // 다이얼로그에 결과 및 메세지 증가 안내 표시
+          // 다이얼로그에 결과 및 메시지 증가 안내 표시
           showResultDialog(context, "$essayResult\n$messageIncrement");
 
           // essayResponse.value = resultMessage;

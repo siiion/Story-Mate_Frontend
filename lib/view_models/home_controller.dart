@@ -113,17 +113,16 @@ class HomeController extends GetxController {
         publishedYear: "1926",
         description: "시골 쥐와 서울 쥐의 삶을 비교하는 유명한 우화입니다.",
         characterName:
-            _getCharacterInfo("시골 쥐 서울 구경", localCharacters)["characterName"] ??
+            _getCharacterInfo("시골쥐서울 구경", localCharacters)["characterName"] ??
                 "",
-        characterImage: _getCharacterInfo(
-                "시골 쥐 서울 구경", localCharacters)["characterImage"] ??
-            "assets/characters/default.png",
+        characterImage:
+            _getCharacterInfo("시골쥐서울구경", localCharacters)["characterImage"] ??
+                "assets/characters/default.png",
         characterDescription: _getCharacterInfo(
-                "시골 쥐 서울 구경", localCharacters)["characterDescription"] ??
+                "시골쥐서울구경", localCharacters)["characterDescription"] ??
             "",
         characterId:
-            _getCharacterInfo("시골 쥐 서울 구경", localCharacters)["characterId"] ??
-                0,
+            _getCharacterInfo("시골쥐서울구경", localCharacters)["characterId"] ?? 0,
       ),
       Book(
         bookId: 8,
@@ -135,16 +134,15 @@ class HomeController extends GetxController {
         publishedYear: "1843",
         description: "자신의 정체성을 찾는 아기 오리의 성장 이야기입니다.",
         characterName:
-            _getCharacterInfo("미운 아기 오리", localCharacters)["characterName"] ??
-                "",
+            _getCharacterInfo("미운아기오리", localCharacters)["characterName"] ?? "",
         characterImage:
-            _getCharacterInfo("미운 아기 오리", localCharacters)["characterImage"] ??
+            _getCharacterInfo("미운아기오리", localCharacters)["characterImage"] ??
                 "assets/characters/default.png",
         characterDescription: _getCharacterInfo(
-                "미운 아기 오리", localCharacters)["characterDescription"] ??
+                "미운아기오리", localCharacters)["characterDescription"] ??
             "",
         characterId:
-            _getCharacterInfo("미운 아기 오리", localCharacters)["characterId"] ?? 0,
+            _getCharacterInfo("미운아기오리", localCharacters)["characterId"] ?? 0,
       ),
       Book(
         bookId: 3,
@@ -156,16 +154,15 @@ class HomeController extends GetxController {
         publishedYear: "1845",
         description: "추운 겨울밤, 성냥을 팔며 희망을 꿈꾸는 소녀의 이야기입니다.",
         characterName:
-            _getCharacterInfo("성냥팔이 소녀", localCharacters)["characterName"] ??
-                "",
+            _getCharacterInfo("성냥팔이소녀", localCharacters)["characterName"] ?? "",
         characterImage:
-            _getCharacterInfo("성냥팔이 소녀", localCharacters)["characterImage"] ??
+            _getCharacterInfo("성냥팔이소녀", localCharacters)["characterImage"] ??
                 "assets/characters/default.png",
         characterDescription: _getCharacterInfo(
-                "성냥팔이 소녀", localCharacters)["characterDescription"] ??
+                "성냥팔이소녀", localCharacters)["characterDescription"] ??
             "",
         characterId:
-            _getCharacterInfo("성냥팔이 소녀", localCharacters)["characterId"] ?? 0,
+            _getCharacterInfo("성냥팔이소녀", localCharacters)["characterId"] ?? 0,
       ),
       Book(
         bookId: 5,
@@ -217,16 +214,15 @@ class HomeController extends GetxController {
         publishedYear: "1924",
         description: "가난한 인력거꾼이 운이 좋은 날이라고 믿지만, 결국 비극적인 결말을 맞이하는 작품입니다.",
         characterName:
-            _getCharacterInfo("운수 좋은 날", localCharacters)["characterName"] ??
-                "",
+            _getCharacterInfo("운수좋은날", localCharacters)["characterName"] ?? "",
         characterImage:
-            _getCharacterInfo("운수 좋은 날", localCharacters)["characterImage"] ??
+            _getCharacterInfo("운수좋은날", localCharacters)["characterImage"] ??
                 "assets/characters/default.png",
         characterDescription: _getCharacterInfo(
-                "운수 좋은 날", localCharacters)["characterDescription"] ??
+                "운수좋은날", localCharacters)["characterDescription"] ??
             "",
         characterId:
-            _getCharacterInfo("운수 좋은 날", localCharacters)["characterId"] ?? 0,
+            _getCharacterInfo("운수좋은날", localCharacters)["characterId"] ?? 0,
       ),
       Book(
         bookId: 4,
@@ -276,16 +272,15 @@ class HomeController extends GetxController {
         publishedYear: "1936",
         description: "메밀꽃이 흐드러지게 핀 밤, 장돌뱅이 허생원이 자신의 과거와 사랑을 회상하는 이야기입니다.",
         characterName:
-            _getCharacterInfo("메밀꽃 필 무렵", localCharacters)["characterName"] ??
-                "",
+            _getCharacterInfo("메밀꽃필무렵", localCharacters)["characterName"] ?? "",
         characterImage:
-            _getCharacterInfo("메밀꽃 필 무렵", localCharacters)["characterImage"] ??
+            _getCharacterInfo("메밀꽃필무렵", localCharacters)["characterImage"] ??
                 "assets/characters/default.png",
         characterDescription: _getCharacterInfo(
-                "메밀꽃 필 무렵", localCharacters)["characterDescription"] ??
+                "메밀꽃필무렵", localCharacters)["characterDescription"] ??
             "",
         characterId:
-            _getCharacterInfo("메밀꽃 필 무렵", localCharacters)["characterId"] ?? 0,
+            _getCharacterInfo("메밀꽃필무렵", localCharacters)["characterId"] ?? 0,
       ),
       Book(
         bookId: 10,
@@ -431,7 +426,7 @@ class HomeController extends GetxController {
   // 작품 소개 화면으로 이동
   void toIntroPage(String title) {
     Get.to(
-      BookIntroPage(),
+      () => BookIntroPage(),
       arguments: {
         'title': title,
       },

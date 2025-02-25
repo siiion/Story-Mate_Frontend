@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -241,30 +244,80 @@ class BookReadController extends GetxController {
     }
   }
 
-  // 책 파일 로드 (초기 데이터 로드 포함)
+  // // 책 파일 로드 (초기 데이터 로드 포함)
+  // Future<void> loadBook(String filePath, double screenWidth,
+  //     double screenHeight, TextStyle textStyle, int bookId) async {
+  //   if (pages.isNotEmpty) {
+  //     print("[DEBUG] 파일이 이미 로드되어 있습니다. 재로드를 방지합니다.");
+  //     return; // 이미 로드된 경우 재로드 방지
+  //   }
+
+  //   try {
+  //     final String rawContent = await rootBundle.loadString(filePath);
+  //     final String processedContent = preprocessText(rawContent); // 전처리 추가
+  //     pages.value =
+  //         paginateText(processedContent, screenWidth, screenHeight, textStyle);
+  //     updateProgress();
+
+  //     // 초기 데이터 로드 (북마크 & 하이라이트)
+  //     await initializeBookData(bookId);
+
+  //     // 파일 로드 후 진행도 업데이트
+  //     await updateReadingProgress(bookId);
+  //     print("[DEBUG] 파일 로드 및 진행도 업데이트 완료");
+  //   } catch (e) {
+  //     Get.snackbar('Error', '파일을 읽는 데 실패했습니다: $e');
+  //   }
+  // }
   Future<void> loadBook(String filePath, double screenWidth,
       double screenHeight, TextStyle textStyle, int bookId) async {
     if (pages.isNotEmpty) {
       print("[DEBUG] 파일이 이미 로드되어 있습니다. 재로드를 방지합니다.");
-      return; // 이미 로드된 경우 재로드 방지
+      return;
     }
 
     try {
+      // 파일을 에셋에서 읽기
       final String rawContent = await rootBundle.loadString(filePath);
-      final String processedContent = preprocessText(rawContent); // 전처리 추가
-      pages.value =
-          paginateText(processedContent, screenWidth, screenHeight, textStyle);
+
+      print("[DEBUG] 원본 파일 길이: ${rawContent.length}");
+
+      // 큰 파일 처리 - 텍스트를 일정한 길이로 나눔
+      final String processedContent = preprocessText(rawContent);
+      print("[DEBUG] 전처리된 텍스트 길이: ${processedContent.length}");
+
+      pages.value = splitTextIntoPages(processedContent, 1000); // 페이지 분할
+
       updateProgress();
 
-      // 초기 데이터 로드 (북마크 & 하이라이트)
+      // 초기 데이터 로드
       await initializeBookData(bookId);
 
-      // 파일 로드 후 진행도 업데이트
+      // 진행도 업데이트
       await updateReadingProgress(bookId);
       print("[DEBUG] 파일 로드 및 진행도 업데이트 완료");
     } catch (e) {
+      print("[ERROR] 파일 로드 실패: $e");
       Get.snackbar('Error', '파일을 읽는 데 실패했습니다: $e');
     }
+  }
+
+  // 텍스트를 일정 크기로 나누기
+  List<String> splitTextIntoPages(String text, int maxLength) {
+    List<String> pages = [];
+    int start = 0;
+
+    while (start < text.length) {
+      int end = start + maxLength;
+      if (end > text.length) {
+        end = text.length;
+      }
+      pages.add(text.substring(start, end));
+      start = end;
+    }
+
+    print("[DEBUG] 총 페이지 수: ${pages.length}");
+    return pages;
   }
 
   /// 특정 페이지의 미리보기 내용 가져오기
@@ -277,6 +330,7 @@ class BookReadController extends GetxController {
 
   String preprocessText(String text) {
     text = text.replaceAll('\n', ' ');
+    text = text.replaceAll('\r\n', '\n'); // 윈도우 줄바꿈 제거
     text = text.replaceAll(RegExp(r'\s{3,}'), '\n\n');
     return text.trim();
   }
@@ -302,7 +356,7 @@ class BookReadController extends GetxController {
   // 더보기 버튼 클릭 시
   void toMorePage(String title, int bookId) {
     Get.to(
-      BookMorePage(),
+      () => BookMorePage(),
       arguments: {
         'title': title,
         'bookId': bookId,

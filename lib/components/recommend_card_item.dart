@@ -47,7 +47,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
               title: widget.book.title!,
               tags: widget.book.tags!,
               onTap: () {
-                Get.to(BookIntroPage(), arguments: widget.book.title);
+                Get.to(() => BookIntroPage(), arguments: widget.book.title);
               },
               coverImage: widget.book.coverImage!, // 실제 이미지 경로 적용
             ),
@@ -137,7 +137,7 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                                 await controller.createChatRoom(
                               widget.book.characterName!,
                               widget.characterId!,
-                              widget.book.title!,
+                              widget.book.title!.replaceAll(' ', ''),
                             );
 
                             if (!isChatRoomCreated) {
@@ -160,8 +160,8 @@ class _RecommendCardItemState extends State<RecommendCardItem> {
                             );
                           }
                         } else {
-                          Get.to(BookIntroPage(), arguments: {
-                            'title': widget.book.title,
+                          Get.to(() => BookIntroPage(), arguments: {
+                            'title': widget.book.title!.replaceAll(' ', ''),
                           });
                         }
                       },

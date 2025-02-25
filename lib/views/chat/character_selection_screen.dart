@@ -9,9 +9,6 @@ import '../../../routes/app_routes.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// RouteObserver를 사용하기 위한 글로벌 선언
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
-
 class CharacterSelectionScreen extends StatefulWidget {
   const CharacterSelectionScreen({super.key});
 
@@ -21,10 +18,36 @@ class CharacterSelectionScreen extends StatefulWidget {
 }
 
 class _CharacterSelectionScreenState extends State<CharacterSelectionScreen>
-    with RouteAware {
+    with RouteAware, WidgetsBindingObserver {
   final TextEditingController searchController = TextEditingController();
   final _apiService = ApiService();
   var messageCount = 0.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    filteredCharacters = List.from(localCharacters);
+    fetchUserInfo(); // 앱 실행 시 데이터 로드
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      fetchUserInfo(); // 앱이 포그라운드로 돌아올 때 데이터 새로고침
+    }
+  }
+
+  @override
+  void didPopNext() {
+    fetchUserInfo(); // 이전 화면에서 돌아올 때 데이터 새로고침
+  }
 
   // 기존 하드코딩된 캐릭터 데이터 유지
   final List<Map<String, dynamic>> localCharacters = [
@@ -103,35 +126,6 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen>
   ];
 
   List<Map<String, dynamic>> filteredCharacters = [];
-
-  @override
-  void initState() {
-    super.initState();
-    filteredCharacters = List.from(localCharacters);
-    fetchUserInfo();
-  }
-
-  // RouteObserver 구독 및 해제
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final ModalRoute? route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
-    }
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
-  // 화면이 다시 활성화될 때 호출
-  @override
-  void didPopNext() {
-    fetchUserInfo(); // 사용자가 다른 화면에서 돌아왔을 때 메시지 카운트 업데이트
-  }
 
   // 검색 기능 추가
   void filterCharacters(String query) {

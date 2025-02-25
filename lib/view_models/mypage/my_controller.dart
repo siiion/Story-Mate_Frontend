@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MyController extends GetxController {
+class MyController extends GetxController with WidgetsBindingObserver {
   final _apiService = ApiService();
   final box = GetStorage(); // GetStorage 인스턴스 생성
   final String baseUrl = dotenv.env['API_URL']!;
@@ -25,24 +25,50 @@ class MyController extends GetxController {
 
   // 로컬에 저장된 작품 리스트
   final List<Book> localBooks = [
-    Book(bookId: 7, title: "시골쥐서울구경", coverImage: "assets/books/fairy_1.png"),
-    Book(bookId: 8, title: "미운아기오리", coverImage: "assets/books/fairy_2.png"),
-    Book(bookId: 3, title: "성냥팔이소녀", coverImage: "assets/books/fairy_3.png"),
-    Book(bookId: 5, title: "엄지공주", coverImage: "assets/books/fairy_4.png"),
-    Book(bookId: 2, title: "인어공주", coverImage: "assets/books/fairy_5.png"),
-    Book(bookId: 1, title: "운수좋은날", coverImage: "assets/books/long_1.png"),
+    Book(
+        bookId: 7, title: "시골 쥐 서울 구경", coverImage: "assets/books/fairy_1.png"),
+    Book(bookId: 8, title: "미운 아기 오리", coverImage: "assets/books/fairy_2.png"),
+    Book(bookId: 3, title: "성냥팔이 소녀", coverImage: "assets/books/fairy_4.png"),
+    Book(bookId: 5, title: "엄지공주", coverImage: "assets/books/fairy_5.png"),
+    Book(bookId: 2, title: "인어공주", coverImage: "assets/books/fairy_6.png"),
+    Book(bookId: 1, title: "운수 좋은 날", coverImage: "assets/books/long_1.png"),
     Book(bookId: 4, title: "심봉사", coverImage: "assets/books/short_2.png"),
     Book(bookId: 6, title: "동백꽃", coverImage: "assets/books/short_3.png"),
-    Book(bookId: 9, title: "메밀꽃필무렵", coverImage: "assets/books/short_4.png"),
+    Book(bookId: 9, title: "메밀꽃 필 무렵", coverImage: "assets/books/short_4.png"),
     Book(bookId: 10, title: "날개", coverImage: "assets/books/long_2.png"),
   ];
 
   @override
   void onInit() {
     super.onInit();
-    fetchUserInfo();
-    fetchReadingBooks();
-    fetchFinishedBooks();
+    WidgetsBinding.instance.addObserver(this);
+    fetchAllData();
+    // fetchUserInfo();
+    // fetchReadingBooks();
+    // fetchFinishedBooks();
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  // 앱 상태 감지
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      fetchAllData(); // 앱이 다시 활성화되면 데이터를 새로 불러오기
+    }
+  }
+
+  // 모든 데이터 새로고침
+  Future<void> fetchAllData() async {
+    await Future.wait([
+      fetchUserInfo(),
+      fetchReadingBooks(),
+      fetchFinishedBooks(),
+    ]);
   }
 
   /// 감상 중인 작품 목록 조회
@@ -50,6 +76,9 @@ class MyController extends GetxController {
     try {
       final data = await _apiService.fetchBooks('/books/reading');
       readingBooks.assignAll(_mapBooksFromApi(data));
+
+      // 서버 응답 데이터 로그 출력
+      print("[DEBUG] 감상 중인 책 목록 응답 데이터: $data");
     } catch (e) {
       print("감상 중인 책 목록 로드 실패: $e");
     }
@@ -60,6 +89,9 @@ class MyController extends GetxController {
     try {
       final data = await _apiService.fetchBooks('/books/finished');
       finishedBooks.assignAll(_mapBooksFromApi(data));
+
+      // 서버 응답 데이터 로그 출력
+      print("[DEBUG] 감상한 책 목록 응답 데이터: $data");
     } catch (e) {
       print("감상한 책 목록 로드 실패: $e");
     }
@@ -78,7 +110,7 @@ class MyController extends GetxController {
 
       return Book(
         bookId: bookData['id'],
-        title: title,
+        title: matchedBook?.title,
         tags: tags,
         coverImage: matchedBook?.coverImage ?? "assets/default.png",
       );
@@ -145,7 +177,7 @@ class MyController extends GetxController {
 
   /// 작품 소개 화면으로 이동
   void toIntroPage(String title) {
-    Get.to(BookIntroPage(), arguments: {
+    Get.to(() => BookIntroPage(), arguments: {
       'title': title,
     });
   }

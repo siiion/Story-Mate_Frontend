@@ -10,7 +10,7 @@ class BookIntroController extends GetxController {
   // 작품 감상 화면으로 이동
   void toReadPage(String title, int bookId) {
     Get.to(
-      BookReadPage(),
+      () => BookReadPage(),
       arguments: {
         'title': title,
         'bookId': bookId,
