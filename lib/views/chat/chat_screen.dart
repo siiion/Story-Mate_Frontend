@@ -1,21 +1,28 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storymate/components/theme.dart';
-import 'package:storymate/views/chat/character_selection_screen.dart';
+import 'package:storymate/models/message.dart';
+import 'package:storymate/view_models/chat/chat_controller.dart';
+import 'package:storymate/views/chat/chat_bubble.dart';
 import 'package:storymate/views/chat/quiz_screen.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../view_models/chat/chat_controller.dart';
-import 'package:storymate/views/chat/chat_bubble.dart';
-import 'package:storymate/models/message.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String charactersName;
+  final String bookTitle;
+  final int roomId;
+
+  ChatScreen({
+    required this.charactersName,
+    required this.bookTitle,
+    required this.roomId,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -23,103 +30,88 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   WebSocketChannel? channel;
-  DateTime lastMessageReceived = DateTime.now(); // 마지막 메시지 수신 시간 추적
+  DateTime lastMessageReceived = DateTime.now();
+  final ChatController controller = Get.put(ChatController());
   Timer? pingTimer;
   late int roomId;
   late String bookTitle;
   late String charactersName;
-  final ChatController controller = Get.put(ChatController());
   List<dynamic> chatMessages = [];
   int answerCount = 0;
-
-  bool isQuizButtonEnabled = false; // 퀴즈 버튼 활성화 여부
-  bool hasQuizNotificationShown = false; // 퀴즈 안내 메시지 표시 여부
-  bool isSendingMessage = false; // 메시지 전송 로딩 상태 변수 추가
-
-  // Ping 전송 중인지 확인하는 플래그 추가
-  bool isWaitingForPingResponse = false;
+  bool isQuizButtonEnabled = false;
+  bool hasQuizNotificationShown = false;
+  bool isSendingMessage = false;
 
   @override
   void initState() {
     super.initState();
-    roomId = Get.arguments["roomId"] ?? 0;
-    bookTitle = Get.arguments["bookTitle"] ?? "";
-    charactersName = Get.arguments["charactersName"] ?? "";
+    roomId = widget.roomId;
+    bookTitle = widget.bookTitle;
+    charactersName = widget.charactersName;
 
-    debugPrint("bookTitle: $bookTitle, charactersName: $charactersName");
+    debugPrint(
+        "초기 데이터: bookTitle: $bookTitle, charactersName: $charactersName, roomId: $roomId");
 
-    if (roomId != 0) {
-      // WebSocket 서버 연결
-      channel = WebSocketChannel.connect(
-        Uri.parse('wss://be.dev.storymate.site/chat/$roomId'),
-      );
+    if (roomId == 0) {
+      debugPrint("기존 채팅방 확인 중...");
 
-      startConnectionMonitor();
-
-      // 메시지 수신 처리 로직
-      channel!.stream.listen((message) {
-        print("수신된 원본 메시지: $message");
-
-        // Ping 응답에 대한 직접적인 수신 없음 -> 모든 수신 시점 갱신
-        lastMessageReceived = DateTime.now();
-
-        try {
-          // 서버 오류 메시지 처리 및 필터링
-          if (message.contains("Invalid message format")) {
-            print("서버에서 필터링된 메시지 수신됨 (무시): $message");
-            return; // 카운트 제외 및 출력 방지
-          }
-
-          // 일반 텍스트 메시지 처리
-          var splitMessage = message.split(':');
-          if (splitMessage.length < 2) return;
-
-          String sender = splitMessage[0];
-          String messageContent = splitMessage.sublist(1).join(':');
-
-          // testUser 메시지는 화면에 출력하지 않음
-          if (sender == 'testUser') {
-            print("testUser 응답 수신됨, 무시됨: $messageContent");
-            return;
-          }
-
-          // 일반 메시지 처리
-          setState(() {
-            chatMessages.add({
-              'content': messageContent,
-              'sender': sender,
-              'isUser': false,
-            });
-            answerCount++;
-            isSendingMessage = false; // 메시지 전송 상태 종료
-          });
-
-          // 퀴즈 버튼 활성화 처리
-          if (answerCount >= 3 && !isQuizButtonEnabled) {
-            setState(() {
-              isQuizButtonEnabled = true;
-            });
-
-            if (!hasQuizNotificationShown) {
-              _showQuizAvailableNotification();
-              hasQuizNotificationShown = true;
-            }
-          }
-        } catch (e) {
-          print("메시지 처리 오류: $e");
-        }
-      });
-
-      fetchChatMessages(roomId);
+      // ✅ 비동기 함수 내부에서 실행
+      _initializeChatRoom();
+    } else {
+      debugPrint("✅ 기존 roomId 사용: $roomId");
+      connectWebSocket();
+      fetchChatMessages();
     }
   }
 
-  // Ping 메시지 전송 및 연결 유지 로직
+  Future<void> _initializeChatRoom() async {
+    String? token = await getToken(); // ✅ 먼저 토큰 가져오기
+    if (token == null) {
+      debugPrint("⚠️ 로그인 필요 - 채팅방 확인 불가");
+      return;
+    }
+
+    await getUserChatRooms(token); // ✅ 가져온 토큰을 넘겨주기
+  }
+
+  void handleReceivedMessage(String message) {
+    lastMessageReceived = DateTime.now();
+    if (message.contains("Invalid message format")) {
+      debugPrint("⚠️ 서버 필터 메시지 감지 (무시): $message");
+      return;
+    }
+    var splitMessage = message.split(':');
+    if (splitMessage.length < 2) return;
+    String sender = splitMessage[0];
+    String messageContent = splitMessage.sublist(1).join(':');
+    if (sender == 'testUser') {
+      debugPrint("⚠️ testUser 메시지 감지 (무시)");
+      return;
+    }
+    setState(() {
+      chatMessages.add({
+        'content': messageContent,
+        'sender': sender,
+        'isUser': false,
+      });
+      answerCount++;
+      isSendingMessage = false;
+    });
+    if (answerCount >= 3 && !isQuizButtonEnabled) {
+      setState(() {
+        isQuizButtonEnabled = true;
+      });
+      if (!hasQuizNotificationShown) {
+        _showQuizAvailableNotification();
+        hasQuizNotificationShown = true;
+      }
+    }
+  }
+
   void startConnectionMonitor() {
     pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
       Duration timeSinceLastMessage =
           DateTime.now().difference(lastMessageReceived);
-
       if (timeSinceLastMessage.inSeconds > 90) {
         print("서버 응답 없음 -> 웹소켓 재연결 시도");
         reconnectWebSocket();
@@ -129,7 +121,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  // Ping 메시지 전송 함수 (고유 식별자 추가)
   void sendPingMessage() {
     if (channel != null) {
       channel!.sink.add("ping");
@@ -137,40 +128,80 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-// 웹소켓 재연결 함수
+  Future<void> initializeChat() async {
+    String? token = await getToken();
+    if (token == null) {
+      debugPrint("❌ 로그인 정보 없음 → 로그인 필요");
+      return;
+    }
+
+    int? lastRoomId = await getUserChatRooms(token);
+    if (lastRoomId != null) {
+      roomId = lastRoomId;
+      debugPrint("✅ 가장 최근 대화한 채팅방으로 입장: roomId = $roomId");
+      connectWebSocket();
+      fetchChatMessages();
+    } else {
+      debugPrint("⚠️ 기존 채팅방 없음 → 대기");
+    }
+  }
+
+  Future<int?> getUserChatRooms(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://be.dev.storymate.site/api/chat-rooms?page=0&size=10'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+        List<dynamic> chatRooms = responseData["chatRoomResDtos"] ?? [];
+
+        if (chatRooms.isNotEmpty) {
+          // 가장 최근 채팅방 찾기 (채팅방 ID 기준 정렬)
+          chatRooms.sort((a, b) => b["roomId"].compareTo(a["roomId"]));
+          int recentRoomId = chatRooms.first["roomId"];
+
+          // 캐릭터 정보 가져오기
+          charactersName = chatRooms.first["charactersName"] ?? "알 수 없음";
+          bookTitle = chatRooms.first["bookTitle"] ?? "미정";
+
+          return recentRoomId;
+        }
+      } else {
+        debugPrint("⚠️ 채팅방 조회 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("❌ 채팅방 조회 오류: $e");
+    }
+    return null;
+  }
+
   void reconnectWebSocket() {
-    // channel?.sink.close();
+    channel?.sink.close();
+    channel = null;
     channel = WebSocketChannel.connect(
       Uri.parse('wss://be.dev.storymate.site/chat/$roomId'),
     );
     print("웹소켓 재연결 완료");
-
-    // Ping 타이머 다시 시작
     startConnectionMonitor();
-
-    // 수신 처리 로직 다시 시작
     channel!.stream.listen((message) {
       print("수신된 원본 메시지: $message");
-
       lastMessageReceived = DateTime.now();
-
       try {
         if (message.contains("Invalid message format")) {
           print("서버에서 필터링된 메시지 수신됨 (무시): $message");
           return;
         }
-
         var splitMessage = message.split(':');
         if (splitMessage.length < 2) return;
-
         String sender = splitMessage[0];
         String messageContent = splitMessage.sublist(1).join(':');
-
         if (sender == 'testUser') {
           print("testUser 응답 수신됨, 무시됨: $messageContent");
           return;
         }
-
         setState(() {
           chatMessages.add({
             'content': messageContent,
@@ -180,12 +211,10 @@ class _ChatScreenState extends State<ChatScreen> {
           answerCount++;
           isSendingMessage = false;
         });
-
         if (answerCount >= 3 && !isQuizButtonEnabled) {
           setState(() {
             isQuizButtonEnabled = true;
           });
-
           if (!hasQuizNotificationShown) {
             _showQuizAvailableNotification();
             hasQuizNotificationShown = true;
@@ -197,21 +226,106 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> fetchChatMessages(int roomId,
-      {int page = 0, int size = 10}) async {
+  Future<int?> getExistingChatRoom(int characterId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = await getToken();
+    if (token == null) {
+      print(" 토큰 없음 - 로그인 필요");
+      return null;
+    }
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://be.dev.storymate.site/api/chat-rooms?page=0&size=10'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+        List<dynamic> chatRooms = responseData["chatRoomResDtos"] ?? [];
+        for (var room in chatRooms) {
+          if (room["charactersId"] == characterId) {
+            print(" 기존 채팅방 발견: roomId = ${room["roomId"]}");
+            await prefs.setInt('lastRoomId_$characterId', room["roomId"]);
+            return room["roomId"];
+          }
+        }
+      } else {
+        print(" 채팅방 조회 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      print(" 기존 채팅방 조회 중 오류 발생: $e");
+    }
+    return null;
+  }
+
+  Future<void> enterChatRoom(int characterId, String title, String bookTitle,
+      String charactersName) async {
+    int? existingRoomId = await getExistingChatRoom(characterId);
+    if (existingRoomId != null) {
+      print(" 기존 채팅방으로 입장: roomId = $existingRoomId");
+      Get.to(() => ChatScreen(
+            roomId: roomId,
+            bookTitle: bookTitle,
+            charactersName: charactersName,
+          ));
+    } else {
+      print(" 기존 채팅방 없음 → 새 채팅방 생성 요청");
+      await createChatRoom(title, characterId, bookTitle, charactersName);
+    }
+  }
+
+  Future<void> createChatRoom(String title, int characterId, String bookTitle,
+      String charactersName) async {
     final token = await getToken();
     if (token == null) {
-      print("토큰이 없습니다. 로그인 후 다시 시도해주세요.");
+      print(" 토큰 없음 - 로그인 필요");
+      return;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse('https://be.dev.storymate.site/api/chat-rooms'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'title': title,
+          'charactersId': characterId,
+          'bookTitle': bookTitle,
+        }),
+      );
+      if (response.statusCode == 201) {
+        var data = json.decode(response.body);
+        int newRoomId = data['data']['roomId'];
+        print(" 새 채팅방 생성됨: roomId = $newRoomId");
+        await saveRoomId(characterId, newRoomId);
+        Get.to(() => ChatScreen(
+              roomId: newRoomId,
+              bookTitle: bookTitle,
+              charactersName: charactersName,
+            ));
+      } else {
+        print(" 채팅방 생성 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      print(" 채팅방 생성 중 오류 발생: $e");
+    }
+  }
+
+  Future<void> fetchChatMessages() async {
+    final token = await getToken();
+    if (token == null) {
+      debugPrint("⚠️ 토큰 없음");
       return;
     }
 
     try {
       final response = await http.get(
         Uri.parse(
-            'https://be.dev.storymate.site/api/chat-messages/$roomId?page=$page&size=$size'),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
+            'https://be.dev.storymate.site/api/chat-messages/$roomId?page=0&size=10'),
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
@@ -220,11 +334,74 @@ class _ChatScreenState extends State<ChatScreen> {
           chatMessages = responseData['data']['chatMessages'] ?? [];
         });
       } else {
-        print("채팅 메시지 조회 실패: ${response.statusCode}");
+        debugPrint("❌ 채팅 메시지 조회 실패: ${response.statusCode}");
       }
     } catch (e) {
-      print("채팅 메시지 조회 오류: $e");
+      debugPrint("❌ 채팅 메시지 조회 오류: $e");
     }
+  }
+
+  Future<void> loadChatRoom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    charactersName = Get.arguments["charactersName"] ?? "";
+    bookTitle = Get.arguments["bookTitle"] ?? "";
+    int characterId = Get.arguments["characterId"] ?? 0;
+    print(" [DEBUG] 캐릭터 선택됨: $charactersName (ID: $characterId)");
+    int? existingRoomId = await getExistingChatRoom(characterId);
+    int argumentRoomId = Get.arguments["roomId"] ?? 0;
+    print(" [DEBUG] 저장된 roomId: $existingRoomId, 전달된 roomId: $argumentRoomId");
+    if (existingRoomId != null && existingRoomId != 0) {
+      roomId = existingRoomId;
+      print(" 기존 채팅방 유지: roomId = $roomId");
+    } else if (argumentRoomId != 0) {
+      roomId = argumentRoomId;
+      print(" 새로운 roomId 저장: $roomId");
+    } else {
+      print(" 기존 roomId 없음 → 새로운 채팅방 생성 방지 필요");
+      return;
+    }
+    print(" 현재 사용되는 roomId: $roomId");
+    if (roomId != 0 && channel == null) {
+      connectWebSocket();
+      fetchChatMessages();
+    } else {
+      print(" WebSocket이 이미 연결되어 있음.");
+    }
+  }
+
+  Future<void> saveRoomId(int characterId, int roomId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastRoomId_$characterId', roomId);
+    print(" roomId 저장 완료: $roomId");
+  }
+
+  Future<int?> getSavedRoomId(int characterId) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('lastRoomId_$characterId');
+  }
+
+  void connectWebSocket() {
+    if (roomId == null) {
+      debugPrint(" 연결할 채팅방 없음");
+      return;
+    }
+    if (channel != null) {
+      debugPrint(" 이미 연결된 웹소켓 존재");
+      return;
+    }
+    channel = WebSocketChannel.connect(
+      Uri.parse('wss://be.dev.storymate.site/chat/$roomId'),
+    );
+    pingTimer = Timer.periodic(Duration(seconds: 30), (_) {
+      sendPingMessage();
+    });
+    channel!.stream.listen(
+      (message) {
+        handleReceivedMessage(message);
+      },
+      onDone: () => reconnectWebSocket(),
+      onError: (_) => reconnectWebSocket(),
+    );
   }
 
   Future<String?> getToken() async {
@@ -232,28 +409,24 @@ class _ChatScreenState extends State<ChatScreen> {
     return prefs.getString('accessToken');
   }
 
+  void selectCharacter(int characterId, String title, String bookTitle) async {
+    await enterChatRoom(characterId, title, bookTitle, title);
+  }
+
   void sendMessage(String message) {
     if (message.isEmpty) return;
-
-    // 이미 같은 내용의 메시지가 존재하면 전송하지 않음
+    setState(() => isSendingMessage = true);
     if (chatMessages
         .any((msg) => msg['content'] == message && msg['isUser'] == true)) {
       print("중복 메시지 전송 시도 방지");
       return;
     }
-
-    // 메시지 전송 시작 -> 로딩 상태 활성화
     setState(() {
       isSendingMessage = true;
     });
-
     String sender = "testUser";
-
     try {
-      // WebSocket 메시지 전송
       channel?.sink.add("$sender:$roomId:$bookTitle:$message");
-
-      // 전송 성공 시 채팅창에 메시지 추가
       setState(() {
         chatMessages.add({
           'content': message,
@@ -261,13 +434,10 @@ class _ChatScreenState extends State<ChatScreen> {
           'isUser': true,
         });
       });
-
-      // 로그 출력
       print("메시지 전송 완료: $message");
     } catch (e) {
       print("메시지 전송 실패: $e");
     } finally {
-      // 입력창 초기화
       controller.textController.clear();
       controller.update();
     }
@@ -276,9 +446,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showQuizLockedDialog() {
     Get.dialog(
       Dialog(
-        backgroundColor: AppTheme.backgroundColor, // 다이얼로그 배경색
+        backgroundColor: AppTheme.backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), // 모서리 둥글게
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Padding(
           padding: EdgeInsets.all(24.0),
@@ -286,7 +456,6 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 타이틀
               Text(
                 "퀴즈 도전 불가",
                 style: TextStyle(
@@ -297,10 +466,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               SizedBox(height: 20.h),
-
-              // 설명 텍스트
               Text(
                 "퀴즈를 도전하기 위해서는 $charactersName과 대화를 더 진행해 주세요!",
                 style: TextStyle(
@@ -310,16 +476,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               SizedBox(height: 30.h),
-
-              // 확인 버튼
               ElevatedButton(
                 onPressed: () {
-                  Get.back(); // 다이얼로그 닫기
+                  Get.back();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor, // 버튼 색상
+                  backgroundColor: AppTheme.primaryColor,
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -344,9 +507,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showQuizAvailableNotification() {
     Get.dialog(
       Dialog(
-        backgroundColor: AppTheme.backgroundColor, // 다이얼로그 배경색
+        backgroundColor: AppTheme.backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), // 모서리 둥글게
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Padding(
           padding: EdgeInsets.all(24.0),
@@ -354,7 +517,6 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 타이틀
               Text(
                 "퀴즈가 열렸습니다!",
                 style: TextStyle(
@@ -365,12 +527,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               SizedBox(height: 20.h),
-
-              // 설명 텍스트
               Text(
-                "퀴즈를 통해 추가 메시지 개수를 얻으실 수 있어요!",
+                "퀴즈를 통해 추가 메세지 개수를 얻으실 수 있어요!",
                 style: TextStyle(
                   fontFamily: 'Jua',
                   fontSize: 16.sp,
@@ -378,21 +537,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               SizedBox(height: 30.h),
-
-              // 버튼 그룹
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // 나중에 도전하기 버튼
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.back(); // 다이얼로그 닫기
+                        Get.back();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[400], // 버튼 색상
+                        backgroundColor: Colors.grey[400],
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -408,24 +563,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.w), // 버튼 간 간격
-
-                  // 지금 도전하기 버튼
+                  SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.back(); // 다이얼로그 닫기
-                        // 퀴즈로 이동 전 웹소켓 종료
+                        Get.back();
                         channel?.sink.close();
                         pingTimer?.cancel();
                         print("퀴즈 시작 -> 웹소켓 연결 종료");
-
                         Get.to(() => QuizScreen(), arguments: {
                           "characterName": charactersName,
                           "bookTitle": bookTitle,
-                        })!
-                            .then((_) {
-                          // 퀴즈 종료 후 웹소켓 재연결
+                        })?.then((_) {
+                          // ?. 연산자를 사용해 null safety를 확보합니다.
                           reconnectWebSocket();
                           print("퀴즈 종료 -> 웹소켓 재연결");
                         });
@@ -468,16 +618,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () => Get.off(() => CharacterSelectionScreen()),
-          child: Icon(
-            Icons.arrow_back_ios_new,
-          ),
-        ),
-        forceMaterialTransparency: true,
-        automaticallyImplyLeading: false,
         title: Text(
-          "대화하기",
+          "${widget.charactersName} 대화하기 ", // 캐릭터 이름 표시
           style: TextStyle(
             fontSize: 20.sp,
             color: Colors.black,
@@ -495,17 +637,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (!isQuizButtonEnabled) {
                     _showQuizLockedDialog();
                   } else {
-                    // 퀴즈로 이동 전 웹소켓 종료
                     channel?.sink.close();
                     pingTimer?.cancel();
                     print("퀴즈 시작 -> 웹소켓 연결 종료");
-
                     Get.to(() => QuizScreen(), arguments: {
                       "characterName": charactersName,
                       "bookTitle": bookTitle,
                     })!
                         .then((_) {
-                      // 퀴즈 종료 후 웹소켓 재연결
                       reconnectWebSocket();
                       print("퀴즈 종료 -> 웹소켓 재연결");
                     });
@@ -514,7 +653,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isQuizButtonEnabled
                       ? Colors.purple[400]
-                      : Colors.grey[400], // 비활성화 시 회색 처리
+                      : Colors.grey[400],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -557,7 +696,6 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          // 채팅 입력창 및 전송 버튼 비활성화 처리
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -566,10 +704,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: controller.textController,
                     decoration: InputDecoration(hintText: "메시지를 입력하세요"),
-                    enabled: !isSendingMessage, // 입력은 가능하지만 엔터 키 동작만 비활성화
+                    enabled: !isSendingMessage,
+                    maxLines: null, // 여러 줄 입력 가능
+                    keyboardType: TextInputType.multiline, // 엔터 시 줄바꿈
+                    style: TextStyle(
+                        fontSize: 16.sp, fontFamily: 'Jua'), // 글자 크기 및 글씨체 설정
                     onSubmitted: (value) {
                       if (!isSendingMessage && value.trim().isNotEmpty) {
-                        sendMessage(value); // Enter 입력 시 메시지 전송
+                        sendMessage(value);
                       }
                     },
                   ),
@@ -577,7 +719,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: isSendingMessage
-                      ? null // 로딩 중일 때 버튼 비활성화
+                      ? null
                       : () {
                           String message = controller.textController.text;
                           if (message.isNotEmpty) {
