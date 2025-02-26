@@ -13,17 +13,24 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   final QuizController controller = Get.put(QuizController());
-  final RxInt expandedTileIndex = (-1).obs; // 아코디언 확장 상태 관리
+
+  /// 아코디언 열기 시 퀴즈 재도전 API 호출
+  Future<void> _onQuizTileExpanded(
+      bool isExpanded, int index, String quizType) async {
+    if (isExpanded) {
+      if (controller.hasQuizBeenSubmitted(quizType)) {
+        controller.showRetakeAlertDialog();
+        await controller.restartQuiz(quizType);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         // 퀴즈 종료 여부 다이얼로그
-        bool shouldExit = await _showExitConfirmationDialog(
-          context,
-          isLastQuestion: false, // 아코디언 방식에서는 전체 제출 완료 여부로 처리
-        );
+        bool shouldExit = await _showExitConfirmationDialog(context);
         return shouldExit;
       },
       child: Scaffold(
@@ -57,7 +64,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     }
 
                     return ExpansionTile(
-                      initiallyExpanded: false,
+                      key: ValueKey("$quizType-$index"),
                       title: Text(
                         "${quizType.toUpperCase()} 퀴즈",
                         style: TextStyle(
@@ -66,6 +73,8 @@ class _QuizScreenState extends State<QuizScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      onExpansionChanged: (isExpanded) =>
+                          _onQuizTileExpanded(isExpanded, index, quizType),
                       children: [
                         Padding(
                           padding: EdgeInsets.all(16.0),
@@ -101,9 +110,10 @@ class _QuizScreenState extends State<QuizScreen> {
                                     ),
                                     onPressed:
                                         controller.isAnswerProvided(index)
-                                            ? () {
-                                                controller.submitQuiz(
-                                                    context, index);
+                                            ? () async {
+                                                await controller.submitQuiz(
+                                                    context,
+                                                    index); // 퀴즈 제출 후 실행 완료 대기
                                               }
                                             : null,
                                     child: Text(
@@ -295,9 +305,13 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   // 퀴즈 종료 확인 다이얼로그
-  Future<bool> _showExitConfirmationDialog(BuildContext context,
-      {bool isLastQuestion = false}) async {
+  Future<bool> _showExitConfirmationDialog(BuildContext context) async {
     bool shouldExit = false;
+
+    String additionalMessage = "";
+    if (controller.isQuizRetake.value) {
+      additionalMessage = "\n\n이후 퀴즈 재도전 시 메시지 개수가 1개 차감됩니다.";
+    }
 
     await Get.dialog(
       Dialog(
@@ -312,7 +326,7 @@ class _QuizScreenState extends State<QuizScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                isLastQuestion ? "퀴즈 풀이를 완료하시겠습니까?" : "퀴즈 풀이를 중단하시겠습니까?",
+                "퀴즈를 종료하시겠습니까?",
                 style: TextStyle(
                   fontFamily: 'Jua',
                   fontSize: 20.sp,
@@ -323,7 +337,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               SizedBox(height: 20.h),
               Text(
-                isLastQuestion ? "완료 시 결과 화면으로 이동합니다." : "중단 시 대화 화면으로 돌아갑니다.",
+                "퀴즈를 중단하면 대화 화면으로 돌아갑니다.$additionalMessage",
                 style: TextStyle(
                   fontFamily: 'Jua',
                   fontSize: 16.sp,
@@ -335,50 +349,47 @@ class _QuizScreenState extends State<QuizScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        shouldExit = false;
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[400],
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                  ElevatedButton(
+                    onPressed: () {
+                      shouldExit = false;
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[400],
+                      padding: EdgeInsets.symmetric(
+                          vertical: 12.h, horizontal: 12.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        "계속하기",
-                        style: TextStyle(
-                          fontFamily: 'Jua',
-                          fontSize: 18.sp,
-                          color: Colors.white,
-                        ),
+                    ),
+                    child: Text(
+                      "계속하기",
+                      style: TextStyle(
+                        fontFamily: 'Jua',
+                        color: Colors.white,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        shouldExit = true;
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                  ElevatedButton(
+                    onPressed: () {
+                      shouldExit = true;
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 12.h, horizontal: 12.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        "중단하기",
-                        style: TextStyle(
-                          fontFamily: 'Jua',
-                          fontSize: 18.sp,
-                          color: Colors.white,
-                        ),
+                    ),
+                    child: Text(
+                      "중단하기",
+                      style: TextStyle(
+                        fontFamily: 'Jua',
+                        color: Colors.white,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ),

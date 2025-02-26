@@ -151,6 +151,11 @@ class _BookReadPageState extends State<BookReadPage> {
                 ),
               )
             : null,
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showHighlightGuide,
+          backgroundColor: AppTheme.primaryColor,
+          child: Icon(Icons.help_outline, color: Colors.white),
+        ),
         body: GestureDetector(
           onTap: controller.toggleUIVisibility,
           onHorizontalDragEnd: (details) {
@@ -316,5 +321,86 @@ class _BookReadPageState extends State<BookReadPage> {
   void _confirmDeleteHighlight(int bookId, Highlight highlight) async {
     await controller.removeHighlight(bookId, highlight.id);
     setState(() {});
+  }
+
+  // 하이라이트 사용법
+  void _showHighlightGuide() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.backgroundColor,
+          title: Text(
+            "하이라이트 사용법",
+            style: TextStyle(
+              fontFamily: 'Jua',
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildGuideSection("📌 하이라이트 추가 방법", [
+                "1. 텍스트를 길게 드래그하여 원하는 부분을 선택하세요.",
+                "2. 선택된 부분을 클릭하면 하이라이트 저장 여부를 묻는 창이 나타납니다.",
+                "3. '예'을 선택하면 하이라이트가 추가됩니다."
+              ]),
+              SizedBox(height: 16),
+              _buildGuideSection("🗑️ 하이라이트 삭제 방법", [
+                "1. 기존에 하이라이트된 텍스트를 길게 눌러주세요.",
+                "2. 삭제 여부를 묻는 창이 나타나면 '예'를 선택하세요."
+              ]),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                "닫기",
+                style: TextStyle(
+                  fontFamily: 'Jua',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 안내 섹션을 만드는 위젯
+  Widget _buildGuideSection(String title, List<String> steps) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Jua',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 8),
+        ...steps.map(
+          (step) => Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              step,
+              style: TextStyle(
+                fontFamily: 'Jua',
+                fontSize: 16,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

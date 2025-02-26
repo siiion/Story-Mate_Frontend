@@ -718,6 +718,56 @@ class ApiService {
     }
   }
 
+  // 서버에서 퀴즈 데이터 가져오기 (재도전)
+  Future<dynamic> retakeQuiz(
+      String characterName, String bookTitle, String quizType) async {
+    final requestBody = json.encode({
+      "characterName": characterName,
+      "bookTitle": bookTitle,
+      "quizType": quizType
+    });
+
+    print("퀴즈 요청 데이터: $requestBody"); // 요청 데이터 출력
+
+    try {
+      String? accessToken = await getToken();
+
+      if (accessToken == null) {
+        print("엑세스 토큰이 없습니다. 로그인이 필요합니다.");
+        return [];
+      }
+
+      // http.Request를 사용해서 GET 요청에 body 포함
+      final uri = Uri.parse('$baseUrl/api/quiz/question/restart');
+      var request = http.Request('GET', uri)
+        ..headers.addAll({
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        })
+        ..body = requestBody;
+
+      var response = await request.send();
+
+      // 응답 데이터 처리 (전체 응답 출력)
+      if (response.statusCode == 200) {
+        var responseBody = await response.stream.bytesToString();
+        print("서버에서 받은 원본 응답 데이터: $responseBody"); // 응답 데이터 전체 출력
+
+        var decodedData = json.decode(responseBody);
+        print("디코딩된 JSON 데이터: $decodedData"); // JSON 파싱 후 전체 출력
+
+        return decodedData; // 구조 확인만 하고 반환
+      } else {
+        var responseBody = await response.stream.bytesToString();
+        print("퀴즈 데이터 조회 실패 (상태 코드 ${response.statusCode}): $responseBody");
+        return [];
+      }
+    } catch (e) {
+      print("퀴즈 데이터 조회 중 오류 발생: $e");
+      return [];
+    }
+  }
+
   // 퀴즈 답안 제출 (GET 요청에 body 포함)
   Future<Map<String, dynamic>?> submitQuizAnswer(String characterName,
       String bookTitle, String quizType, String userAnswer) async {
