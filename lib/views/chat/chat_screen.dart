@@ -17,12 +17,12 @@ class ChatScreen extends StatefulWidget {
   final String bookTitle;
   final int roomId;
 
-  ChatScreen({
+  const ChatScreen({
     required this.charactersName,
     required this.bookTitle,
     required this.roomId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -110,14 +110,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void startConnectionMonitor() {
     pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      Duration timeSinceLastMessage =
-          DateTime.now().difference(lastMessageReceived);
-      if (timeSinceLastMessage.inSeconds > 90) {
-        print("서버 응답 없음 -> 웹소켓 재연결 시도");
-        reconnectWebSocket();
-      } else {
-        sendPingMessage();
-      }
+      // Duration timeSinceLastMessage =
+      //     DateTime.now().difference(lastMessageReceived);
+
+      // if (timeSinceLastMessage.inSeconds > 90) {
+      //   print("서버 응답 없음 -> 웹소켓 재연결 시도");
+      //   reconnectWebSocket();
+      // } else {
+      //   sendPingMessage();
+      // }
+      sendPingMessage();
     });
   }
 
@@ -381,10 +383,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void connectWebSocket() {
-    if (roomId == null) {
-      debugPrint(" 연결할 채팅방 없음");
-      return;
-    }
     if (channel != null) {
       debugPrint(" 이미 연결된 웹소켓 존재");
       return;
