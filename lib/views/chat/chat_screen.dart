@@ -117,15 +117,16 @@ class _ChatScreenState extends State<ChatScreen> {
   // Ping 메시지 전송 및 연결 유지 로직
   void startConnectionMonitor() {
     pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      Duration timeSinceLastMessage =
-          DateTime.now().difference(lastMessageReceived);
+      // Duration timeSinceLastMessage =
+      //     DateTime.now().difference(lastMessageReceived);
 
-      if (timeSinceLastMessage.inSeconds > 90) {
-        print("서버 응답 없음 -> 웹소켓 재연결 시도");
-        reconnectWebSocket();
-      } else {
-        sendPingMessage();
-      }
+      // if (timeSinceLastMessage.inSeconds > 90) {
+      //   print("서버 응답 없음 -> 웹소켓 재연결 시도");
+      //   reconnectWebSocket();
+      // } else {
+      //   sendPingMessage();
+      // }
+      sendPingMessage();
     });
   }
 
