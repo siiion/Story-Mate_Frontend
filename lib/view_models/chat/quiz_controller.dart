@@ -1,16 +1,19 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/services/api_service.dart';
 
 class QuizController extends GetxController {
   final ApiService apiService = ApiService();
+  late SharedPreferences prefs;
 
   var quizList = <Map<String, dynamic>>[].obs; // 모든 퀴즈 데이터 저장
-  var currentQuizIndex = 0.obs; // 현재 퀴즈 인덱스
   var isLoading = true.obs;
   var isSubmitting = false.obs;
+
+  var previousSubmissions = <String, bool>{}.obs;
 
   var isEssaySubmitting = false.obs; // 에세이 제출 로딩 상태
   var essayResponse = ''.obs; // 에세이 응답 메시지
@@ -30,8 +33,10 @@ class QuizController extends GetxController {
   var essayAnswers = <int, String>{}.obs; // 에세이 답변 저장 (index, 텍스트)
   var essayResponses = <int, String>{}.obs; // 에세이 서버 응답 저장
 
+  var isQuizRetake = false.obs; // 사용자의 퀴즈 제출 여부 저장
+
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
 
     if (Get.arguments != null) {
@@ -42,34 +47,158 @@ class QuizController extends GetxController {
       bookTitle = "UnknownBook";
     }
 
-    fetchAllQuizzes();
+    prefs = await SharedPreferences.getInstance();
+    Get.put(prefs);
+
+    checkQuizSubmissionStatus();
   }
 
-  // 모든 퀴즈 데이터 요청
-  Future<void> fetchAllQuizzes() async {
-    isLoading.value = true;
-
+  /// 사용자의 퀴즈 제출 여부 확인 (각 타입별 저장)
+  Future<void> checkQuizSubmissionStatus() async {
     List<String> quizTypes = ["ox", "multiple_choice", "essay"];
 
+    isLoading.value = true;
+    quizList.clear();
+
     for (String type in quizTypes) {
-      var data = await apiService.fetchQuizData(characterName, bookTitle, type);
-      if (data != null) {
-        Map<String, dynamic>? quizData = data["data"];
-        if (quizData != null) {
-          quizList.add({
-            "type": type,
-            "question": quizData["quiz"],
-          });
-          print("추가된 퀴즈 데이터: ${quizData["quiz"]} | 유형: $type");
-        } else {
-          print("서버에서 해당 유형의 퀴즈 데이터를 받지 못했습니다: $type");
-        }
+      if (hasQuizBeenSubmitted(type)) {
+        await restartQuiz(type); // 해당 퀴즈 타입만 퀴즈 재도전 API 호출
+      } else {
+        await fetchQuiz(type); // 기존 방식으로 퀴즈 불러오기
       }
     }
 
-    print("전체 퀴즈 데이터 목록: $quizList");
-
     isLoading.value = false;
+  }
+
+  /// 특정 타입의 퀴즈 데이터 요청
+  Future<void> fetchQuiz(String quizType) async {
+    var data =
+        await apiService.fetchQuizData(characterName, bookTitle, quizType);
+    if (data != null) {
+      Map<String, dynamic>? quizData = data["data"];
+      if (quizData != null) {
+        quizList.add({
+          "type": quizType,
+          "question": quizData["quiz"],
+        });
+
+        // 퀴즈 목록 정렬 유지
+        quizList.sort((a, b) {
+          List<String> order = ["ox", "multiple_choice", "essay"];
+          return order.indexOf(a["type"]).compareTo(order.indexOf(b["type"]));
+        });
+
+        print("불러온 퀴즈 데이터: ${quizData["quiz"]} | 유형: $quizType");
+      } else {
+        print("서버에서 해당 유형의 퀴즈 데이터를 받지 못했습니다: $quizType");
+      }
+    }
+  }
+
+  /// 특정 타입의 퀴즈 재도전 API 호출 (메시지 1개 차감)
+  Future<void> restartQuiz(String quizType) async {
+    print("퀴즈 재도전 요청: $quizType");
+
+    var response =
+        await apiService.retakeQuiz(characterName, bookTitle, quizType);
+    if (response != null && response["data"] != null) {
+      print("재도전한 퀴즈 데이터 수신 완료: ${response["data"]["quiz"]}");
+
+      // 기존 리스트에서 해당 타입의 퀴즈 제거 후 갱신
+      quizList.removeWhere((quiz) => quiz["type"] == quizType);
+      quizList.add({
+        "type": quizType,
+        "question": response["data"]["quiz"],
+      });
+
+      print("퀴즈 목록 갱신 완료: ${quizList.length}개 존재");
+
+      // 퀴즈 목록 정렬 유지
+      quizList.sort((a, b) {
+        List<String> order = ["ox", "multiple_choice", "essay"];
+        return order.indexOf(a["type"]).compareTo(order.indexOf(b["type"]));
+      });
+
+      saveQuizSubmission(quizType);
+    } else {
+      print("퀴즈 재도전 실패: 서버 응답 없음");
+    }
+  }
+
+  /// 특정 퀴즈 타입의 제출 여부 저장
+  Future<void> saveQuizSubmission(String quizType) async {
+    String key = "quiz_submitted_${bookTitle}_${characterName}_$quizType";
+    await prefs.setBool(key, true);
+  }
+
+  /// 특정 퀴즈 타입이 제출되었는지 확인
+  bool hasQuizBeenSubmitted(String quizType) {
+    String key = "quiz_submitted_${bookTitle}_${characterName}_$quizType";
+    return prefs.getBool(key) ?? false;
+  }
+
+  /// 퀴즈 재도전 안내 다이얼로그
+  void showRetakeAlertDialog() {
+    Get.dialog(
+      Dialog(
+        backgroundColor: AppTheme.backgroundColor, // 다이얼로그 배경색
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // 둥근 모서리 설정
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 내용만큼만 크기 설정
+            mainAxisAlignment: MainAxisAlignment.spaceAround, // 요소 간 공간 배분
+            children: [
+              // 다이얼로그 제목
+              Text(
+                "퀴즈 재도전",
+                style: TextStyle(
+                  fontFamily: 'Jua',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black, // 텍스트 색상
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10.h),
+
+              // 안내 메시지
+              Text(
+                "퀴즈 재도전을 진행하여\n메시지 개수가 1개 차감되었습니다.",
+                style: TextStyle(
+                  fontFamily: 'Jua',
+                  fontSize: 18,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20.h),
+
+              // 확인 버튼
+              ElevatedButton(
+                onPressed: () {
+                  Get.back(); // 다이얼로그 닫기
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor, // 버튼 색상 설정
+                ),
+                child: Text(
+                  "확인",
+                  style: TextStyle(
+                    fontFamily: 'Jua',
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   List<String> parseOptionsFromQuestion(String question) {
@@ -120,6 +249,15 @@ class QuizController extends GetxController {
     }
 
     try {
+      // 이전 제출 여부 확인
+      if (previousSubmissions[quizType] == true) {
+        print("이미 제출한 퀴즈 재도전: $quizType");
+        showRetakeAlertDialog();
+        await restartQuiz(quizType);
+        isSubmitting.value = false;
+        return;
+      }
+
       // 서버로 답안 제출 (GET 요청 유지)
       var response = await apiService.submitQuizAnswer(
           characterName, bookTitle, quizType, userAnswer);
@@ -163,15 +301,19 @@ class QuizController extends GetxController {
         } else {
           showResultDialog(context, "$resultMessage\n$messageIncrement");
         }
+
+        // 해당 퀴즈 타입이 한 번 제출됨을 저장
+        previousSubmissions[quizType] = true;
+        saveQuizSubmission(quizType);
       } else {
         print("퀴즈 제출 실패");
         // 서버 응답이 실패했을 경우
-        showErrorDialog(context, "서버 오류가 발생했습니다. 다시 시도해주세요.");
+        showErrorDialog(context, "서버 오류가 발생했습니다.\n다시 시도해주세요.");
       }
     } catch (e) {
       // 네트워크 오류나 예외 발생 시
       print("퀴즈 제출 중 오류 발생: $e");
-      showErrorDialog(context, "서버 연결 중 오류가 발생했습니다. 네트워크 상태를 확인하세요.");
+      showErrorDialog(context, "서버 연결 중 오류가 발생했습니다.\n네트워크 상태를 확인하세요.");
     }
 
     isSubmitting.value = false;
