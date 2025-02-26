@@ -23,7 +23,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
     fetchChatRooms();
   }
 
-  //  로그인한 사용자의 채팅방 목록 가져오기 (GET /api/chat-rooms)
+  //  서버에서 채팅방 데이터 가져오기 (대화 기록 필터링 안 함)
   Future<void> fetchChatRooms() async {
     setState(() {
       isLoading = true;
@@ -39,36 +39,33 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://be.dev.storymate.site/api/chat-rooms?page=0&size=10'),
+            'https://be.dev.storymate.site/api/chat-rooms?page=0&size=30'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      String decodedResponse = utf8.decode(response.bodyBytes);
-      final responseData = json.decode(decodedResponse);
+      if (response.statusCode == 200) {
+        String decodedResponse = utf8.decode(response.bodyBytes);
+        final responseData = json.decode(decodedResponse);
+        print(" 서버 응답: $decodedResponse");
 
-      print(" 서버 응답: $decodedResponse"); //  서버 응답을 출력하여 확인
-      if (responseData.containsKey('data') && responseData['data'] != null) {
-        final List<dynamic> chatRoomList =
-            responseData['data']['chatRoomResDtos'] ?? [];
+        if (responseData.containsKey('data') && responseData['data'] != null) {
+          List<dynamic> chatRoomList =
+              responseData['data']['chatRoomResDtos'] ?? [];
 
-        if (response.statusCode == 200) {
+          //  대화 기록 필터링 없이 모든 방 표시
+          chatRooms = chatRoomList;
+
           setState(() {
-            chatRooms = chatRoomList; //  올바르게 chatRooms 업데이트
             isLoading = false;
           });
 
-          if (chatRooms.isEmpty) {
-            print(" 채팅방 데이터가 비어 있습니다.");
-          } else {
-            print(" 불러온 채팅방 개수: ${chatRooms.length}");
-          }
+          print(" 불러온 채팅방 개수: ${chatRooms.length}");
         } else {
-          print(" 채팅방 조회 실패: ${response.statusCode}");
-          print("서버 응답: $decodedResponse");
+          print(" 'data' 키가 서버 응답에 없음.");
           setState(() => isLoading = false);
         }
       } else {
-        print(" 'data' 키가 서버 응답에 없습니다.");
+        print(" 채팅방 조회 실패: ${response.statusCode}");
         setState(() => isLoading = false);
       }
     } catch (e) {
@@ -77,13 +74,13 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
     }
   }
 
-  //  SharedPreferences에서 토큰 가져오기
+  // SharedPreferences에서 토큰 가져오기
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('accessToken');
   }
 
-  //  특정 채팅방으로 이동 (이전 대화 보기 기능)
+  // 특정 채팅방으로 이동 (이전 대화 보기 기능)
   void openChatRoom(int roomId, String? bookTitle) {
     Get.toNamed(AppRoutes.CHAT_HISTORY, arguments: {
       "roomId": roomId,
@@ -108,7 +105,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : (chatRooms.isEmpty || chatRooms == null)
+          : chatRooms.isEmpty
               ? const Center(
                   child: Text(
                     "참여한 채팅방이 없습니다.",
@@ -150,7 +147,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  //  캐릭터 이미지 or 첫 글자 CircleAvatar
+                                  // 캐릭터 이미지 or 첫 글자 CircleAvatar
                                   charactersImage != null &&
                                           charactersImage.isNotEmpty
                                       ? CircleAvatar(
@@ -167,9 +164,9 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                         ),
-                                  SizedBox(width: 12), //  간격 추가
+                                  SizedBox(width: 12),
 
-                                  //  채팅방 제목 및 책 제목
+                                  // 채팅방 제목, 책 제목
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -181,16 +178,16 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                          overflow:
-                                              TextOverflow.ellipsis, // 긴 텍스트 줄임
+                                          overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                         ),
                                         SizedBox(height: 4),
                                         Text(
                                           bookTitle,
                                           style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[600]),
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                         ),
@@ -198,7 +195,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                                     ),
                                   ),
 
-                                  //  이전 대화 보기 버튼
+                                  // 이전 대화 보기 버튼
                                   ElevatedButton(
                                     onPressed: () {
                                       if (roomId != 0) {
@@ -207,17 +204,6 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                                         print(" roomId가 0이므로 이동하지 않음");
                                       }
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(
-                                            color: Colors.purple[50]!,
-                                            width: 1),
-                                      ),
-                                    ),
                                     child: Text(
                                       "이전 대화 보기",
                                       style: TextStyle(

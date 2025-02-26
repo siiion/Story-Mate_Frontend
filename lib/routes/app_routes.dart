@@ -103,7 +103,11 @@ class AppRoutes {
     // 채팅 화면
     GetPage(
       name: CHAT,
-      page: () => ChatScreen(),
+      page: () => ChatScreen(
+        roomId: Get.arguments["roomId"] ?? 0,
+        charactersName: Get.arguments["charactersName"] ?? "기본값",
+        bookTitle: Get.arguments["bookTitle"] ?? "기본값",
+      ),
     ),
     //퀴즈화면
     GetPage(

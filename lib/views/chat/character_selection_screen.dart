@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storymate/components/theme.dart';
 import 'package:storymate/services/api_service.dart';
+import 'package:storymate/views/chat/chat_screen.dart';
 import '../../../components/custom_bottom_bar.dart';
 import '../../../routes/app_routes.dart';
 import 'dart:convert';
@@ -126,6 +127,22 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen>
   ];
 
   List<Map<String, dynamic>> filteredCharacters = [];
+
+  void selectCharacter(
+      int characterId, String characterName, String bookTitle) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 새로운 캐릭터를 선택하면 기존 채팅방 ID 초기화
+    await prefs.setInt('lastRoomId', characterId);
+
+    print(" 캐릭터 선택됨: ID=$characterId, 이름=$characterName, 책=$bookTitle");
+
+    Get.to(() => ChatScreen(
+          roomId: characterId,
+          charactersName: characterName,
+          bookTitle: bookTitle,
+        ));
+  }
 
   // 검색 기능 추가
   void filterCharacters(String query) {

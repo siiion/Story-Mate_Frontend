@@ -4,8 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
+  final TextStyle? textStyle;
 
-  const ChatBubble({required this.message, super.key});
+  const ChatBubble({required this.message, super.key, this.textStyle});
 
   @override
   Widget build(BuildContext context) {
