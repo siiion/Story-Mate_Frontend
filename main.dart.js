@@ -30304,7 +30304,7 @@ q=A.TZ("GetStorage").e
 q===$&&A.b()
 s=2
 return A.p(q,$async$aRB)
-case 2:$.bfu.b="9b800199345edd7cccb05ce7ca02aa57"
+case 2:$.bfu.b="a64d30d610d163d89384993828a69ab6"
 $.ij.b=""
 q=$.ij.aF()
 q="kakao"+q
