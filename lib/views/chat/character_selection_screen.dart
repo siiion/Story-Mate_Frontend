@@ -270,6 +270,7 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         forceMaterialTransparency: true,
         backgroundColor: Colors.purple[50],
         elevation: 0,
