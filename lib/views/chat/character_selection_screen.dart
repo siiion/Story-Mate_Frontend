@@ -71,12 +71,6 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen>
       "image": "assets/characters/ch.3-1.png"
     },
     {
-      "id": 4,
-      "name": "심청",
-      "book": "심봉사",
-      "image": "assets/characters/ch.4-1.png"
-    },
-    {
       "id": 5,
       "name": "심봉사",
       "book": "심봉사",
